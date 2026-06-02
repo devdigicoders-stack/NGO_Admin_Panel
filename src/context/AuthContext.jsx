@@ -1,30 +1,36 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-const API_BASE_URL = import.meta.env.VITE_API_BASE;
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE;
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
+
+const getToken = () => localStorage.getItem('admin_token');
+const saveToken = (t) => localStorage.setItem('admin_token', t);
+const clearToken = () => localStorage.removeItem('admin_token');
+
+const authHeaders = () => {
+  const t = getToken();
+  return t ? { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` } : { 'Content-Type': 'application/json' };
+};
 
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check auth on mount
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
+    const token = getToken();
+    if (!token) { setLoading(false); return; }
     try {
       const res = await fetch(`${API_BASE_URL}/auth/profile`, {
-        credentials: 'include' // to send/receive cookies
+        headers: authHeaders(),
+        credentials: 'include',
       });
       const data = await res.json();
-      if (data.success) {
-        setAdmin(data.data);
-      } else {
-        setAdmin(null);
-      }
+      if (data.success) setAdmin(data.data);
+      else { clearToken(); setAdmin(null); }
     } catch (err) {
       console.error('Error fetching profile:', err);
       setAdmin(null);
@@ -39,10 +45,11 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        credentials: 'include',
       });
       const data = await res.json();
       if (data.success) {
+        if (data.data?.token) saveToken(data.data.token);
         setAdmin(data.data);
         return { success: true };
       }
@@ -57,11 +64,13 @@ export const AuthProvider = ({ children }) => {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
-        credentials: 'include'
+        headers: authHeaders(),
+        credentials: 'include',
       });
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
+      clearToken();
       setAdmin(null);
     }
   };
@@ -70,18 +79,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/profile`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(updates),
-        credentials: 'include'
+        credentials: 'include',
       });
       const data = await res.json();
-      if (data.success) {
-        setAdmin(data.data);
-        return { success: true };
-      }
+      if (data.success) { setAdmin(data.data); return { success: true }; }
       return { success: false, message: data.message };
     } catch (err) {
-      console.error('Update profile error:', err);
       return { success: false, message: 'Update failed.' };
     }
   };
@@ -90,18 +95,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/prefs`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ prefs }),
-        credentials: 'include'
+        credentials: 'include',
       });
       const data = await res.json();
-      if (data.success) {
-        setAdmin(data.data);
-        return { success: true };
-      }
+      if (data.success) { setAdmin(data.data); return { success: true }; }
       return { success: false, message: data.message };
     } catch (err) {
-      console.error('Update prefs error:', err);
       return { success: false, message: 'Update failed.' };
     }
   };
@@ -113,7 +114,6 @@ export const AuthProvider = ({ children }) => {
       setAdmin(data);
       return { success: true, data };
     } catch (err) {
-      console.error('Avatar upload error:', err);
       return { success: false, message: err.message || 'Avatar upload failed.' };
     }
   };

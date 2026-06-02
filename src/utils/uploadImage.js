@@ -1,4 +1,8 @@
 const API_BASE = import.meta.env.VITE_API_BASE;
+const getAuthHeader = () => {
+  const t = localStorage.getItem('admin_token');
+  return t ? { Authorization: `Bearer ${t}` } : {};
+};
 
 /**
  * Upload image to backend (local storage).
@@ -13,6 +17,7 @@ export async function uploadImage(file, category = 'general') {
 
   const res = await fetch(`${API_BASE}/upload`, {
     method: 'POST',
+    headers: getAuthHeader(),
     body: formData,
     credentials: 'include',
   });
@@ -34,6 +39,7 @@ export async function uploadAvatar(file) {
 
   const res = await fetch(`${API_BASE}/auth/avatar`, {
     method: 'POST',
+    headers: getAuthHeader(),
     body: formData,
     credentials: 'include',
   });
