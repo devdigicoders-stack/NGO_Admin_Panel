@@ -6,11 +6,20 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 const getToken = () => localStorage.getItem('admin_token');
-const saveToken = (t) => localStorage.setItem('admin_token', t);
-const clearToken = () => localStorage.removeItem('admin_token');
+const saveToken = (t) => {
+  localStorage.setItem('admin_token', t);
+  console.log('✓ Token saved to localStorage:', t?.substring(0, 20) + '...');
+};
+const clearToken = () => {
+  localStorage.removeItem('admin_token');
+  console.log('✓ Token cleared from localStorage');
+};
 
 const authHeaders = () => {
   const t = getToken();
+  if (t) {
+    console.log('📤 Sending Bearer token:', t.substring(0, 20) + '...');
+  }
   return t ? { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` } : { 'Content-Type': 'application/json' };
 };
 
@@ -22,26 +31,49 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async (retries = 3) => {
     const token = getToken();
-    if (!token) { setLoading(false); return; }
+    console.log(`📥 fetchProfile (retry: ${4 - retries}/3) - Token exists:`, !!token);
+    
+    if (!token) {
+      console.log('⚠️  No token found, skipping profile fetch');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
+      const timeout = setTimeout(() => {
+        controller.abort();
+        console.log('⏱️  Profile fetch timeout (15s)');
+      }, 15000);
+      
+      console.log(`🔄 Fetching profile from ${API_BASE_URL}/auth/profile`);
       const res = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: authHeaders(),
         credentials: 'include',
         signal: controller.signal,
       });
       clearTimeout(timeout);
+      
+      console.log('📡 Profile response status:', res.status, res.statusText);
       const data = await res.json();
-      if (data.success) setAdmin(data.data);
-      else { clearToken(); setAdmin(null); }
+      
+      if (data.success) {
+        console.log('✅ Profile fetched successfully');
+        setAdmin(data.data);
+      } else {
+        console.error('❌ Profile fetch failed:', data.message);
+        clearToken();
+        setAdmin(null);
+      }
       setLoading(false);
     } catch (err) {
+      console.error('⚠️  Profile fetch error:', err.message);
       if (retries > 1) {
+        console.log(`🔄 Retrying... (${4 - retries}/3)`);
         await new Promise(r => setTimeout(r, 2000));
         return fetchProfile(retries - 1);
       }
-      console.error('Error fetching profile:', err);
+      console.error('❌ Profile fetch failed after all retries');
       setAdmin(null);
       setLoading(false);
     }
@@ -49,6 +81,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Attempting login for:', email);
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,20 +89,29 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       const data = await res.json();
+      
       if (data.success) {
-        if (data.data?.token) saveToken(data.data.token);
+        console.log('✅ Login successful');
+        if (data.data?.token) {
+          console.log('💾 Token received in response');
+          saveToken(data.data.token);
+        } else {
+          console.warn('⚠️  No token in login response');
+        }
         setAdmin(data.data);
         return { success: true };
       }
+      console.error('❌ Login failed:', data.message);
       return { success: false, message: data.message };
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('❌ Login error:', err);
       return { success: false, message: 'An error occurred during login.' };
     }
   };
 
   const logout = async () => {
     try {
+      console.log('👋 Logging out...');
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: authHeaders(),
