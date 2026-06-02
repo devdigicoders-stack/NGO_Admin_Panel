@@ -119,8 +119,8 @@ const NewsManagement = () => {
     setError(null);
     try {
       const [newsRes, settingsRes] = await Promise.all([
-        fetch(`${API_BASE}/news`),
-        fetch(`${API_BASE}/news/settings`),
+        fetch(`${API_BASE}/news`, { credentials: 'include' }),
+        fetch(`${API_BASE}/news/settings`, { credentials: 'include' }),
       ]);
       const newsJson = await newsRes.json();
       const settingsJson = await settingsRes.json();
@@ -215,6 +215,7 @@ const NewsManagement = () => {
       const res = await fetch(url, {
         method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           ...form,
           commentCount: Number(form.commentCount),
@@ -242,6 +243,7 @@ const NewsManagement = () => {
       const res = await fetch(`${API_BASE}/news/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(settings),
       });
       const json = await res.json();
@@ -255,7 +257,7 @@ const NewsManagement = () => {
   };
 
   const handleToggle = async (id) => {
-    const res = await fetch(`${API_BASE}/news/${id}/toggle`, { method: 'PATCH' });
+    const res = await fetch(`${API_BASE}/news/${id}/toggle`, { method: 'PATCH', credentials: 'include' });
     const json = await res.json();
     if (json.success) setArticles((prev) => prev.map((a) => (a.id === id ? json.data : a)));
   };
@@ -264,6 +266,7 @@ const NewsManagement = () => {
     const res = await fetch(`${API_BASE}/news/reorder`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ orderedIds }),
     });
     const json = await res.json();
@@ -288,7 +291,7 @@ const NewsManagement = () => {
 
   const handleDelete = async () => {
     if (!itemToDelete) return;
-    const res = await fetch(`${API_BASE}/news/${itemToDelete.id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_BASE}/news/${itemToDelete.id}`, { method: 'DELETE', credentials: 'include' });
     const json = await res.json();
     if (json.success) {
       toast({ title: 'Deleted', status: 'success', duration: 2500, isClosable: true });
