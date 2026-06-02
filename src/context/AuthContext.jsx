@@ -20,21 +20,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => { fetchProfile(); }, []);
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (retries = 3) => {
     const token = getToken();
     if (!token) { setLoading(false); return; }
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: authHeaders(),
         credentials: 'include',
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
       if (data.success) setAdmin(data.data);
       else { clearToken(); setAdmin(null); }
+      setLoading(false);
     } catch (err) {
+      if (retries > 1) {
+        await new Promise(r => setTimeout(r, 2000));
+        return fetchProfile(retries - 1);
+      }
       console.error('Error fetching profile:', err);
       setAdmin(null);
-    } finally {
       setLoading(false);
     }
   };

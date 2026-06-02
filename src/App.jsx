@@ -15,19 +15,26 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
   const { admin, loading } = useAuth();
-  
+  const hasToken = Boolean(localStorage.getItem('admin_token'));
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div style={{ minHeight: '100vh', background: '#05160e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+        <div style={{ width: '48px', height: '48px', border: '4px solid rgba(3,115,95,0.3)', borderTopColor: '#03735F', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'sans-serif', fontSize: '14px' }}>Connecting to server...</p>
       </div>
     );
   }
-  
-  if (!admin) {
+
+  if (!admin && !hasToken) {
     return <Navigate to="/login" replace />;
   }
-  
+
+  if (!admin && hasToken) {
+    return <Navigate to="/login" replace />;
+  }
+
   return <Layout>{children}</Layout>;
 };
 
