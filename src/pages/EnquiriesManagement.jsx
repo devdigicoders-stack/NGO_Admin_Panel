@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../utils/apiClient.js';
 import {
   VStack,
   HStack,
@@ -168,15 +169,12 @@ const EnquiriesManagement = () => {
       if (search.trim()) params.set('search', search.trim());
 
       const [listRes, statsRes] = await Promise.all([
-        fetch(`${API_BASE}/enquiries?${params}`, { credentials: 'include' }),
-        fetch(`${API_BASE}/enquiries/stats`, { credentials: 'include' }),
+        apiClient(`/enquiries?${params}`),
+        apiClient(`/enquiries/stats`),
       ]);
 
-      const listJson = await listRes.json();
-      const statsJson = await statsRes.json();
-
-      if (listJson.success) setEnquiries(listJson.data || []);
-      if (statsJson.success) setStats(statsJson.data || {});
+      if (listRes.success) setEnquiries(listRes.data || []);
+      if (statsRes.success) setStats(statsRes.data || {});
     } catch (err) {
       console.error(err);
       toast({ title: 'Failed to load enquiries', status: 'error', duration: 3000 });
@@ -199,13 +197,10 @@ const EnquiriesManagement = () => {
     if (!selected) return;
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/enquiries/${selected.id}`, {
+      const json = await apiClient(`/enquiries/${selected.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(editForm),
       });
-      const json = await res.json();
       if (!json.success) throw new Error(json.message);
 
       toast({ title: 'Enquiry updated', status: 'success', duration: 2500 });
@@ -221,11 +216,9 @@ const EnquiriesManagement = () => {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const res = await fetch(`${API_BASE}/enquiries/${itemToDelete.id}`, {
+      const json = await apiClient(`/enquiries/${itemToDelete.id}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
-      const json = await res.json();
       if (!json.success) throw new Error(json.message);
 
       toast({ title: 'Enquiry deleted', status: 'success', duration: 2500 });
