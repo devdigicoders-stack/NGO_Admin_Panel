@@ -16,8 +16,7 @@ import StatCards from '../components/dashboard/StatCards.jsx';
 import AnalyticsChart from '../components/dashboard/AnalyticsChart.jsx';
 import ModuleOverview from '../components/dashboard/ModuleOverview.jsx';
 import RecentActivity from '../components/dashboard/RecentActivity.jsx';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiClient } from '../utils/apiClient.js';
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -37,8 +36,7 @@ const Dashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/dashboard`, { credentials: 'include' });
-      const json = await res.json();
+      const json = await apiClient('/dashboard');
       if (!json.success) throw new Error(json.message || 'Failed to load dashboard');
       setData(json.data);
     } catch (err) {
