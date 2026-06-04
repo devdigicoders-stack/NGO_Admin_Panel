@@ -18,10 +18,10 @@ import { FiActivity } from 'react-icons/fi';
 
 const STATUS_COLORS = {
   pending: 'orange',
-  confirmed: 'green',
+  confirmed: 'brand',
   cancelled: 'red',
   in_progress: 'blue',
-  resolved: 'green',
+  resolved: 'brand',
   closed: 'gray',
 };
 
@@ -36,17 +36,17 @@ const formatAmount = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 const RecentActivity = ({ items, loading }) => {
   const navigate = useNavigate();
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const cardBorder = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const textMuted = useColorModeValue('#4a9085', '#7ab8ae');
-  const itemHover = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const cardBorder = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const textMuted = useColorModeValue('#a05040', '#c08070');
+  const itemHover = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
 
   return (
     <Card bg={cardBg} border="1px solid" borderColor={cardBorder} borderRadius="2xl" shadow="sm">
       <CardBody p={{ base: 4, sm: 5 }}>
         <HStack spacing={2} mb={0.5}>
-          <Icon as={FiActivity} color="#03735F" fontSize="lg" />
+          <Icon as={FiActivity} color="#821905" fontSize="lg" />
           <Text fontSize="md" fontWeight="800" color={titleColor}>Recent Activity</Text>
         </HStack>
         <Text fontSize="xs" color={textMuted} mb={4}>Latest donations, enquiries and donation queries.</Text>
@@ -75,7 +75,7 @@ const RecentActivity = ({ items, loading }) => {
               >
                 <Box flex={1} minW={0}>
                   <HStack spacing={2} mb={0.5}>
-                    <Badge colorScheme="teal" borderRadius="full" fontSize="9px" px={2}>
+                    <Badge colorScheme="brand" borderRadius="full" fontSize="9px" px={2}>
                       {item.typeLabel}
                     </Badge>
                     <Badge colorScheme={STATUS_COLORS[item.status] || 'gray'} borderRadius="full" fontSize="9px" px={2} textTransform="capitalize">

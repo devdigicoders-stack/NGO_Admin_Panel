@@ -44,11 +44,11 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
 
-  const headerBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const itemHoverBg = useColorModeValue('rgba(3,115,95,0.07)', 'rgba(93,219,187,0.12)');
-  const iconColor = useColorModeValue('#1a5045', '#a8d8cf');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
+  const headerBg    = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor  = useColorModeValue('#f0c4bb', '#4a1208');
+  const itemHoverBg  = useColorModeValue('rgba(130,25,5,0.07)', 'rgba(232,144,122,0.12)');
+  const iconColor    = useColorModeValue('#5c1204', '#f0d8d4');
+  const titleColor   = useColorModeValue('#2e0d09', '#f5e0dc');
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -68,7 +68,7 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
       bg={headerBg}
       borderBottom="1px"
       borderColor={borderColor}
-      boxShadow={colorMode === 'dark' ? '0 2px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(3,115,95,0.06)'}
+      boxShadow={colorMode === 'dark' ? '0 2px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(130,25,5,0.07)'}
       transition="all 0.2s ease"
     >
       <Flex h="full" alignItems="center" justifyContent="space-between">
@@ -129,7 +129,7 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
                   size="sm"
                   src={resolveImageUrl(admin?.avatar) || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80"}
                   name={admin?.name || "Admin"}
-                  border="2px solid #03735F"
+                  border="2px solid #821905"
                 />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
@@ -140,7 +140,7 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
                   <Text fontSize="sm" fontWeight="600" color={titleColor}>
                     {admin?.name || "Administrator"}
                   </Text>
-                  <Text fontSize="10px" color="#4a9085">
+                  <Text fontSize="10px" color="#a05040">
                     Administrator
                   </Text>
                 </VStack>
@@ -149,12 +149,12 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
             <MenuList
               bg={headerBg}
               borderColor={borderColor}
-              boxShadow="0 8px 32px rgba(3,115,95,0.15)"
+              boxShadow="0 8px 32px rgba(130,25,5,0.15)"
               borderRadius="2xl"
               p={1.5}
             >
               <Box px={3} py={2} mb={1}>
-                <Text fontSize="xs" color="#4a9085">Signed in as</Text>
+                <Text fontSize="xs" color="#a05040">Signed in as</Text>
                 <Text fontWeight="700" fontSize="sm" color={titleColor}>{admin?.email || "admin@ngo.org"}</Text>
               </Box>
               <MenuDivider borderColor={borderColor} />
@@ -162,7 +162,7 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
                 icon={<FiUser />}
                 borderRadius="lg"
                 onClick={() => navigate('/settings')}
-                _hover={{ bg: itemHoverBg, color: '#03735F' }}
+                _hover={{ bg: itemHoverBg, color: '#821905' }}
                 fontSize="sm"
               >
                 My Profile
@@ -171,7 +171,7 @@ const Header = ({ onOpenSidebar, onToggleCollapse, isCollapsed }) => {
                 icon={<FiSettings />}
                 borderRadius="lg"
                 onClick={() => navigate('/settings')}
-                _hover={{ bg: itemHoverBg, color: '#03735F' }}
+                _hover={{ bg: itemHoverBg, color: '#821905' }}
                 fontSize="sm"
               >
                 Settings

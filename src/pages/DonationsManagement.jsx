@@ -5,18 +5,21 @@ import {
   ModalCloseButton, FormControl, FormLabel, Input, Textarea, useDisclosure, useToast,
   SimpleGrid, Flex, Select, IconButton, InputGroup, InputLeftElement, Table,
   Thead, Tbody, Tr, Th, Td, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel,
+  Image,
 } from '@chakra-ui/react';
 import {
   FiRefreshCw, FiSearch, FiHeart, FiTrash2, FiEye, FiCheckCircle, FiClock,
   FiXCircle, FiSave, FiSettings, FiList, FiEdit2, FiLock, FiUser, FiMail, FiPhone,
-  FiCalendar, FiCopy, FiExternalLink, FiTag, FiDollarSign,
+  FiCalendar, FiCopy, FiExternalLink, FiTag, FiDollarSign, FiFileText,
 } from 'react-icons/fi';
+import DonationLetterModal from '../components/DonationLetterModal';
+import { resolveImageUrl } from '../utils/imageUrl';
 
-const API_BASE = import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.DEV ? '/api' : import.meta.env.VITE_API_BASE;
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: 'orange' },
-  { value: 'confirmed', label: 'Confirmed', color: 'green' },
+  { value: 'confirmed', label: 'Confirmed', color: 'brand' },
   { value: 'cancelled', label: 'Cancelled', color: 'red' },
 ];
 
@@ -32,7 +35,7 @@ const formatAmount = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const DetailField = ({ label, value, icon, href, onCopy, mutedColor, titleColor, borderColor, fieldBg }) => (
   <Box p={3} borderRadius="xl" border="1px solid" borderColor={borderColor} bg={fieldBg}>
     <HStack spacing={1.5} mb={1.5}>
-      {icon && <Icon as={icon} fontSize="12" color="#03735F" />}
+      {icon && <Icon as={icon} fontSize="12" color="#821905" />}
       <Text fontSize="10px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" color={mutedColor}>
         {label}
       </Text>
@@ -44,7 +47,7 @@ const DetailField = ({ label, value, icon, href, onCopy, mutedColor, titleColor,
           href={href}
           fontSize="sm"
           fontWeight="600"
-          color="#03735F"
+          color="#821905"
           wordBreak="break-all"
           _hover={{ textDecoration: 'underline' }}
         >
@@ -94,6 +97,13 @@ const DonationsManagement = () => {
   const toast = useToast();
   const detailModal = useDisclosure();
   const deleteModal = useDisclosure();
+  const letterModal = useDisclosure();
+  const [letterDonation, setLetterDonation] = useState(null);
+
+  const openLetter = (item) => {
+    setLetterDonation(item);
+    letterModal.onOpen();
+  };
 
   const [tabIndex, setTabIndex] = useState(0);
   const [settingsEditMode, setSettingsEditMode] = useState(false);
@@ -116,17 +126,17 @@ const DonationsManagement = () => {
   const [saving, setSaving] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
-  const thColor = useColorModeValue('#03735F', '#5ddbbb');
-  const thBg = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
-  const rowHover = useColorModeValue('rgba(3,115,95,0.03)', 'rgba(93,219,187,0.05)');
-  const tdBorder = useColorModeValue('#eaf5f2', 'rgba(255,255,255,0.06)');
-  const inputBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.1)');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
+  const thColor = useColorModeValue('#821905', '#e8907a');
+  const thBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
+  const rowHover = useColorModeValue('rgba(130,25,5,0.03)', 'rgba(232,144,122,0.05)');
+  const tdBorder = useColorModeValue('#faeae7', 'rgba(255,255,255,0.06)');
+  const inputBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.1)');
   const pendingRowBg = useColorModeValue('rgba(245,180,0,0.04)', 'rgba(245,180,0,0.06)');
-  const sectionBg = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
+  const sectionBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
   const fieldBg = useColorModeValue('#f8fcfb', 'rgba(255,255,255,0.04)');
   const lockedHeaderBg = useColorModeValue('#f8faf9', 'rgba(0,0,0,0.15)');
   const lockOverlayBg = useColorModeValue('rgba(255,255,255,0.55)', 'rgba(10,46,39,0.65)');
@@ -332,7 +342,7 @@ const DonationsManagement = () => {
       <Flex justify="space-between" align={{ base: 'stretch', md: 'center' }} direction={{ base: 'column', md: 'row' }} gap={4}>
         <Box>
           <HStack spacing={2} mb={1}>
-            <Icon as={FiHeart} color="#03735F" />
+            <Icon as={FiHeart} color="#821905" />
             <Text fontSize="xl" fontWeight="800" color={titleColor} fontFamily="'Outfit', sans-serif">
               Donations Management
             </Text>
@@ -346,7 +356,7 @@ const DonationsManagement = () => {
         </Button>
       </Flex>
 
-      <Tabs index={tabIndex} onChange={handleTabChange} variant="soft-rounded" colorScheme="green">
+      <Tabs index={tabIndex} onChange={handleTabChange} variant="soft-rounded" colorScheme="brand">
         <TabList mb={4} gap={2}>
           <Tab borderRadius="xl" fontWeight="700" fontSize="sm"><Icon as={FiList} mr={2} />Donation Records</Tab>
           <Tab borderRadius="xl" fontWeight="700" fontSize="sm"><Icon as={FiSettings} mr={2} />Page Settings</Tab>
@@ -356,11 +366,11 @@ const DonationsManagement = () => {
           <TabPanel px={0}>
             <SimpleGrid columns={{ base: 2, md: 5 }} spacing={4} mb={4}>
               {[
-                { label: 'Total', value: stats.total, icon: FiHeart, color: '#03735F' },
+                { label: 'Total', value: stats.total, icon: FiHeart, color: '#821905' },
                 { label: 'Pending', value: stats.pending, icon: FiClock, color: '#d97706' },
                 { label: 'Confirmed', value: stats.confirmed, icon: FiCheckCircle, color: '#16a34a' },
                 { label: 'Cancelled', value: stats.cancelled, icon: FiXCircle, color: '#dc2626' },
-                { label: 'Confirmed ₹', value: formatAmount(stats.confirmedAmount), icon: FiHeart, color: '#03735F' },
+                { label: 'Confirmed ₹', value: formatAmount(stats.confirmedAmount), icon: FiHeart, color: '#821905' },
               ].map((s) => (
                 <Card key={s.label} bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl">
                   <CardBody py={4}>
@@ -387,7 +397,7 @@ const DonationsManagement = () => {
               </Box>
 
               {loading ? (
-                <Flex justify="center" py={12}><Spinner color="#03735F" /></Flex>
+                <Flex justify="center" py={12}><Spinner color="#821905" /></Flex>
               ) : (
                 <Box overflowX="auto">
                   <Table variant="simple" size="md">
@@ -414,7 +424,10 @@ const DonationsManagement = () => {
                           <Td borderColor={tdBorder} fontSize="xs" color={mutedColor} whiteSpace="nowrap">{formatDate(d.createdAt)}</Td>
                           <Td borderColor={tdBorder} onClick={(e) => e.stopPropagation()}>
                             <HStack>
-                              <IconButton aria-label="View" icon={<FiEye />} size="sm" variant="ghost" color="#03735F" onClick={() => openDetail(d)} />
+                              <IconButton aria-label="View" icon={<FiEye />} size="sm" variant="ghost" color="#821905" onClick={() => openDetail(d)} />
+                              <Tooltip label="View Letter" hasArrow>
+                                <IconButton aria-label="View Letter" icon={<FiFileText />} size="sm" variant="ghost" color="#821905" onClick={() => openLetter(d)} />
+                              </Tooltip>
                               <IconButton aria-label="Delete" icon={<FiTrash2 />} size="sm" variant="ghost" colorScheme="red" onClick={() => { setItemToDelete(d); deleteModal.onOpen(); }} />
                             </HStack>
                           </Td>
@@ -429,7 +442,7 @@ const DonationsManagement = () => {
 
           <TabPanel px={0}>
             {loading ? (
-              <Flex justify="center" py={12}><Spinner color="#03735F" /></Flex>
+              <Flex justify="center" py={12}><Spinner color="#821905" /></Flex>
             ) : (
               <Card bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl" overflow="hidden">
                 <Flex
@@ -445,7 +458,7 @@ const DonationsManagement = () => {
                 >
                   <HStack spacing={2}>
                     {settingsEditMode ? (
-                      <Icon as={FiEdit2} color="#03735F" />
+                      <Icon as={FiEdit2} color="#821905" />
                     ) : (
                       <Icon as={FiLock} color={mutedColor} />
                     )}
@@ -469,9 +482,9 @@ const DonationsManagement = () => {
                         <Button
                           size="sm"
                           leftIcon={<FiSave />}
-                          bg="#03735F"
+                          bg="#821905"
                           color="white"
-                          _hover={{ bg: '#025a4a' }}
+                          _hover={{ bg: '#6e1504' }}
                           borderRadius="xl"
                           onClick={handleSaveSettings}
                           isLoading={savingSettings}
@@ -483,9 +496,9 @@ const DonationsManagement = () => {
                       <Button
                         size="sm"
                         leftIcon={<FiEdit2 />}
-                        bg="#03735F"
+                        bg="#821905"
                         color="white"
-                        _hover={{ bg: '#025a4a' }}
+                        _hover={{ bg: '#6e1504' }}
                         borderRadius="xl"
                         onClick={handleStartEditSettings}
                       >
@@ -606,7 +619,7 @@ const DonationsManagement = () => {
           {selected && (
             <>
               <Box
-                bg="linear-gradient(135deg, #03735F 0%, #08362E 100%)"
+                bg="linear-gradient(135deg, #821905 0%, #2e0d09 100%)"
                 px={6}
                 py={5}
                 position="relative"
@@ -769,6 +782,45 @@ const DonationsManagement = () => {
                     </SimpleGrid>
                   </Box>
 
+                  {selected.screenshotUrl && (
+                    <Box>
+                      <Text
+                        fontSize="11px"
+                        fontWeight="700"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                        color={thColor}
+                        mb={3}
+                      >
+                        Payment Screenshot / भुगतान स्क्रीनशॉट
+                      </Text>
+                      <Box
+                        borderRadius="xl"
+                        border="1px solid"
+                        borderColor={borderColor}
+                        bg={fieldBg}
+                        p={3}
+                        overflow="hidden"
+                        textAlign="center"
+                      >
+                        <Image
+                          src={resolveImageUrl(selected.screenshotUrl)}
+                          alt="Payment Screenshot"
+                          maxH="280px"
+                          objectFit="contain"
+                          borderRadius="lg"
+                          mx="auto"
+                          cursor="pointer"
+                          onClick={() => window.open(resolveImageUrl(selected.screenshotUrl), '_blank')}
+                          fallbackSrc="https://via.placeholder.com/280?text=Error+Loading+Image"
+                        />
+                        <Text fontSize="11px" color={mutedColor} mt={2}>
+                          Click on the image to open in full size / फुल साइज़ में देखने के लिए फोटो पर क्लिक करें
+                        </Text>
+                      </Box>
+                    </Box>
+                  )}
+
                   <Box
                     p={4}
                     borderRadius="xl"
@@ -786,19 +838,32 @@ const DonationsManagement = () => {
                       >
                         Admin Management
                       </Text>
-                      <Button
-                        as="a"
-                        href={`mailto:${selected.email}?subject=${encodeURIComponent(`Thank you for your donation of ${formatAmount(selected.amount)}`)}`}
-                        size="xs"
-                        leftIcon={<FiExternalLink />}
-                        variant="outline"
-                        borderRadius="lg"
-                        borderColor={borderColor}
-                        color="#03735F"
-                        _hover={{ bg: sectionBg }}
-                      >
-                        Email Donor
-                      </Button>
+                      <HStack spacing={2}>
+                        <Button
+                          size="xs"
+                          leftIcon={<FiFileText />}
+                          bg="#821905"
+                          color="white"
+                          _hover={{ bg: '#6e1504' }}
+                          borderRadius="lg"
+                          onClick={() => { detailModal.onClose(); setTimeout(() => openLetter(selected), 200); }}
+                        >
+                          View Letter
+                        </Button>
+                        <Button
+                          as="a"
+                          href={`mailto:${selected.email}?subject=${encodeURIComponent(`Thank you for your donation of ${formatAmount(selected.amount)}`)}`}
+                          size="xs"
+                          leftIcon={<FiExternalLink />}
+                          variant="outline"
+                          borderRadius="lg"
+                          borderColor={borderColor}
+                          color="#821905"
+                          _hover={{ bg: sectionBg }}
+                        >
+                          Email Donor
+                        </Button>
+                      </HStack>
                     </HStack>
                     <VStack align="stretch" spacing={4}>
                       <FormControl>
@@ -814,12 +879,12 @@ const DonationsManagement = () => {
                                 size="sm"
                                 borderRadius="full"
                                 variant={isActive ? 'solid' : 'outline'}
-                                bg={isActive ? '#03735F' : 'transparent'}
+                                bg={isActive ? '#821905' : 'transparent'}
                                 color={isActive ? 'white' : titleColor}
-                                borderColor={isActive ? '#03735F' : borderColor}
+                                borderColor={isActive ? '#821905' : borderColor}
                                 _hover={{
-                                  bg: isActive ? '#025a4a' : sectionBg,
-                                  borderColor: '#03735F',
+                                  bg: isActive ? '#6e1504' : sectionBg,
+                                  borderColor: '#821905',
                                 }}
                                 onClick={() => setEditForm((f) => ({ ...f, status: s.value }))}
                               >
@@ -842,7 +907,7 @@ const DonationsManagement = () => {
                           borderColor={borderColor}
                           bg={cardBg}
                           fontSize="sm"
-                          _focus={{ borderColor: '#03735F', boxShadow: '0 0 0 1px #03735F' }}
+                          _focus={{ borderColor: '#821905', boxShadow: '0 0 0 1px #821905' }}
                         />
                       </FormControl>
                     </VStack>
@@ -870,9 +935,9 @@ const DonationsManagement = () => {
                 </Button>
                 <Button
                   flex={1}
-                  bg="#03735F"
+                  bg="#821905"
                   color="white"
-                  _hover={{ bg: '#025a4a' }}
+                  _hover={{ bg: '#6e1504' }}
                   onClick={handleSaveDonation}
                   isLoading={saving}
                   loadingText="Saving..."
@@ -901,6 +966,12 @@ const DonationsManagement = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <DonationLetterModal
+        isOpen={letterModal.isOpen}
+        onClose={letterModal.onClose}
+        donation={letterDonation}
+      />
     </VStack>
   );
 };

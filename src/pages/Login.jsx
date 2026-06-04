@@ -34,17 +34,17 @@ export default function Login() {
 
   // ─── Colors matching the Admin Panel Theme ───
   const bgGradient = useColorModeValue(
-    'linear(to-br, #f0f7f5, #e6f4f1)',
-    'linear(to-br, #05160e, #0c351e)'
+    'linear(to-br, #fdf4f2, #f9e8e4)',
+    'linear(to-br, #1a0804, #0c351e)'
   );
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
   const inputBg = useColorModeValue('#f8fbfb', 'rgba(255,255,255,0.06)');
-  const inputHoverBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.1)');
-  const primaryBrand = '#03735F';
-  const primaryBrandHover = '#025a4a';
+  const inputHoverBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.1)');
+  const primaryBrand = '#821905';
+  const primaryBrandHover = '#6e1504';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -82,7 +82,7 @@ export default function Login() {
         border="1px solid"
         borderColor={borderColor}
         borderRadius="3xl"
-        boxShadow={useColorModeValue('0 20px 40px rgba(3,115,95,0.08)', '0 20px 40px rgba(0,0,0,0.4)')}
+        boxShadow={useColorModeValue('0 20px 40px rgba(130,25,5,0.08)', '0 20px 40px rgba(0,0,0,0.4)')}
         p={{ base: 8, md: 10 }}
         position="relative"
         zIndex={1}
@@ -102,7 +102,7 @@ export default function Login() {
               mb={2}
             >
               <Image 
-                src="/images/logo.png" 
+                src="/logo.png" 
                 alt="NGO Logo" 
                 fallback={<Icon as={FiLogIn} fontSize="32px" color={primaryBrand} />}
                 w="56px" 

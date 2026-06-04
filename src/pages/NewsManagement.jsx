@@ -52,10 +52,10 @@ const EMPTY_SETTINGS = {
 };
 
 const NewsCard = ({ item, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, isFirst, isLast }) => {
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue(item.featured ? '#f5b400' : '#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue(item.featured ? '#f5b400' : '#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
 
   return (
     <Card bg={cardBg} border="2px solid" borderColor={borderColor} borderRadius="2xl" overflow="hidden" opacity={item.isActive ? 1 : 0.65}>
@@ -64,7 +64,7 @@ const NewsCard = ({ item, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, isFi
       </Box>
       <CardBody p={4}>
         <Flex justify="space-between" mb={2}>
-          <Badge colorScheme="green" fontSize="9px">{item.category}</Badge>
+          <Badge colorScheme="brand" fontSize="9px">{item.category}</Badge>
           <HStack spacing={1}>
             {item.featured && <Badge colorScheme="yellow" fontSize="9px">Featured</Badge>}
             {item.showOnHome && <Badge colorScheme="blue" fontSize="9px">Home</Badge>}
@@ -109,10 +109,10 @@ const NewsManagement = () => {
   const deleteModal = useDisclosure();
   const toast = useToast();
 
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -303,17 +303,17 @@ const NewsManagement = () => {
 
   return (
     <VStack spacing={{ base: 5, md: 7 }} align="stretch" w="full">
-      <Box p={{ base: 5, md: 7 }} borderRadius="2xl" bgGradient="linear(135deg, #1a5c38 0%, #0d3a22 100%)" color="white">
+      <Box p={{ base: 5, md: 7 }} borderRadius="2xl" bgGradient="linear(135deg, #821905 0%, #4a0e02 100%)" color="white" boxShadow="0 4px 24px rgba(130,25,5,0.25)">
         <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ md: 'center' }} gap={4}>
           <Box>
             <HStack spacing={2} mb={1}>
-              <Icon as={FiFileText} color="#f5b400" fontSize="14" />
-              <Text fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color="#f5b400">Website Content</Text>
+              <Icon as={FiFileText} color="#f0c4bb" fontSize="14" />
+              <Text fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color="#f0c4bb">Website Content</Text>
             </HStack>
             <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="800" mb={1}>समाचार — News Management</Text>
             <Text fontSize="sm" opacity={0.85}>Homepage blog section and full news page content.</Text>
           </Box>
-          <Button leftIcon={<Icon as={FiPlus} />} bg="#f5b400" color="#111827" borderRadius="xl" fontWeight="700" onClick={openCreate}>Add News Article</Button>
+          <Button leftIcon={<Icon as={FiPlus} />} bg="#821905" color="white" _hover={{ bg: '#5c1204' }} borderRadius="xl" fontWeight="700" onClick={openCreate}>Add News Article</Button>
         </Flex>
       </Box>
 
@@ -339,7 +339,7 @@ const NewsManagement = () => {
             <FormControl><FormLabel fontSize="sm">Hero Title</FormLabel><Input variant="filled" borderRadius="xl" value={settings.newsPageHeroTitle} onChange={(e) => setSettings((s) => ({ ...s, newsPageHeroTitle: e.target.value }))} /></FormControl>
             <FormControl><FormLabel fontSize="sm">Hero Subtitle</FormLabel><Input variant="filled" borderRadius="xl" value={settings.newsPageHeroSubtitle} onChange={(e) => setSettings((s) => ({ ...s, newsPageHeroSubtitle: e.target.value }))} /></FormControl>
           </SimpleGrid>
-          <Button size="sm" bg="#1a5c38" color="white" borderRadius="xl" onClick={handleSaveSettings} isLoading={savingSettings}>Save Settings</Button>
+          <Button size="sm" bg="#821905" color="white" _hover={{ bg: '#5c1204' }} borderRadius="xl" onClick={handleSaveSettings} isLoading={savingSettings}>Save Settings</Button>
         </CardBody>
       </Card>
 
@@ -357,7 +357,7 @@ const NewsManagement = () => {
       </Flex>
 
       {loading ? (
-        <Flex justify="center" py={16}><Spinner size="xl" color="#1a5c38" /></Flex>
+        <Flex justify="center" py={16}><Spinner size="xl" color="#821905" /></Flex>
       ) : error ? (
         <Alert status="error" borderRadius="2xl"><AlertIcon /><Box><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Box></Alert>
       ) : (
@@ -450,7 +450,7 @@ const NewsManagement = () => {
                   <FormLabel mb={0} fontSize="sm"><Icon as={FiHome} mr={1} />Show on Homepage</FormLabel>
                 </FormControl>
                 <FormControl display="flex" alignItems="center" w="auto">
-                  <Switch isChecked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} colorScheme="green" mr={2} />
+                  <Switch isChecked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} colorScheme="brand" mr={2} />
                   <FormLabel mb={0} fontSize="sm">Active</FormLabel>
                 </FormControl>
               </HStack>
@@ -458,7 +458,7 @@ const NewsManagement = () => {
           </ModalBody>
           <ModalFooter gap={3}>
             <Button variant="ghost" onClick={formModal.onClose} borderRadius="xl">Cancel</Button>
-            <Button bg="#1a5c38" color="white" borderRadius="xl" onClick={handleSubmit} isLoading={submitting}>{editingId ? 'Update' : 'Create'}</Button>
+            <Button bg="#821905" color="white" _hover={{ bg: '#5c1204' }} borderRadius="xl" onClick={handleSubmit} isLoading={submitting}>{editingId ? 'Update' : 'Create'}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

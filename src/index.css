@@ -11,7 +11,7 @@
   }
 }
 
-/* Custom Scrollbar - brand green themed */
+/* Custom Scrollbar - brand maroon themed */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -22,12 +22,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #80cbc4;
+  background: #f0a89d;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #03735F;
+  background: #821905;
 }
 
 /* Smooth transitions on color mode changes */

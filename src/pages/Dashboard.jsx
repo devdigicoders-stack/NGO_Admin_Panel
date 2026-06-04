@@ -58,9 +58,9 @@ const Dashboard = () => {
       <Box
         p={{ base: 5, md: 7 }}
         borderRadius="2xl"
-        bgGradient="linear(135deg, #03735F 0%, #08362E 100%)"
+        bgGradient="linear(135deg, #821905 0%, #2e0d09 100%)"
         color="white"
-        boxShadow="0 4px 24px rgba(3,115,95,0.25)"
+        boxShadow="0 4px 24px rgba(130,25,5,0.25)"
         position="relative"
         overflow="hidden"
       >

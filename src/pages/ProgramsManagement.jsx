@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { uploadImage } from '../utils/uploadImage';
 import { resolveImageUrl } from '../utils/imageUrl';
 import {
@@ -66,11 +66,11 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 // ─── Color picker presets ───────────────────────────────────────
 const COLOR_PRESETS = [
-  { label: 'Forest Green', value: '#1a5c38' },
+  { label: 'Maroon', value: '#821905' },
   { label: 'Orange Red', value: '#e05a3a' },
   { label: 'Violet', value: '#7c3aed' },
   { label: 'Gold', value: '#f5b400' },
-  { label: 'Emerald', value: '#059669' },
+  { label: 'Crimson', value: '#b91c1c' },
   { label: 'Sky Blue', value: '#0ea5e9' },
   { label: 'Red', value: '#dc2626' },
   { label: 'Pink', value: '#ec4899' },
@@ -87,14 +87,14 @@ const TAG_OPTIONS = [
 const EMPTY_FORM = {
   image: '',
   tag: 'शिक्षा',
-  tagBg: '#1a5c38',
+  tagBg: '#821905',
   tagColor: '#fff',
   title: '',
   desc: '',
   raised: '₹0',
   goal: '₹1,00,000',
   percentage: 0,
-  accentColor: '#1a5c38',
+  accentColor: '#821905',
   isActive: true,
 };
 
@@ -107,14 +107,14 @@ const PreviewCard = ({ form }) => {
       borderColor={borderColor}
       borderRadius="20px"
       overflow="hidden"
-      bg={useColorModeValue('#fff', '#0a2e27')}
+      bg={useColorModeValue('#fff', '#2a0c06')}
       boxShadow="0 4px 16px rgba(0,0,0,0.06)"
       maxW="320px"
       w="full"
       mx="auto"
     >
       {/* Image area */}
-      <Box position="relative" h="140px" bg={useColorModeValue('#f3f4f6', '#0d3d34')} overflow="hidden">
+      <Box position="relative" h="140px" bg={useColorModeValue('#f3f4f6', '#4a1208')} overflow="hidden">
         {form.image ? (
           <Box as="img" src={resolveImageUrl(form.image)} alt="preview" w="full" h="full" objectFit="cover" />
         ) : (
@@ -143,14 +143,14 @@ const PreviewCard = ({ form }) => {
       </Box>
       {/* Body */}
       <Box p={4}>
-        <Text fontWeight="700" fontSize="14px" color={useColorModeValue('#111827', '#e8f8f5')} mb={1} noOfLines={1}>
+        <Text fontWeight="700" fontSize="14px" color={useColorModeValue('#111827', '#f5e0dc')} mb={1} noOfLines={1}>
           {form.title || 'Program Title'}
         </Text>
-        <Text fontSize="12px" color={useColorModeValue('#6b7280', '#7ab8ae')} noOfLines={2} mb={3}>
+        <Text fontSize="12px" color={useColorModeValue('#6b7280', '#c08070')} noOfLines={2} mb={3}>
           {form.desc || 'Program description will appear here...'}
         </Text>
         {/* Progress bar */}
-        <Box h="5px" bg={useColorModeValue('#f3f4f6', '#0d3d34')} borderRadius="full" mb={2}>
+        <Box h="5px" bg={useColorModeValue('#f3f4f6', '#4a1208')} borderRadius="full" mb={2}>
           <Box
             h="full" borderRadius="full"
             w={`${Math.min(form.percentage, 100)}%`}
@@ -159,11 +159,11 @@ const PreviewCard = ({ form }) => {
           />
         </Box>
         <Flex justify="space-between">
-          <Text fontSize="11px" color={useColorModeValue('#6b7280', '#7ab8ae')}>
-            एकत्रित: <strong style={{ color: useColorModeValue('#111827', '#e8f8f5') }}>{form.raised}</strong>
+          <Text fontSize="11px" color={useColorModeValue('#6b7280', '#c08070')}>
+            एकत्रित: <strong style={{ color: useColorModeValue('#111827', '#f5e0dc') }}>{form.raised}</strong>
           </Text>
-          <Text fontSize="11px" color={useColorModeValue('#6b7280', '#7ab8ae')}>
-            लक्ष्य: <strong style={{ color: useColorModeValue('#111827', '#e8f8f5') }}>{form.goal}</strong>
+          <Text fontSize="11px" color={useColorModeValue('#6b7280', '#c08070')}>
+            लक्ष्य: <strong style={{ color: useColorModeValue('#111827', '#f5e0dc') }}>{form.goal}</strong>
           </Text>
         </Flex>
       </Box>
@@ -173,11 +173,11 @@ const PreviewCard = ({ form }) => {
 
 // ─── Program Card ──────────────────────────────────────────────
 const ProgramCard = ({ program, onEdit, onDelete, onToggle }) => {
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const textColor = useColorModeValue('#1a5045', '#c8e8e2');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const textColor = useColorModeValue('#5c1204', '#f0d8d4');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
 
   return (
     <Card
@@ -215,7 +215,7 @@ const ProgramCard = ({ program, onEdit, onDelete, onToggle }) => {
         {/* Active badge */}
         <Box position="absolute" top={3} right={3}>
           <Badge
-            colorScheme={program.isActive ? 'green' : 'gray'}
+            colorScheme={program.isActive ? 'brand' : 'gray'}
             borderRadius="full" px={2} fontSize="10px"
           >
             {program.isActive ? 'Active' : 'Inactive'}
@@ -242,7 +242,7 @@ const ProgramCard = ({ program, onEdit, onDelete, onToggle }) => {
 
         {/* Progress bar */}
         <Box mb={3}>
-          <Box h="5px" bg={useColorModeValue('#f3f4f6', '#0d3d34')} borderRadius="full" mb={1.5}>
+          <Box h="5px" bg={useColorModeValue('#f3f4f6', '#4a1208')} borderRadius="full" mb={1.5}>
             <Box
               h="full" borderRadius="full"
               w={`${Math.min(program.percentage, 100)}%`}
@@ -268,7 +268,7 @@ const ProgramCard = ({ program, onEdit, onDelete, onToggle }) => {
               icon={<Icon as={program.isActive ? FiEyeOff : FiEye} />}
               size="sm"
               variant="ghost"
-              colorScheme={program.isActive ? 'orange' : 'green'}
+              colorScheme={program.isActive ? 'orange' : 'brand'}
               onClick={() => onToggle(program.id)}
               aria-label="Toggle active"
             />
@@ -324,10 +324,10 @@ const ProgramsManagement = () => {
   const deleteModal = useDisclosure();
   const toast = useToast();
 
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
 
   // ── Fetch programs ──────────────────────────────────────────
   const fetchPrograms = useCallback(async () => {
@@ -375,14 +375,14 @@ const ProgramsManagement = () => {
     setForm({
       image: program.image || '',
       tag: program.tag || 'शिक्षा',
-      tagBg: program.tagBg || '#1a5c38',
+      tagBg: program.tagBg || '#821905',
       tagColor: program.tagColor || '#fff',
       title: program.title || '',
       desc: program.desc || '',
       raised: program.raised || '₹0',
       goal: program.goal || '₹1,00,000',
       percentage: program.percentage || 0,
-      accentColor: program.accentColor || '#1a5c38',
+      accentColor: program.accentColor || '#821905',
       isActive: program.isActive !== undefined ? program.isActive : true,
     });
     setEditingId(program.id);
@@ -502,9 +502,9 @@ const ProgramsManagement = () => {
       <Box
         p={{ base: 5, md: 7 }}
         borderRadius="2xl"
-        bgGradient="linear(135deg, #1a5c38 0%, #0d3a22 100%)"
+        bgGradient="linear(135deg, #821905 0%, #4a0e02 100%)"
         color="white"
-        boxShadow="0 4px 24px rgba(26,92,56,0.30)"
+        boxShadow="0 4px 24px rgba(130,25,5,0.30)"
         position="relative"
         overflow="hidden"
       >
@@ -539,15 +539,15 @@ const ProgramsManagement = () => {
           </Button>
         </Flex>
         {/* Decorative blobs */}
-        <Box position="absolute" right="-40px" top="-40px" w="200px" h="200px" borderRadius="full" bg="rgba(245,180,0,0.07)" pointerEvents="none" />
-        <Box position="absolute" left="-20px" bottom="-60px" w="160px" h="160px" borderRadius="full" bg="rgba(255,255,255,0.04)" pointerEvents="none" />
+        <Box position="absolute" right="-40px" top="-40px" w="200px" h="200px" borderRadius="full" bg="rgba(245,180,0,0.08)" pointerEvents="none" />
+        <Box position="absolute" left="-20px" bottom="-60px" w="160px" h="160px" borderRadius="full" bg="rgba(255,255,255,0.05)" pointerEvents="none" />
       </Box>
 
       {/* ── Stat Cards ── */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
         {[
-          { label: 'Total Programs', value: programs.length, icon: FiHeart, color: '#1a5c38' },
-          { label: 'Active', value: activeCount, icon: FiEye, color: '#059669' },
+          { label: 'Total Programs', value: programs.length, icon: FiHeart, color: '#821905' },
+          { label: 'Active', value: activeCount, icon: FiEye, color: '#c0392b' },
           { label: 'Inactive', value: programs.length - activeCount, icon: FiEyeOff, color: '#e05a3a' },
           { label: 'Avg. Progress', value: `${avgPercentage}%`, icon: FiTrendingUp, color: '#7c3aed' },
         ].map((stat, i) => (
@@ -615,7 +615,7 @@ const ProgramsManagement = () => {
       {loading ? (
         <Flex justify="center" align="center" py={20}>
           <VStack spacing={3}>
-            <Spinner size="xl" color="#1a5c38" thickness="3px" />
+            <Spinner size="xl" color="#821905" thickness="3px" />
             <Text color={mutedColor} fontSize="sm">Loading programs...</Text>
           </VStack>
         </Flex>
@@ -839,7 +839,7 @@ const ProgramsManagement = () => {
                     <Switch
                       isChecked={form.isActive}
                       onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
-                      colorScheme="green"
+                      colorScheme="brand"
                       size="md"
                     />
                     <FormLabel fontSize="sm" fontWeight="600" color={titleColor} mb={0}>
@@ -864,9 +864,9 @@ const ProgramsManagement = () => {
               Cancel
             </Button>
             <Button
-              bg="#1a5c38"
+              bg="#821905"
               color="white"
-              _hover={{ bg: '#0d3a22' }}
+              _hover={{ bg: '#6e1504' }}
               borderRadius="xl"
               fontWeight="700"
               onClick={handleSubmit}

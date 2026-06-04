@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_BASE;
+// Use relative /api in dev (Vite proxy → localhost:5002), full URL in production build
+const API_BASE = import.meta.env.DEV ? '/api' : import.meta.env.VITE_API_BASE;
+
 
 export const apiClient = async (endpoint, options = {}) => {
   const token = localStorage.getItem('admin_token');

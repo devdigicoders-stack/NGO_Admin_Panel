@@ -17,7 +17,7 @@ const Layout = ({ children }) => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const bgValue = useColorModeValue('#f0f7f5', '#071f1a');
+  const bgValue = useColorModeValue('#fdf4f2', '#1a0804');
   const mainWidth = isCollapsed ? '76px' : '240px';
 
   return (

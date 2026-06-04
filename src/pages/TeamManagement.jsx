@@ -81,10 +81,10 @@ const EMPTY_SETTINGS = {
 };
 
 const MemberCard = ({ member, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, isFirst, isLast }) => {
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
 
   return (
     <Card
@@ -108,7 +108,7 @@ const MemberCard = ({ member, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, 
           objectPosition="top"
         />
         <Box position="absolute" top={3} right={3}>
-          <Badge colorScheme={member.isActive ? 'green' : 'gray'} borderRadius="full" px={2} fontSize="10px">
+          <Badge colorScheme={member.isActive ? 'brand' : 'gray'} borderRadius="full" px={2} fontSize="10px">
             {member.isActive ? 'Active' : 'Hidden'}
           </Badge>
         </Box>
@@ -137,7 +137,7 @@ const MemberCard = ({ member, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, 
         <HStack spacing={1} mb={3} flexWrap="wrap">
           {['facebook', 'twitter', 'instagram', 'other'].map((key) =>
             member[key] ? (
-              <Badge key={key} fontSize="9px" colorScheme="green" variant="subtle">
+              <Badge key={key} fontSize="9px" colorScheme="brand" variant="subtle">
                 {key}
               </Badge>
             ) : null,
@@ -171,7 +171,7 @@ const MemberCard = ({ member, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, 
                 icon={<Icon as={member.isActive ? FiEyeOff : FiEye} />}
                 size="sm"
                 variant="ghost"
-                colorScheme={member.isActive ? 'orange' : 'green'}
+                colorScheme={member.isActive ? 'orange' : 'brand'}
                 onClick={() => onToggle(member.id)}
                 aria-label="Toggle"
               />
@@ -221,10 +221,10 @@ const TeamManagement = () => {
   const deleteModal = useDisclosure();
   const toast = useToast();
 
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -434,9 +434,9 @@ const TeamManagement = () => {
       <Box
         p={{ base: 5, md: 7 }}
         borderRadius="2xl"
-        bgGradient="linear(135deg, #005f3c 0%, #08362E 100%)"
+        bgGradient="linear(135deg, #821905 0%, #4a0e02 100%)"
         color="white"
-        boxShadow="0 4px 24px rgba(0,95,60,0.30)"
+        boxShadow="0 4px 24px rgba(130,25,5,0.30)"
       >
         <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ md: 'center' }} gap={4}>
           <Box>
@@ -498,9 +498,9 @@ const TeamManagement = () => {
           </SimpleGrid>
           <Button
             size="sm"
-            bg="#005f3c"
+            bg="#821905"
             color="white"
-            _hover={{ bg: '#004a2f' }}
+            _hover={{ bg: '#6e1504' }}
             borderRadius="xl"
             onClick={handleSaveSettings}
             isLoading={savingSettings}
@@ -512,8 +512,8 @@ const TeamManagement = () => {
 
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
         {[
-          { label: 'Total Members', value: members.length, color: '#005f3c' },
-          { label: 'Visible on Site', value: activeCount, color: '#059669' },
+          { label: 'Total Members', value: members.length, color: '#821905' },
+          { label: 'Visible on Site', value: activeCount, color: '#c0392b' },
           { label: 'Hidden', value: members.length - activeCount, color: '#e05a3a' },
         ].map((stat, i) => (
           <Card key={i} bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl">
@@ -565,7 +565,7 @@ const TeamManagement = () => {
 
       {loading ? (
         <Flex justify="center" py={16}>
-          <Spinner size="xl" color="#005f3c" />
+          <Spinner size="xl" color="#821905" />
         </Flex>
       ) : error ? (
         <Alert status="error" borderRadius="2xl">
@@ -732,7 +732,7 @@ const TeamManagement = () => {
                     mt={2}
                     isChecked={form.isActive}
                     onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                    colorScheme="green"
+                    colorScheme="brand"
                     size="lg"
                   />
                 </FormControl>
@@ -744,7 +744,7 @@ const TeamManagement = () => {
               Cancel
             </Button>
             <Button
-              bg="#005f3c"
+              bg="#821905"
               color="white"
               borderRadius="xl"
               onClick={handleSubmit}

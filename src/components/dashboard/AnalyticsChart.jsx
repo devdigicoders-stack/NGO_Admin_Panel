@@ -16,10 +16,10 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { FiActivity } from 'react-icons/fi';
 
 const CustomTooltip = ({ active, payload, label }) => {
-  const tooltipBg = useColorModeValue('#ffffff', '#0a2e27');
-  const tooltipBorder = useColorModeValue('#d4ede8', '#1a5a50');
-  const textColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
+  const tooltipBg = useColorModeValue('#ffffff', '#2a0c06');
+  const tooltipBorder = useColorModeValue('#f0c4bb', '#1a5a50');
+  const textColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
 
   if (active && payload && payload.length) {
     return (
@@ -42,15 +42,15 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const AnalyticsChart = ({ charts, loading }) => {
   const [timeframe, setTimeframe] = useState('weekly');
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const cardBorder = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const descColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const gridStroke = useColorModeValue('#eaf5f2', 'rgba(255,255,255,0.06)');
-  const tickColor = useColorModeValue('#4a9085', '#5a9e95');
-  const btnBorder = useColorModeValue('#d4ede8', '#1a5a50');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const cardBorder = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const descColor = useColorModeValue('#a05040', '#c08070');
+  const gridStroke = useColorModeValue('#faeae7', 'rgba(255,255,255,0.06)');
+  const tickColor = useColorModeValue('#a05040', '#a06050');
+  const btnBorder = useColorModeValue('#f0c4bb', '#1a5a50');
   const btnInactiveBg = useColorModeValue('transparent', 'transparent');
-  const btnInactiveColor = useColorModeValue('#4a9085', '#7ab8ae');
+  const btnInactiveColor = useColorModeValue('#a05040', '#c08070');
 
   const chartData = timeframe === 'weekly'
     ? (charts?.weekly || [])
@@ -62,7 +62,7 @@ const AnalyticsChart = ({ charts, loading }) => {
         <Flex direction={{ base: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ base: 'flex-start', sm: 'center' }} mb={5} gap={4}>
           <Box>
             <HStack spacing={2} mb={0.5}>
-              <Icon as={FiActivity} color="#03735F" fontSize="lg" />
+              <Icon as={FiActivity} color="#821905" fontSize="lg" />
               <Text fontSize="md" fontWeight="800" color={titleColor}>Submissions Overview</Text>
             </HStack>
             <Text fontSize="xs" color={descColor}>Donations, contact enquiries & donation queries over time.</Text>
@@ -70,7 +70,7 @@ const AnalyticsChart = ({ charts, loading }) => {
           <ButtonGroup size="sm" isAttached variant="outline" borderRadius="xl">
             <Button
               onClick={() => setTimeframe('weekly')}
-              bg={timeframe === 'weekly' ? '#03735F' : btnInactiveBg}
+              bg={timeframe === 'weekly' ? '#821905' : btnInactiveBg}
               color={timeframe === 'weekly' ? 'white' : btnInactiveColor}
               borderColor={btnBorder}
               borderRadius="xl"
@@ -80,7 +80,7 @@ const AnalyticsChart = ({ charts, loading }) => {
             </Button>
             <Button
               onClick={() => setTimeframe('monthly')}
-              bg={timeframe === 'monthly' ? '#03735F' : btnInactiveBg}
+              bg={timeframe === 'monthly' ? '#821905' : btnInactiveBg}
               color={timeframe === 'monthly' ? 'white' : btnInactiveColor}
               borderColor={btnBorder}
               borderRadius="xl"
@@ -99,26 +99,26 @@ const AnalyticsChart = ({ charts, loading }) => {
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorDonations" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#03735F" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#03735F" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#821905" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#821905" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorEnquiries" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#FFC108" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#FFC108" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorQueries" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#5ddbbb" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#5ddbbb" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#e8907a" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#e8907a" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(3,115,95,0.15)', strokeWidth: 2 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(130,25,5,0.15)', strokeWidth: 2 }} />
                 <Legend verticalAlign="top" height={32} iconType="circle" iconSize={7} wrapperStyle={{ fontSize: '11px', fontWeight: '600', color: tickColor }} />
-                <Area type="monotone" dataKey="donations" name="Donations" stroke="#03735F" strokeWidth={2} fillOpacity={1} fill="url(#colorDonations)" />
+                <Area type="monotone" dataKey="donations" name="Donations" stroke="#821905" strokeWidth={2} fillOpacity={1} fill="url(#colorDonations)" />
                 <Area type="monotone" dataKey="enquiries" name="Enquiries" stroke="#FFC108" strokeWidth={2} fillOpacity={1} fill="url(#colorEnquiries)" />
-                <Area type="monotone" dataKey="queries" name="Donation Queries" stroke="#5ddbbb" strokeWidth={2} fillOpacity={1} fill="url(#colorQueries)" />
+                <Area type="monotone" dataKey="queries" name="Donation Queries" stroke="#e8907a" strokeWidth={2} fillOpacity={1} fill="url(#colorQueries)" />
               </AreaChart>
             </ResponsiveContainer>
           )}

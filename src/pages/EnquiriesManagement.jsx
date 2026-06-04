@@ -64,7 +64,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: 'orange' },
   { value: 'in_progress', label: 'In Progress', color: 'blue' },
-  { value: 'resolved', label: 'Resolved', color: 'green' },
+  { value: 'resolved', label: 'Resolved', color: 'brand' },
   { value: 'closed', label: 'Closed', color: 'gray' },
 ];
 
@@ -88,7 +88,7 @@ const DetailField = ({ label, value, icon, href, onCopy, mutedColor, titleColor,
     bg={fieldBg}
   >
     <HStack spacing={1.5} mb={1.5}>
-      {icon && <Icon as={icon} fontSize="12" color="#03735F" />}
+      {icon && <Icon as={icon} fontSize="12" color="#821905" />}
       <Text fontSize="10px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" color={mutedColor}>
         {label}
       </Text>
@@ -100,7 +100,7 @@ const DetailField = ({ label, value, icon, href, onCopy, mutedColor, titleColor,
           href={href}
           fontSize="sm"
           fontWeight="600"
-          color="#03735F"
+          color="#821905"
           wordBreak="break-all"
           _hover={{ textDecoration: 'underline' }}
         >
@@ -147,19 +147,19 @@ const EnquiriesManagement = () => {
   const [saving, setSaving] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
-  const thColor = useColorModeValue('#03735F', '#5ddbbb');
-  const thBg = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
-  const rowHover = useColorModeValue('rgba(3,115,95,0.03)', 'rgba(93,219,187,0.05)');
-  const tdBorder = useColorModeValue('#eaf5f2', 'rgba(255,255,255,0.06)');
-  const inputBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.1)');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
+  const thColor = useColorModeValue('#821905', '#e8907a');
+  const thBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
+  const rowHover = useColorModeValue('rgba(130,25,5,0.03)', 'rgba(232,144,122,0.05)');
+  const tdBorder = useColorModeValue('#faeae7', 'rgba(255,255,255,0.06)');
+  const inputBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.1)');
   const pendingRowBg = useColorModeValue('rgba(245,180,0,0.04)', 'rgba(245,180,0,0.06)');
   const fieldBg = useColorModeValue('#f8fcfb', 'rgba(255,255,255,0.04)');
-  const sectionBg = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
-  const messageBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.06)');
+  const sectionBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
+  const messageBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.06)');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -252,7 +252,7 @@ const EnquiriesManagement = () => {
       <Flex justify="space-between" align={{ base: 'stretch', md: 'center' }} direction={{ base: 'column', md: 'row' }} gap={4}>
         <Box>
           <HStack spacing={2} mb={1}>
-            <Icon as={FiInbox} color="#03735F" />
+            <Icon as={FiInbox} color="#821905" />
             <Text fontSize="xl" fontWeight="800" color={titleColor} fontFamily="'Outfit', sans-serif">
               Contact Enquiries
             </Text>
@@ -268,10 +268,10 @@ const EnquiriesManagement = () => {
 
       <SimpleGrid columns={{ base: 2, md: 5 }} spacing={4}>
         {[
-          { label: 'Total', value: stats.total, icon: FiInbox, color: '#03735F' },
+          { label: 'Total', value: stats.total, icon: FiInbox, color: '#821905' },
           { label: 'Pending', value: stats.pending, icon: FiClock, color: '#d97706' },
           { label: 'In Progress', value: stats.in_progress, icon: FiMessageSquare, color: '#2563eb' },
-          { label: 'Resolved', value: stats.resolved, icon: FiCheckCircle, color: '#16a34a' },
+          { label: 'Resolved', value: stats.resolved, icon: FiCheckCircle, color: '#821905' },
           { label: 'Closed', value: stats.closed, icon: FiCheckCircle, color: '#6b7280' },
         ].map((s) => (
           <Card key={s.label} bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl">
@@ -338,7 +338,7 @@ const EnquiriesManagement = () => {
                 borderColor={borderColor}
                 bg={inputBg}
                 size="sm"
-                _focus={{ borderColor: '#03735F', bg: cardBg }}
+                _focus={{ borderColor: '#821905', bg: cardBg }}
               />
             </InputGroup>
           </Flex>
@@ -346,7 +346,7 @@ const EnquiriesManagement = () => {
 
         {loading ? (
           <Flex justify="center" py={16}>
-            <Spinner size="lg" color="#03735F" />
+            <Spinner size="lg" color="#821905" />
           </Flex>
         ) : (
           <Box overflowX="auto">
@@ -488,7 +488,7 @@ const EnquiriesManagement = () => {
                       </Td>
                       <Td borderColor={tdBorder} py={3.5} maxW="160px">
                         <HStack spacing={2}>
-                          <Icon as={FiUser} color="#03735F" flexShrink={0} />
+                          <Icon as={FiUser} color="#821905" flexShrink={0} />
                           <Text fontSize="sm" fontWeight="600" color={titleColor} noOfLines={1}>
                             {q.name}
                           </Text>
@@ -529,8 +529,8 @@ const EnquiriesManagement = () => {
                               size="sm"
                               variant="ghost"
                               borderRadius="xl"
-                              color="#03735F"
-                              _hover={{ bg: 'rgba(3,115,95,0.1)' }}
+                              color="#821905"
+                              _hover={{ bg: 'rgba(130,25,5,0.1)' }}
                               onClick={() => openDetail(q)}
                             />
                           </Tooltip>
@@ -579,7 +579,7 @@ const EnquiriesManagement = () => {
           {selected && (
             <>
               <Box
-                bg="linear-gradient(135deg, #03735F 0%, #08362E 100%)"
+                bg="linear-gradient(135deg, #821905 0%, #2e0d09 100%)"
                 px={6}
                 py={5}
                 position="relative"
@@ -719,7 +719,7 @@ const EnquiriesManagement = () => {
                         variant="outline"
                         borderRadius="lg"
                         borderColor={borderColor}
-                        color="#03735F"
+                        color="#821905"
                         _hover={{ bg: sectionBg }}
                       >
                         Reply via Email
@@ -769,12 +769,12 @@ const EnquiriesManagement = () => {
                                 size="sm"
                                 borderRadius="full"
                                 variant={isActive ? 'solid' : 'outline'}
-                                bg={isActive ? '#03735F' : 'transparent'}
+                                bg={isActive ? '#821905' : 'transparent'}
                                 color={isActive ? 'white' : titleColor}
-                                borderColor={isActive ? '#03735F' : borderColor}
+                                borderColor={isActive ? '#821905' : borderColor}
                                 _hover={{
-                                  bg: isActive ? '#025a4a' : sectionBg,
-                                  borderColor: '#03735F',
+                                  bg: isActive ? '#6e1504' : sectionBg,
+                                  borderColor: '#821905',
                                 }}
                                 onClick={() => setEditForm((f) => ({ ...f, status: s.value }))}
                               >
@@ -797,7 +797,7 @@ const EnquiriesManagement = () => {
                           borderColor={borderColor}
                           bg={cardBg}
                           fontSize="sm"
-                          _focus={{ borderColor: '#03735F', boxShadow: '0 0 0 1px #03735F' }}
+                          _focus={{ borderColor: '#821905', boxShadow: '0 0 0 1px #821905' }}
                         />
                       </FormControl>
                     </VStack>
@@ -825,9 +825,9 @@ const EnquiriesManagement = () => {
                 </Button>
                 <Button
                   flex={1}
-                  bg="#03735F"
+                  bg="#821905"
                   color="white"
-                  _hover={{ bg: '#025a4a' }}
+                  _hover={{ bg: '#6e1504' }}
                   onClick={handleSave}
                   isLoading={saving}
                   loadingText="Saving..."

@@ -24,17 +24,19 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderCol = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const textColor = useColorModeValue('#1a5045', '#c8e8e2');
-  const descColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const thColor = useColorModeValue('#03735F', '#5ddbbb');
-  const thBg = useColorModeValue('rgba(3,115,95,0.04)', 'rgba(93,219,187,0.06)');
-  const rowHover = useColorModeValue('rgba(3,115,95,0.03)', 'rgba(93,219,187,0.05)');
-  const tdBorder = useColorModeValue('#eaf5f2', 'rgba(255,255,255,0.06)');
-  const inputBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.1)');
-  const menuListBg = useColorModeValue('#ffffff', '#0a2e27');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderCol = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const textColor = useColorModeValue('#5c1204', '#f0d8d4');
+  const descColor = useColorModeValue('#a05040', '#c08070');
+  const thColor = useColorModeValue('#821905', '#e8907a');
+  const thBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
+  const rowHover = useColorModeValue('rgba(130,25,5,0.03)', 'rgba(232,144,122,0.05)');
+  const tdBorder = useColorModeValue('#faeae7', 'rgba(255,255,255,0.06)');
+  const inputBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.1)');
+  const menuListBg = useColorModeValue('#ffffff', '#2a0c06');
+  const badgeBg = useColorModeValue('rgba(130,25,5,0.1)', 'rgba(232,144,122,0.15)');
+  const badgeColor = useColorModeValue('#821905', '#e8907a');
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase()) || user.role.toLowerCase().includes(searchTerm.toLowerCase());
@@ -51,7 +53,7 @@ const UserManagement = () => {
     if (selectedUser && selectedUser.id === id) onClose();
   };
   const getStatusBadge = (status) => {
-    const schemes = { Active: 'green', Pending: 'orange', Suspended: 'red' };
+    const schemes = { Active: 'brand', Pending: 'orange', Suspended: 'red' };
     return <Badge colorScheme={schemes[status]} px={2.5} py={0.5} borderRadius="full" fontSize="10px" fontWeight="700">{status}</Badge>;
   };
   const handleRowClick = (user) => { setSelectedUser(user); onOpen(); };
@@ -64,7 +66,7 @@ const UserManagement = () => {
           <Text fontSize="2xl" fontFamily="'Outfit', sans-serif" fontWeight="800" color={titleColor}>User Directory</Text>
           <Text fontSize="xs" color={descColor}>Monitor system user roles, access matrices, and status details.</Text>
         </Box>
-        <Button leftIcon={<FiUserPlus />} bg="#03735F" color="white" borderRadius="xl" size="md" _hover={{ bg: '#026652' }}>
+        <Button leftIcon={<FiUserPlus />} bg="#821905" color="white" borderRadius="xl" size="md" _hover={{ bg: '#6e1504' }}>
           Add User
         </Button>
       </Flex>
@@ -77,15 +79,15 @@ const UserManagement = () => {
             <Tabs variant="soft-rounded" size="sm" onChange={(index) => { const tabs = ['All', 'Active', 'Pending', 'Suspended']; setActiveTab(tabs[index]); }}>
               <TabList gap={1}>
                 {['All', 'Active', 'Pending', 'Suspended'].map((tab) => (
-                  <Tab key={tab} borderRadius="xl" fontWeight="600" fontSize="xs" color={descColor} _selected={{ bg: '#03735F', color: 'white' }}>
+                  <Tab key={tab} borderRadius="xl" fontWeight="600" fontSize="xs" color={descColor} _selected={{ bg: '#821905', color: 'white' }}>
                     {tab}
                   </Tab>
                 ))}
               </TabList>
             </Tabs>
             <InputGroup maxW={{ base: 'full', md: 'xs' }}>
-              <InputLeftElement pointerEvents="none"><FiSearch color="#4a9085" /></InputLeftElement>
-              <Input placeholder="Search name, role, email..." variant="filled" bg={inputBg} borderRadius="xl" fontSize="sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} border="1px solid" borderColor={borderCol} color={titleColor} _placeholder={{ color: descColor }} _focus={{ bg: cardBg, borderColor: '#03735F' }} />
+              <InputLeftElement pointerEvents="none"><FiSearch color="#a05040" /></InputLeftElement>
+              <Input placeholder="Search name, role, email..." variant="filled" bg={inputBg} borderRadius="xl" fontSize="sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} border="1px solid" borderColor={borderCol} color={titleColor} _placeholder={{ color: descColor }} _focus={{ bg: cardBg, borderColor: '#821905' }} />
             </InputGroup>
           </Flex>
         </Box>
@@ -126,11 +128,11 @@ const UserManagement = () => {
                     </Td>
                     <Td borderColor={tdBorder} py={3.5} pr={5} textAlign="right" onClick={(e) => e.stopPropagation()}>
                       <Menu>
-                        <MenuButton as={IconButton} icon={<FiMoreVertical />} variant="ghost" size="sm" borderRadius="xl" color={descColor} _hover={{ bg: 'rgba(3,115,95,0.08)', color: '#03735F' }} />
+                        <MenuButton as={IconButton} icon={<FiMoreVertical />} variant="ghost" size="sm" borderRadius="xl" color={descColor} _hover={{ bg: 'rgba(130,25,5,0.08)', color: '#821905' }} />
                         <MenuList bg={menuListBg} borderColor={borderCol} p={1} borderRadius="xl" boxShadow="0 8px 24px rgba(0,0,0,0.2)">
-                          <MenuItem icon={<FiEye />} borderRadius="lg" onClick={() => handleRowClick(user)} _hover={{ bg: 'rgba(3,115,95,0.08)', color: '#03735F' }} fontSize="sm" color={textColor}>View Profile</MenuItem>
+                          <MenuItem icon={<FiEye />} borderRadius="lg" onClick={() => handleRowClick(user)} _hover={{ bg: 'rgba(130,25,5,0.08)', color: '#821905' }} fontSize="sm" color={textColor}>View Profile</MenuItem>
                           <Divider my={1} borderColor={borderCol} />
-                          <MenuItem icon={<FiCheckCircle />} color="green.400" borderRadius="lg" onClick={() => handleUpdateStatus(user.id, 'Active')} _hover={{ bg: 'rgba(72,187,120,0.1)' }} fontSize="sm">Set Active</MenuItem>
+                          <MenuItem icon={<FiCheckCircle />} color="brand.400" borderRadius="lg" onClick={() => handleUpdateStatus(user.id, 'Active')} _hover={{ bg: 'rgba(130,25,5,0.1)' }} fontSize="sm">Set Active</MenuItem>
                           <MenuItem icon={<FiMinusCircle />} color="orange.400" borderRadius="lg" onClick={() => handleUpdateStatus(user.id, 'Pending')} _hover={{ bg: 'rgba(237,137,54,0.1)' }} fontSize="sm">Set Pending</MenuItem>
                           <MenuItem icon={<FiXCircle />} color="red.400" borderRadius="lg" onClick={() => handleUpdateStatus(user.id, 'Suspended')} _hover={{ bg: 'rgba(245,101,101,0.1)' }} fontSize="sm">Suspend User</MenuItem>
                           <Divider my={1} borderColor={borderCol} />
@@ -157,10 +159,10 @@ const UserManagement = () => {
           {selectedUser && (
             <DrawerBody py={5}>
               <VStack align="center" spacing={3} mb={5} textAlign="center">
-                <Avatar size="2xl" name={selectedUser.name} src={selectedUser.avatar} border="3px solid #03735F" />
+                <Avatar size="2xl" name={selectedUser.name} src={selectedUser.avatar} border="3px solid #821905" />
                 <Box>
                   <Text fontSize="lg" fontWeight="800" color={titleColor} mb={0.5}>{selectedUser.name}</Text>
-                  <Text fontSize="xs" fontWeight="600" color="#03735F" mb={2}>{selectedUser.role}</Text>
+                  <Text fontSize="xs" fontWeight="600" color="#821905" mb={2}>{selectedUser.role}</Text>
                   {getStatusBadge(selectedUser.status)}
                 </Box>
               </VStack>
@@ -193,7 +195,7 @@ const UserManagement = () => {
                   </HStack>
                   <HStack spacing={2} flexWrap="wrap">
                     {selectedUser.permissions.map((perm, idx) => (
-                      <Badge key={idx} bg={useColorModeValue('rgba(3,115,95,0.1)', 'rgba(93,219,187,0.15)')} color={useColorModeValue('#03735F', '#5ddbbb')} px={2.5} py={1} borderRadius="lg" fontSize="10px" fontWeight="600" mb={1.5}>{perm}</Badge>
+                      <Badge key={idx} bg={badgeBg} color={badgeColor} px={2.5} py={1} borderRadius="lg" fontSize="10px" fontWeight="600" mb={1.5}>{perm}</Badge>
                     ))}
                   </HStack>
                 </Box>

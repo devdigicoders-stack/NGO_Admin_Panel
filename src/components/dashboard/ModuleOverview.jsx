@@ -33,18 +33,18 @@ const formatAmount = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 const ModuleOverview = ({ modules, loading }) => {
   const navigate = useNavigate();
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const cardBorder = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const textMuted = useColorModeValue('#4a9085', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const cardBorder = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const textMuted = useColorModeValue('#a05040', '#c08070');
   const itemBg = useColorModeValue('#f7faf9', 'rgba(255,255,255,0.04)');
-  const itemHover = useColorModeValue('rgba(3,115,95,0.06)', 'rgba(93,219,187,0.08)');
+  const itemHover = useColorModeValue('rgba(130,25,5,0.06)', 'rgba(232,144,122,0.08)');
 
   return (
     <Card bg={cardBg} border="1px solid" borderColor={cardBorder} borderRadius="2xl" shadow="sm" h="full">
       <CardBody p={{ base: 4, sm: 5 }}>
         <HStack spacing={2} mb={0.5}>
-          <Icon as={FiGrid} color="#03735F" fontSize="lg" />
+          <Icon as={FiGrid} color="#821905" fontSize="lg" />
           <Text fontSize="md" fontWeight="800" color={titleColor}>All Pages Overview</Text>
         </HStack>
         <Text fontSize="xs" color={textMuted} mb={4}>Live counts from each admin section. Click to open.</Text>
@@ -67,13 +67,13 @@ const ModuleOverview = ({ modules, loading }) => {
                   borderColor={cardBorder}
                   cursor="pointer"
                   transition="all 0.2s ease"
-                  _hover={{ bg: itemHover, borderColor: '#03735F', transform: 'translateY(-2px)' }}
+                  _hover={{ bg: itemHover, borderColor: '#821905', transform: 'translateY(-2px)' }}
                   onClick={() => navigate(mod.path)}
                 >
                   <Flex justify="space-between" align="flex-start" mb={2}>
                     <HStack spacing={2} align="flex-start" flex={1} minW={0}>
-                      <Flex w={8} h={8} borderRadius="lg" bg="rgba(3,115,95,0.1)" align="center" justify="center" flexShrink={0}>
-                        <Icon as={ModIcon} color="#03735F" fontSize="14" />
+                      <Flex w={8} h={8} borderRadius="lg" bg="rgba(130,25,5,0.1)" align="center" justify="center" flexShrink={0}>
+                        <Icon as={ModIcon} color="#821905" fontSize="14" />
                       </Flex>
                       <Box minW={0}>
                         <Text fontSize="xs" fontWeight="700" color={titleColor} noOfLines={1}>{mod.label}</Text>
@@ -93,7 +93,7 @@ const ModuleOverview = ({ modules, loading }) => {
                     </HStack>
                   </Flex>
                   {showAmount && (
-                    <Text fontSize="10px" color="#03735F" fontWeight="600" mt={1}>
+                    <Text fontSize="10px" color="#821905" fontWeight="600" mt={1}>
                       Confirmed: {formatAmount(mod.extra.confirmedAmount)}
                     </Text>
                   )}

@@ -42,15 +42,15 @@ const Settings = () => {
     layout: admin?.prefs?.layout || 'fluid',
   });
 
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderCol = useColorModeValue('#d4ede8', '#0d3d34');
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const labelColor = useColorModeValue('#1a5045', '#c8e8e2');
-  const descColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const inputBg = useColorModeValue('#f0f7f5', 'rgba(255,255,255,0.08)');
-  const inputFocusBg = useColorModeValue('#ffffff', '#0a2e27');
-  const sectionBg = useColorModeValue('#f7faf9', 'rgba(93,219,187,0.04)');
-  const tabColor = useColorModeValue('#4a9085', '#7ab8ae');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderCol = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const labelColor = useColorModeValue('#5c1204', '#f0d8d4');
+  const descColor = useColorModeValue('#a05040', '#c08070');
+  const inputBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.08)');
+  const inputFocusBg = useColorModeValue('#ffffff', '#2a0c06');
+  const sectionBg = useColorModeValue('#f7faf9', 'rgba(232,144,122,0.04)');
+  const tabColor = useColorModeValue('#a05040', '#c08070');
 
   const sharedInput = {
     variant: 'filled',
@@ -61,8 +61,8 @@ const Settings = () => {
     fontSize: 'sm',
     color: titleColor,
     _placeholder: { color: descColor },
-    _focus: { bg: inputFocusBg, borderColor: '#03735F' },
-    _hover: { bg: useColorModeValue('#e6f4f1', 'rgba(255,255,255,0.12)') },
+    _focus: { bg: inputFocusBg, borderColor: '#821905' },
+    _hover: { bg: useColorModeValue('#f9e8e4', 'rgba(255,255,255,0.12)') },
   };
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -122,10 +122,10 @@ const Settings = () => {
         <CardBody p={0}>
           <Tabs variant="line" isLazy>
             <TabList borderBottom="1px solid" borderColor={borderCol} px={5} pt={1} bg={sectionBg}>
-              <Tab py={4} fontWeight="700" fontSize="sm" gap={2} color={tabColor} _selected={{ color: useColorModeValue('#03735F', '#5ddbbb'), borderColor: useColorModeValue('#03735F', '#5ddbbb') }}>
+              <Tab py={4} fontWeight="700" fontSize="sm" gap={2} color={tabColor} _selected={{ color: useColorModeValue('#821905', '#e8907a'), borderColor: useColorModeValue('#821905', '#e8907a') }}>
                 <Icon as={FiUser} />Profile Settings
               </Tab>
-              <Tab py={4} fontWeight="700" fontSize="sm" gap={2} color={tabColor} _selected={{ color: useColorModeValue('#03735F', '#5ddbbb'), borderColor: useColorModeValue('#03735F', '#5ddbbb') }}>
+              <Tab py={4} fontWeight="700" fontSize="sm" gap={2} color={tabColor} _selected={{ color: useColorModeValue('#821905', '#e8907a'), borderColor: useColorModeValue('#821905', '#e8907a') }}>
                 <Icon as={FiSliders} />Preferences & Security
               </Tab>
             </TabList>
@@ -137,7 +137,7 @@ const Settings = () => {
                   <Flex direction={{ base: 'column', md: 'row' }} gap={6}>
                     {/* Avatar */}
                     <VStack align="center" spacing={3} minW={{ base: 'full', md: '180px' }} p={5} border="1px solid" borderColor={borderCol} borderRadius="2xl" bg={sectionBg}>
-                      <Avatar size="2xl" name={profile.name} src={resolveImageUrl(profile.avatar)} border="3px solid #03735F" />
+                      <Avatar size="2xl" name={profile.name} src={resolveImageUrl(profile.avatar)} border="3px solid #821905" />
                       <input
                         ref={avatarInputRef}
                         type="file"
@@ -151,7 +151,7 @@ const Settings = () => {
                         variant="outline"
                         borderColor={borderCol}
                         color={descColor}
-                        _hover={{ bg: 'rgba(3,115,95,0.08)', color: useColorModeValue('#03735F', '#5ddbbb'), borderColor: '#03735F' }}
+                        _hover={{ bg: 'rgba(130,25,5,0.08)', color: useColorModeValue('#821905', '#e8907a'), borderColor: '#821905' }}
                         borderRadius="xl"
                         onClick={() => avatarInputRef.current?.click()}
                         isLoading={avatarUploading}
@@ -187,7 +187,7 @@ const Settings = () => {
                       </FormControl>
                       <Divider borderColor={borderCol} />
                       <Box alignSelf="flex-end">
-                        <Button isLoading={isUpdating} type="submit" bg="#03735F" color="white" borderRadius="xl" size="md" _hover={{ bg: '#026652' }}>Save Profile</Button>
+                        <Button isLoading={isUpdating} type="submit" bg="#821905" color="white" borderRadius="xl" size="md" _hover={{ bg: '#6e1504' }}>Save Profile</Button>
                       </Box>
                     </VStack>
                   </Flex>
@@ -237,7 +237,7 @@ const Settings = () => {
                             <Switch
                               isChecked={prefs[item.key]}
                               onChange={(e) => setPrefs({ ...prefs, [item.key]: e.target.checked })}
-                              sx={{ '& .chakra-switch__track[data-checked]': { bg: '#03735F' } }}
+                              sx={{ '& .chakra-switch__track[data-checked]': { bg: '#821905' } }}
                             />
                           </Flex>
                         ))}
@@ -260,14 +260,14 @@ const Settings = () => {
                         <Switch
                           isChecked={prefs.twoFactor}
                           onChange={(e) => setPrefs({ ...prefs, twoFactor: e.target.checked })}
-                          sx={{ '& .chakra-switch__track[data-checked]': { bg: '#03735F' } }}
+                          sx={{ '& .chakra-switch__track[data-checked]': { bg: '#821905' } }}
                         />
                       </Flex>
                     </Box>
 
                     <Divider borderColor={borderCol} />
                     <Box alignSelf="flex-end">
-                      <Button isLoading={isUpdating} type="submit" bg="#03735F" color="white" borderRadius="xl" size="md" _hover={{ bg: '#026652' }}>Update Preferences</Button>
+                      <Button isLoading={isUpdating} type="submit" bg="#821905" color="white" borderRadius="xl" size="md" _hover={{ bg: '#6e1504' }}>Update Preferences</Button>
                     </Box>
                   </VStack>
                 </Box>

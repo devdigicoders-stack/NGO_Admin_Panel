@@ -103,13 +103,13 @@ const TestimonialCard = ({
   isFirst,
   isLast,
 }) => {
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
   const borderColor = useColorModeValue(
-    item.highlight ? '#f5b400' : '#d4ede8',
-    item.highlight ? '#f5b400' : '#0d3d34',
+    item.highlight ? '#f5b400' : '#f0c4bb',
+    item.highlight ? '#f5b400' : '#4a1208',
   );
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const mutedColor = useColorModeValue('#6b7280', '#7ab8ae');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const mutedColor = useColorModeValue('#6b7280', '#c08070');
 
   return (
     <Card
@@ -158,7 +158,7 @@ const TestimonialCard = ({
                 Featured
               </Badge>
             )}
-            <Badge colorScheme={item.isActive ? 'green' : 'gray'} fontSize="9px">
+            <Badge colorScheme={item.isActive ? 'brand' : 'gray'} fontSize="9px">
               {item.isActive ? 'Active' : 'Hidden'}
             </Badge>
           </VStack>
@@ -192,7 +192,7 @@ const TestimonialCard = ({
               icon={<Icon as={item.isActive ? FiEyeOff : FiEye} />}
               size="sm"
               variant="ghost"
-              colorScheme={item.isActive ? 'orange' : 'green'}
+              colorScheme={item.isActive ? 'orange' : 'brand'}
               onClick={() => onToggle(item.id)}
               aria-label="Toggle"
             />
@@ -241,10 +241,10 @@ const TestimonialsManagement = () => {
   const deleteModal = useDisclosure();
   const toast = useToast();
 
-  const titleColor = useColorModeValue('#08362E', '#e8f8f5');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const mutedColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const mutedColor = useColorModeValue('#a05040', '#c08070');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -462,15 +462,15 @@ const TestimonialsManagement = () => {
       <Box
         p={{ base: 5, md: 7 }}
         borderRadius="2xl"
-        bgGradient="linear(135deg, #f5b400 0%, #c49200 100%)"
-        color="#111827"
-        boxShadow="0 4px 24px rgba(245,180,0,0.35)"
+        bgGradient="linear(135deg, #821905 0%, #4a0e02 100%)"
+        color="white"
+        boxShadow="0 4px 24px rgba(130,25,5,0.25)"
       >
         <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ md: 'center' }} gap={4}>
           <Box>
             <HStack spacing={2} mb={1}>
-              <Icon as={FiMessageSquare} color="#1a5c38" fontSize="14" />
-              <Text fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color="#1a5c38">
+              <Icon as={FiMessageSquare} color="#f0c4bb" fontSize="14" />
+              <Text fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color="#f0c4bb">
                 Website Content
               </Text>
             </HStack>
@@ -483,9 +483,9 @@ const TestimonialsManagement = () => {
           </Box>
           <Button
             leftIcon={<Icon as={FiPlus} />}
-            bg="#1a5c38"
+            bg="#821905"
             color="white"
-            _hover={{ bg: '#0d3a22' }}
+            _hover={{ bg: '#5c1204' }}
             borderRadius="xl"
             fontWeight="700"
             onClick={openCreateModal}
@@ -554,8 +554,9 @@ const TestimonialsManagement = () => {
           </Box>
           <Button
             size="sm"
-            bg="#1a5c38"
+            bg="#821905"
             color="white"
+            _hover={{ bg: '#5c1204' }}
             borderRadius="xl"
             onClick={handleSaveSettings}
             isLoading={savingSettings}
@@ -623,7 +624,7 @@ const TestimonialsManagement = () => {
 
       {loading ? (
         <Flex justify="center" py={16}>
-          <Spinner size="xl" color="#f5b400" />
+          <Spinner size="xl" color="#821905" />
         </Flex>
       ) : error ? (
         <Alert status="error" borderRadius="2xl">
@@ -816,7 +817,7 @@ const TestimonialsManagement = () => {
                   <Switch
                     isChecked={form.isActive}
                     onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                    colorScheme="green"
+                    colorScheme="brand"
                   />
                   <FormLabel fontSize="sm" fontWeight="600" mb={0}>
                     Show on Website
@@ -830,8 +831,9 @@ const TestimonialsManagement = () => {
               Cancel
             </Button>
             <Button
-              bg="#1a5c38"
+              bg="#821905"
               color="white"
+              _hover={{ bg: '#5c1204' }}
               borderRadius="xl"
               onClick={handleSubmit}
               isLoading={submitting}

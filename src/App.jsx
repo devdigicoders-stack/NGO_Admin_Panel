@@ -9,6 +9,7 @@ import NewsManagement from './pages/NewsManagement.jsx';
 import DonationQueriesManagement from './pages/DonationQueriesManagement.jsx';
 import EnquiriesManagement from './pages/EnquiriesManagement.jsx';
 import DonationsManagement from './pages/DonationsManagement.jsx';
+import RegistrationsManagement from './pages/RegistrationsManagement.jsx';
 import Settings from './pages/Settings.jsx';
 import Login from './pages/Login.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -19,8 +20,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#05160e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-        <div style={{ width: '48px', height: '48px', border: '4px solid rgba(3,115,95,0.3)', borderTopColor: '#03735F', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ minHeight: '100vh', background: '#1a0804', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+        <div style={{ width: '48px', height: '48px', border: '4px solid rgba(130,25,5,0.3)', borderTopColor: '#821905', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'sans-serif', fontSize: '14px' }}>Connecting to server...</p>
       </div>
@@ -94,6 +95,12 @@ function App() {
           <Route path="/donations" element={
             <ProtectedRoute>
               <DonationsManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/registrations" element={
+            <ProtectedRoute>
+              <RegistrationsManagement />
             </ProtectedRoute>
           } />
           

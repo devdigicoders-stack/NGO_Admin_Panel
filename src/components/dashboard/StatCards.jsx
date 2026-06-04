@@ -18,11 +18,11 @@ import { FiHeart, FiClock, FiInbox, FiLayers } from 'react-icons/fi';
 const formatAmount = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 const StatCards = ({ summary, loading }) => {
-  const cardBg = useColorModeValue('#ffffff', '#0a2e27');
-  const cardBorder = useColorModeValue('#d4ede8', '#0d3d34');
-  const labelColor = useColorModeValue('#4a9085', '#7ab8ae');
-  const numberColor = useColorModeValue('#08362E', '#e8f8f5');
-  const iconBgGreen = useColorModeValue('rgba(3,115,95,0.1)', 'rgba(93,219,187,0.12)');
+  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const cardBorder = useColorModeValue('#f0c4bb', '#4a1208');
+  const labelColor = useColorModeValue('#a05040', '#c08070');
+  const numberColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const iconBgBrand = useColorModeValue('rgba(130,25,5,0.1)', 'rgba(232,144,122,0.12)');
   const iconBgOrange = useColorModeValue('rgba(217,119,6,0.12)', 'rgba(217,119,6,0.15)');
   const iconBgGold = useColorModeValue('rgba(255,193,8,0.12)', 'rgba(255,193,8,0.15)');
 
@@ -32,8 +32,8 @@ const StatCards = ({ summary, loading }) => {
       value: formatAmount(summary?.confirmedDonationAmount),
       help: `${summary?.totalDonations ?? 0} total records`,
       icon: FiHeart,
-      themeColor: '#03735F',
-      iconBg: iconBgGreen,
+      themeColor: '#821905',
+      iconBg: iconBgBrand,
     },
     {
       label: 'Pending Actions',
@@ -48,8 +48,8 @@ const StatCards = ({ summary, loading }) => {
       value: String(summary?.totalSubmissions ?? 0),
       help: 'Donations, enquiries & about-page queries',
       icon: FiInbox,
-      themeColor: '#03735F',
-      iconBg: iconBgGreen,
+      themeColor: '#821905',
+      iconBg: iconBgBrand,
     },
     {
       label: 'Managed Content',
@@ -70,7 +70,7 @@ const StatCards = ({ summary, loading }) => {
           border="1px solid"
           borderColor={cardBorder}
           borderRadius="2xl"
-          _hover={{ transform: 'translateY(-4px)', boxShadow: '0 12px 32px rgba(3,115,95,0.15)' }}
+          _hover={{ transform: 'translateY(-4px)', boxShadow: '0 12px 32px rgba(130,25,5,0.15)' }}
           transition="all 0.25s ease"
         >
           <CardBody p={5}>

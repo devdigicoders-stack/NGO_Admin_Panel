@@ -20,8 +20,42 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FiHome, FiSettings, FiMenu, FiHeart, FiLogOut, FiUsers, FiMessageSquare, FiFileText, FiInbox, FiMail, FiDollarSign } from 'react-icons/fi';
+import { FiHome, FiSettings, FiMenu, FiHeart, FiLogOut, FiUsers, FiMessageSquare, FiFileText, FiInbox, FiMail, FiDollarSign, FiCreditCard } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+
+const LeafIcon = ({ flip = false }) => (
+  <Box
+    as="svg"
+    viewBox="0 0 24 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    w="3"
+    h="2.5"
+    display="inline-block"
+    transform={flip ? 'scaleX(-1)' : 'none'}
+    verticalAlign="middle"
+    flexShrink={0}
+  >
+    <path
+      d="M2 14C7 13 13 9 17 4"
+      stroke="#821905"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M17 4C14 5 11 8 9 11C11 10 14 8 17 4Z"
+      fill="#821905"
+    />
+    <path
+      d="M11 9C8 8 5 10 3 12C5 11 8 10 11 9Z"
+      fill="#821905"
+    />
+    <path
+      d="M13 8C10 7 7 8 5 9C7 9 9 9 13 8Z"
+      fill="#821905"
+    />
+  </Box>
+);
 
 const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
   const { colorMode } = useColorMode();
@@ -32,20 +66,21 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
   const { isOpen, onOpen, onClose: onLogoutClose } = useDisclosure();
   const cancelRef = useRef();
  
-  const bg = useColorModeValue('#ffffff', '#0a2e27');
-  const borderColor = useColorModeValue('#d4ede8', '#0d3d34');
-  const hoverBg = useColorModeValue('rgba(3,115,95,0.08)', 'rgba(3,200,150,0.12)');
-  const activeBg = useColorModeValue('rgba(3,115,95,0.12)', 'rgba(3,200,150,0.18)');
-  const activeColor = useColorModeValue('#03735F', '#5ddbbb');
-  const textColor = useColorModeValue('#1a5045', '#a8d8cf');
-  const sectionTitleColor = useColorModeValue('#7ab8ae', '#5a9e95');
-  // Logo gets a light pill background in dark mode so it's always visible
+  const bg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
+  const hoverBg = useColorModeValue('rgba(130,25,5,0.07)', 'rgba(232,144,122,0.12)');
+  const activeBg = useColorModeValue('rgba(130,25,5,0.10)', 'rgba(232,144,122,0.18)');
+  const activeColor = useColorModeValue('#821905', '#e8907a');
+  const textColor = useColorModeValue('#5c1204', '#f0d8d4');
+  const sectionTitleColor = useColorModeValue('#b08070', '#a06050');
   const logoBg = useColorModeValue('transparent', 'rgba(255,255,255,0.92)');
   const logoBorderRadius = useColorModeValue('none', 'lg');
   const logoPadding = useColorModeValue(0, 2);
+  const scrollbarColor = useColorModeValue('rgba(130,25,5,0.15)', 'rgba(255,255,255,0.1)');
  
   const menuItems = [
     { name: 'Dashboard', icon: FiHome, path: '/dashboard' },
+    { name: 'Registrations', icon: FiCreditCard, path: '/registrations' },
     { name: 'Programs Management', icon: FiHeart, path: '/programs' },
     { name: 'Team Management', icon: FiUsers, path: '/team' },
     { name: 'Testimonials', icon: FiMessageSquare, path: '/testimonials' },
@@ -112,14 +147,14 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
   };
 
   return (
-    <Box
+    <Flex
+      direction="column"
       w="full"
       h="full"
       bg={bg}
-      position="relative"
       borderRight="1px solid"
       borderColor={borderColor}
-      boxShadow={isDark ? '2px 0 16px rgba(0,0,0,0.3)' : '2px 0 12px rgba(3,115,95,0.06)'}
+      boxShadow={isDark ? '2px 0 16px rgba(0,0,0,0.3)' : '2px 0 12px rgba(130,25,5,0.07)'}
       {...rest}
     >
       {/* Logo Section */}
@@ -130,6 +165,7 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
         justifyContent={isCollapsed ? 'center' : 'space-between'}
         borderBottom="1px solid"
         borderColor={borderColor}
+        flexShrink={0}
       >
         {!isCollapsed && (
           <Box
@@ -140,13 +176,52 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
             display="inline-flex"
             alignItems="center"
           >
-            <Box
-              as="img"
-              src="/logo.png"
-              h="10"
-              maxW="160px"
-              objectFit="contain"
-            />
+            <HStack spacing={1.5} align="center">
+              <Box
+                as="img"
+                src="/logo.png"
+                h="12"
+                w="12"
+                objectFit="contain"
+                flexShrink={0}
+              />
+              <VStack align="flex-start" spacing={0.5} lineHeight="1" flexShrink={0}>
+                <Text
+                  fontSize="7.5px"
+                  fontWeight="800"
+                  color="#821905"
+                  letterSpacing="0.02em"
+                  whiteSpace="nowrap"
+                  fontFamily="'Outfit', sans-serif"
+                >
+                  "मानव सेवा ही सच्ची साधना है"
+                </Text>
+                <Text
+                  fontSize="16px"
+                  fontWeight="900"
+                  color="#821905"
+                  letterSpacing="0.5px"
+                  lineHeight="1"
+                  fontFamily="'Outfit', sans-serif"
+                  textShadow="0.5px 0.5px 0 #FDED95, -0.5px -0.5px 0 #FDED95, 0.5px -0.5px 0 #FDED95, -0.5px 0.5px 0 #FDED95"
+                >
+                  साधु लक्ष्मी
+                </Text>
+                <HStack spacing={1} align="center" w="full" lineHeight="1">
+                  <LeafIcon />
+                  <Text
+                    fontSize="9.5px"
+                    fontWeight="800"
+                    color="#821905"
+                    letterSpacing="0.2px"
+                    fontFamily="'Outfit', sans-serif"
+                  >
+                    जनकल्याण ट्रस्ट
+                  </Text>
+                  <LeafIcon flip />
+                </HStack>
+              </VStack>
+            </HStack>
           </Box>
         )}
         {isCollapsed && (
@@ -157,7 +232,7 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
             alignItems="center"
             justifyContent="center"
             borderRadius="xl"
-            bg={isDark ? 'rgba(93,219,187,0.15)' : 'rgba(3,115,95,0.1)'}
+            bg={isDark ? 'rgba(232,144,122,0.15)' : 'rgba(130,25,5,0.08)'}
             color={activeColor}
             cursor="pointer"
           >
@@ -172,7 +247,21 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
       </Flex>
 
       {/* Navigation */}
-      <VStack spacing={5} align="flex-start" px={3} mt={4} w="full">
+      <VStack
+        spacing={5}
+        align="flex-start"
+        px={3}
+        mt={4}
+        w="full"
+        flex="0 1 auto"
+        overflowY="auto"
+        overflowX="hidden"
+        css={{
+          '&::-webkit-scrollbar': { width: '4px' },
+          '&::-webkit-scrollbar-track': { background: 'transparent' },
+          '&::-webkit-scrollbar-thumb': { background: scrollbarColor, borderRadius: '4px' },
+        }}
+      >
         <Box w="full">
           {!isCollapsed && (
             <Text
@@ -193,8 +282,8 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
         </Box>
       </VStack>
 
-      {/* Logout Button at bottom */}
-      <Box position="absolute" bottom="6" w="full" px={3}>
+      {/* Logout Button (Always visible, sits directly below Settings) */}
+      <Box w="full" px={3} py={3} borderTop="1px solid" borderColor={borderColor} flexShrink={0}>
         <Tooltip
           label={isCollapsed ? 'Logout' : ''}
           placement="right"
@@ -261,7 +350,7 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-    </Box>
+    </Flex>
   );
 };
 
