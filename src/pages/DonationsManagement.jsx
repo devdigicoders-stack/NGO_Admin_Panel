@@ -200,21 +200,30 @@ const DonationsManagement = () => {
   };
 
   const fetchSettings = useCallback(async () => {
-    const res = await fetch(`${API_BASE}/donations/settings`);
-    const json = await res.json();
-    if (json.success) {
-      const snap = applySettingsToForm(json.data);
-      setSettingsSnapshot(snap);
+    try {
+      const res = await fetch(`${API_BASE}/donations/settings`);
+      const json = await res.json();
+      if (json.success) {
+        const snap = applySettingsToForm(json.data);
+        setSettingsSnapshot(snap);
+      }
+    } catch (err) {
+      console.error('Failed to fetch donation settings:', err);
     }
   }, []);
 
   const fetchDonations = useCallback(async () => {
+    const token = localStorage.getItem('admin_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    
     const params = new URLSearchParams();
     if (statusFilter !== 'all') params.set('status', statusFilter);
     if (search.trim()) params.set('search', search.trim());
+    
     const [listRes, statsRes] = await Promise.all([
-      fetch(`${API_BASE}/donations?${params}`, { credentials: 'include' }),
-      fetch(`${API_BASE}/donations/stats`, { credentials: 'include' }),
+      fetch(`${API_BASE}/donations?${params}`, { credentials: 'include', headers }),
+      fetch(`${API_BASE}/donations/stats`, { credentials: 'include', headers }),
     ]);
     const listJson = await listRes.json();
     const statsJson = await statsRes.json();
@@ -252,9 +261,13 @@ const DonationsManagement = () => {
 
     setSavingSettings(true);
     try {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      
       const res = await fetch(`${API_BASE}/donations/settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: JSON.stringify({
           ...settings,
@@ -288,9 +301,13 @@ const DonationsManagement = () => {
     if (!selected) return;
     setSaving(true);
     try {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      
       const res = await fetch(`${API_BASE}/donations/${selected.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: JSON.stringify(editForm),
       });
@@ -309,8 +326,13 @@ const DonationsManagement = () => {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     try {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      
       const res = await fetch(`${API_BASE}/donations/${itemToDelete.id}`, {
         method: 'DELETE',
+        headers,
         credentials: 'include',
       });
       const json = await res.json();
@@ -323,6 +345,7 @@ const DonationsManagement = () => {
       toast({ title: err.message || 'Delete failed', status: 'error' });
     }
   };
+
 
   const statusBadge = (status) => {
     const opt = STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0];
