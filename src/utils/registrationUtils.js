@@ -1,14 +1,14 @@
 // admin_panel/src/utils/registrationUtils.js
 
 export const orgs = [
-  { id: 'patrakar',     short: 'प्रेस एवं मीडिया प्रकोष्ठ',           full: 'प्रेस एवं मीडिया प्रकोष्ठ (मीडिया सेल)',              color: '#821905', icon: '📰', logo: '/company/main/7.png', prefix: 'RPS' },
-  { id: 'crime',        short: 'अपराध नियंत्रण प्रकोष्ठ',        full: 'अपराध नियंत्रण प्रकोष्ठ (क्राइम कंट्रोल सेल)',        color: '#a8170c', icon: '🔍', logo: '/company/main/3.png', prefix: 'RCIB' },
-  { id: 'chikitsa',     short: 'अखिल भारतीय सेवा प्रकोष्ठ',     full: 'अखिल भारतीय सेवा प्रकोष्ठ (अखिल भारतीय महिला सेल)',  color: '#d81b60', icon: '👩', logo: '/company/main/8.png', prefix: 'ABCS' },
-  { id: 'hindu',        short: 'हिन्दू विंग',           full: 'हिंदू विंग (राष्ट्रीय हिन्दू रक्षा सेना)',               color: '#e65100', icon: '🕉️', logo: '/company/main/4.png', prefix: 'RHM' },
-  { id: 'journalist',   short: 'भारतीय परिषद प्रकोष्ठ',       full: 'भारतीय परिषद प्रकोष्ठ (इन्डियन काउंसिल ऑफ प्रेस)',    color: '#5e35b1', icon: '✍️', logo: '/company/main/5.png', prefix: 'ICJ' },
-  { id: 'manav',        short: 'मानवाधिकार प्रकोष्ठ',   full: 'मानवाधिकार प्रकोष्ठ (राष्ट्रीय मानवाधिकार आयोग)',    color: '#00701a', icon: '⚖️', logo: '/company/main/1.png', prefix: 'RMA' },
-  { id: 'bhrashtachar',  short: 'भ्रष्टाचार निवारण प्रकोष्ठ',    full: 'भ्रष्टाचार निवारण प्रकोष्ठ (भ्रष्टाचार विरोधी सेल)',  color: '#c43e00', icon: '🛡️', logo: '/company/main/2.png', prefix: 'BUAC' },
-  { id: 'muslim',       short: 'मुस्लिम विंग',           full: 'मुस्लिम विंग (भारतीय मुस्लिम विंग)',                 color: '#004d40', icon: '☪️', logo: '/company/main/6.png', prefix: 'BMM' },
+  { id: 'patrakar',     short: 'राष्ट्रीय पत्रकार समर्पित संघ',           full: 'राष्ट्रीय पत्रकार समर्पित संघ (मीडिया सेल)',              color: '#821905', icon: '📰', logo: '/company/main/7.png', prefix: 'RPS' },
+  { id: 'crime',        short: 'राष्ट्रीय क्राइम इन्वेस्टिगेशन ब्यूरो',        full: 'राष्ट्रीय क्राइम इन्वेस्टिगेशन ब्यूरो (क्राइम कंट्रोल सेल)',        color: '#a8170c', icon: '🔍', logo: '/company/main/3.png', prefix: 'RCIB' },
+  { id: 'chikitsa',     short: 'आखिल भारतीय चिकित्सा संघ',     full: 'आखिल भारतीय चिकित्सा संघ (अखिल भारतीय महिला सेल)',  color: '#d81b60', icon: '👩', logo: '/company/main/8.png', prefix: 'ABCS' },
+  { id: 'hindu',        short: 'राष्ट्रीय हिन्दू महासभा साधू',           full: 'राष्ट्रीय हिन्दू महासभा साधू (राष्ट्रीय हिन्दू रक्षा सेना)',               color: '#e65100', icon: '🕉️', logo: '/company/main/4.png', prefix: 'RHM' },
+  { id: 'journalist',   short: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू',       full: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू (इन्डियन काउंसिल ऑफ प्रेस)',    color: '#5e35b1', icon: '✍️', logo: '/company/main/5.png', prefix: 'ICJ' },
+  { id: 'manav',        short: 'राष्ट्रीय मानवधिकार आयोग साधू',   full: 'राष्ट्रीय मानवधिकार आयोग साधू (राष्ट्रीय मानवाधिकार आयोग)',    color: '#00701a', icon: '⚖️', logo: '/company/main/1.png', prefix: 'RMA' },
+  { id: 'bhrashtachar',  short: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू',    full: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू (भ्रष्टाचार विरोधी सेल)',  color: '#c43e00', icon: '🛡️', logo: '/company/main/2.png', prefix: 'BUAC' },
+  { id: 'muslim',       short: 'भारतीय मुस्लिम मंच',           full: 'भारतीय मुस्लिम मंच (भारतीय भारतीय मुस्लिम मंच)',                 color: '#004d40', icon: '☪️', logo: '/company/main/6.png', prefix: 'BMM' },
 ]
 
 export const extraFields = {
