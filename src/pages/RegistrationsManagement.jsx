@@ -12,6 +12,8 @@ import { apiClient } from '../utils/apiClient';
 import { orgs } from '../utils/registrationUtils';
 import { resolveImageUrl } from '../utils/imageUrl';
 import IDCardGenerator from '../components/IDCardGenerator';
+import JoiningLetterGenerator from '../components/JoiningLetterGenerator';
+import { FiFileText } from 'react-icons/fi';
 
 const RegistrationsManagement = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -23,6 +25,8 @@ const RegistrationsManagement = () => {
   // State for ID Card modal preview
   const [selectedReg, setSelectedReg] = useState(null);
   const [generatedCardData, setGeneratedCardData] = useState(null);
+  const [generatedLetterData, setGeneratedLetterData] = useState(null);
+  const [activeDocument, setActiveDocument] = useState('card'); // 'card' or 'letter'
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Chakra UI colors matching theme.js
@@ -60,9 +64,11 @@ const RegistrationsManagement = () => {
     }
   };
 
-  const handleOpenCard = (reg) => {
+  const handleOpenDocument = (reg, docType) => {
     setSelectedReg(reg);
+    setActiveDocument(docType);
     setGeneratedCardData(null);
+    setGeneratedLetterData(null);
     onOpen();
   };
 
@@ -317,16 +323,28 @@ const RegistrationsManagement = () => {
 
                         {/* Actions */}
                         <Td borderColor={tdBorder} py={3} pr={5} textAlign="right">
-                          <Button 
-                            leftIcon={<FiCreditCard />} 
-                            size="xs" 
-                            borderRadius="lg" 
-                            colorScheme="brand" 
-                            variant="solid"
-                            onClick={() => handleOpenCard(reg)}
-                          >
-                            ID Card
-                          </Button>
+                          <HStack spacing={2} justify="flex-end">
+                            <Button 
+                              leftIcon={<FiCreditCard />} 
+                              size="xs" 
+                              borderRadius="lg" 
+                              colorScheme="brand" 
+                              variant="solid"
+                              onClick={() => handleOpenDocument(reg, 'card')}
+                            >
+                              ID Card
+                            </Button>
+                            <Button 
+                              leftIcon={<FiFileText />} 
+                              size="xs" 
+                              borderRadius="lg" 
+                              colorScheme="teal" 
+                              variant="outline"
+                              onClick={() => handleOpenDocument(reg, 'letter')}
+                            >
+                              Letter
+                            </Button>
+                          </HStack>
                         </Td>
                       </Tr>
                     );
@@ -338,15 +356,15 @@ const RegistrationsManagement = () => {
         )}
       </Box>
 
-      {/* ID Card Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl" isCentered>
+      {/* ID Card / Joining Letter Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size={activeDocument === 'card' ? "4xl" : "2xl"} isCentered>
         <ModalOverlay />
         <ModalContent bg={cardBg} border="1px solid" borderColor={borderCol} borderRadius="2xl" overflow="hidden">
           <ModalHeader borderBottom="1px solid" borderColor={borderCol} py={4}>
             <HStack spacing={2}>
-              <Icon as={FiCreditCard} color="#821905" />
+              <Icon as={activeDocument === 'card' ? FiCreditCard : FiFileText} color="#821905" />
               <Text fontSize="md" fontWeight="800" color={titleColor}>
-                सदस्य पहचान पत्र (ID Card Preview)
+                {activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)'}
               </Text>
             </HStack>
           </ModalHeader>
@@ -354,87 +372,141 @@ const RegistrationsManagement = () => {
           <ModalBody p={6}>
             {selectedReg && (
               <VStack spacing={6} align="center" w="full">
-                {generatedCardData ? (
-                  <Flex direction={{ base: 'column', md: 'row' }} gap={6} justify="center" w="full">
-                    {/* Front Card Column */}
-                    <Box textAlign="center" flex="1" maxW="420px">
-                      <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
-                        सामने का भाग (Front)
-                      </Text>
-                      <Image 
-                        src={generatedCardData.front} 
-                        alt="Front ID Card" 
-                        borderRadius="xl"
-                        boxShadow="md"
-                        maxW="100%"
-                        border="1px solid"
-                        borderColor={borderCol}
-                      />
-                      <Button
-                        colorScheme="brand"
-                        leftIcon={<FiDownload />}
-                        mt={3}
-                        w="full"
-                        size="sm"
-                        borderRadius="xl"
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.download = `ID_Card_Front_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
-                          link.href = generatedCardData.front;
-                          link.click();
-                        }}
-                      >
-                        सामने का भाग डाउनलोड करें
-                      </Button>
-                    </Box>
+                
+                {/* ---------- ID CARD VIEW ---------- */}
+                {activeDocument === 'card' && (
+                  generatedCardData ? (
+                    <Flex direction={{ base: 'column', md: 'row' }} gap={6} justify="center" w="full">
+                      {/* Front Card Column */}
+                      <Box textAlign="center" flex="1" maxW="420px">
+                        <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
+                          सामने का भाग (Front)
+                        </Text>
+                        <Image 
+                          src={generatedCardData.front} 
+                          alt="Front ID Card" 
+                          borderRadius="xl"
+                          boxShadow="md"
+                          maxW="100%"
+                          border="1px solid"
+                          borderColor={borderCol}
+                        />
+                        <Button
+                          colorScheme="brand"
+                          leftIcon={<FiDownload />}
+                          mt={3}
+                          w="full"
+                          size="sm"
+                          borderRadius="xl"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.download = `ID_Card_Front_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                            link.href = generatedCardData.front;
+                            link.click();
+                          }}
+                        >
+                          सामने का भाग डाउनलोड करें
+                        </Button>
+                      </Box>
 
-                    {/* Back Card Column */}
-                    <Box textAlign="center" flex="1" maxW="420px">
-                      <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
-                        पीछे का भाग (Back)
-                      </Text>
-                      <Image 
-                        src={generatedCardData.back} 
-                        alt="Back ID Card" 
-                        borderRadius="xl"
-                        boxShadow="md"
-                        maxW="100%"
-                        border="1px solid"
-                        borderColor={borderCol}
-                      />
-                      <Button
-                        colorScheme="brand"
-                        variant="outline"
-                        leftIcon={<FiDownload />}
-                        mt={3}
-                        w="full"
-                        size="sm"
-                        borderRadius="xl"
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.download = `ID_Card_Back_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
-                          link.href = generatedCardData.back;
-                          link.click();
-                        }}
-                      >
-                        पीछे का भाग डाउनलोड करें
-                      </Button>
-                    </Box>
-                  </Flex>
-                ) : (
-                  <Center py={10} w="full" flexDirection="column" gap={3}>
-                    <Spinner size="md" color="#821905" />
-                    <Text fontSize="xs" color={descColor}>ID Card उत्पन्न हो रहा है...</Text>
-                  </Center>
+                      {/* Back Card Column */}
+                      <Box textAlign="center" flex="1" maxW="420px">
+                        <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
+                          पीछे का भाग (Back)
+                        </Text>
+                        <Image 
+                          src={generatedCardData.back} 
+                          alt="Back ID Card" 
+                          borderRadius="xl"
+                          boxShadow="md"
+                          maxW="100%"
+                          border="1px solid"
+                          borderColor={borderCol}
+                        />
+                        <Button
+                          colorScheme="brand"
+                          variant="outline"
+                          leftIcon={<FiDownload />}
+                          mt={3}
+                          w="full"
+                          size="sm"
+                          borderRadius="xl"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.download = `ID_Card_Back_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                            link.href = generatedCardData.back;
+                            link.click();
+                          }}
+                        >
+                          पीछे का भाग डाउनलोड करें
+                        </Button>
+                      </Box>
+                    </Flex>
+                  ) : (
+                    <Center py={10} w="full" flexDirection="column" gap={3}>
+                      <Spinner size="md" color="#821905" />
+                      <Text fontSize="xs" color={descColor}>ID Card उत्पन्न हो रहा है...</Text>
+                    </Center>
+                  )
                 )}
 
-                {/* Generator Component (Hidden Canvas) */}
-                <IDCardGenerator
-                  orgId={selectedReg.orgId}
-                  formData={selectedReg.formData}
-                  regNumber={selectedReg.regNumber}
-                  onGenerated={setGeneratedCardData}
-                />
+                {/* ---------- JOINING LETTER VIEW ---------- */}
+                {activeDocument === 'letter' && (
+                  generatedLetterData ? (
+                    <Box textAlign="center" w="full" maxW="500px" mx="auto">
+                      <Image 
+                        src={generatedLetterData} 
+                        alt="Joining Letter" 
+                        borderRadius="xl"
+                        boxShadow="md"
+                        maxW="100%"
+                        border="1px solid"
+                        borderColor={borderCol}
+                      />
+                      <Button
+                        colorScheme="teal"
+                        leftIcon={<FiDownload />}
+                        mt={4}
+                        w="full"
+                        size="md"
+                        borderRadius="xl"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.download = `Joining_Letter_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                          link.href = generatedLetterData;
+                          link.click();
+                        }}
+                      >
+                        जॉइनिंग लेटर डाउनलोड करें
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Center py={10} w="full" flexDirection="column" gap={3}>
+                      <Spinner size="md" color="teal.500" />
+                      <Text fontSize="xs" color={descColor}>जॉइनिंग लेटर उत्पन्न हो रहा है...</Text>
+                    </Center>
+                  )
+                )}
+
+                {/* Generator Components (Hidden Canvas) */}
+                <Box display="none">
+                  {activeDocument === 'card' && (
+                    <IDCardGenerator
+                      orgId={selectedReg.orgId}
+                      formData={selectedReg.formData}
+                      regNumber={selectedReg.regNumber}
+                      onGenerated={setGeneratedCardData}
+                    />
+                  )}
+                  {activeDocument === 'letter' && (
+                    <JoiningLetterGenerator
+                      orgId={selectedReg.orgId}
+                      formData={selectedReg.formData}
+                      regNumber={selectedReg.regNumber}
+                      onGenerated={setGeneratedLetterData}
+                    />
+                  )}
+                </Box>
               </VStack>
             )}
           </ModalBody>
