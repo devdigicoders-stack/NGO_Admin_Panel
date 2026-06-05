@@ -267,13 +267,13 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     
     // Align all elements to contactX so they are perfectly flush right
     // Phone
-    ctx.fillText('+91-XXXXX-XXXXX', contactX, contactY)
+    ctx.fillText('+91-9569036324', contactX, contactY)
     // Email
     contactY += 35
-    ctx.fillText('info@sadhulaxmitrust.org', contactX, contactY)
+    ctx.fillText('Shakti.singh20017@gmail.com', contactX, contactY)
     // Web
-    contactY += 35
-    ctx.fillText('www.sadhulaxmitrust.org', contactX, contactY)
+    // contactY += 35
+    // // ctx.fillText('www.sadhulaxmitrust.org', contactX, contactY)
 
     // Bottom Wave
     ctx.fillStyle = secondaryColor
