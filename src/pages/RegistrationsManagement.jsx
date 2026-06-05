@@ -5,7 +5,7 @@ import {
   Button, useColorModeValue, Icon, Flex, Spinner,
   Tabs, TabList, Tab,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
-  useDisclosure, Image, Center,
+  useDisclosure, Image, Center, useToast
 } from '@chakra-ui/react';
 import { FiSearch, FiCreditCard, FiDownload, FiUser } from 'react-icons/fi';
 import { apiClient } from '../utils/apiClient';
@@ -26,8 +26,11 @@ const RegistrationsManagement = () => {
   const [selectedReg, setSelectedReg] = useState(null);
   const [generatedCardData, setGeneratedCardData] = useState(null);
   const [generatedLetterData, setGeneratedLetterData] = useState(null);
-  const [activeDocument, setActiveDocument] = useState('card'); // 'card' or 'letter'
+  const [activeDocument, setActiveDocument] = useState('card'); // 'card', 'letter', or 'review'
+  const [updateRole, setUpdateRole] = useState('सदस्य');
+  const [updating, setUpdating] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   // Chakra UI colors matching theme.js
   const cardBg = useColorModeValue('#ffffff', '#2a0c06');
@@ -70,6 +73,41 @@ const RegistrationsManagement = () => {
     setGeneratedCardData(null);
     setGeneratedLetterData(null);
     onOpen();
+  };
+
+  const handleOpenReview = (reg) => {
+    setSelectedReg(reg);
+    setActiveDocument('review');
+    setUpdateRole(reg.role || 'सदस्य');
+    onOpen();
+  };
+
+  const handleUpdateStatus = async (newStatus) => {
+    setUpdating(true);
+    try {
+      const res = await apiClient(`/registrations/${selectedReg.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus, role: updateRole })
+      });
+      if (res.success) {
+        setRegistrations(prev => prev.map(r => r.id === selectedReg.id ? { ...r, status: newStatus, role: updateRole } : r));
+        setSelectedReg(prev => ({ ...prev, status: newStatus, role: updateRole }));
+        toast({
+          title: newStatus === 'approved' ? "पंजीकरण स्वीकृत (Approved) हो गया!" : "पंजीकरण अस्वीकृत (Rejected) कर दिया गया।",
+          status: newStatus === 'approved' ? 'success' : 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right'
+        });
+      } else {
+        toast({ title: res.message || 'स्टेटस अपडेट करने में विफल।', status: 'error', duration: 3000, isClosable: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'सर्वर एरर।', status: 'error', duration: 3000, isClosable: true });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleDownloadCard = () => {
@@ -213,6 +251,7 @@ const RegistrationsManagement = () => {
                   <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>समुदाय/कोष्ठ</Th>
                   <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>पिता/पति का नाम</Th>
                   <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>मोबाइल</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>स्टेटस / पद</Th>
                   <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>पंजीकरण तिथि</Th>
                   <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3} pr={5} textAlign="right">एक्शन</Th>
                 </Tr>
@@ -316,6 +355,18 @@ const RegistrationsManagement = () => {
                           <Text fontSize="xs" fontWeight="600" color={textColor}>{fData.mobile || 'N/A'}</Text>
                         </Td>
 
+                        {/* Status / Role */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <VStack align="start" spacing={1}>
+                            <Badge colorScheme={reg.status === 'approved' ? 'green' : reg.status === 'rejected' ? 'red' : 'orange'} fontSize="10px">
+                              {reg.status === 'approved' ? 'Approved' : reg.status === 'rejected' ? 'Rejected' : 'Pending'}
+                            </Badge>
+                            {reg.status === 'approved' && (
+                              <Text fontSize="10px" color={descColor} fontWeight="600">{reg.role || 'सदस्य'}</Text>
+                            )}
+                          </VStack>
+                        </Td>
+
                         {/* Registration Date */}
                         <Td borderColor={tdBorder} py={3}>
                           <Text fontSize="xs" color={descColor} fontWeight="500">{formatDate(reg.createdAt)}</Text>
@@ -325,24 +376,24 @@ const RegistrationsManagement = () => {
                         <Td borderColor={tdBorder} py={3} pr={5} textAlign="right">
                           <HStack spacing={2} justify="flex-end">
                             <Button 
+                              leftIcon={<FiUser />} 
+                              size="xs" 
+                              borderRadius="lg" 
+                              colorScheme="blue" 
+                              variant="solid"
+                              onClick={() => handleOpenReview(reg)}
+                            >
+                              Review
+                            </Button>
+                            <Button 
                               leftIcon={<FiCreditCard />} 
                               size="xs" 
                               borderRadius="lg" 
                               colorScheme="brand" 
-                              variant="solid"
+                              variant="outline"
                               onClick={() => handleOpenDocument(reg, 'card')}
                             >
-                              ID Card
-                            </Button>
-                            <Button 
-                              leftIcon={<FiFileText />} 
-                              size="xs" 
-                              borderRadius="lg" 
-                              colorScheme="teal" 
-                              variant="outline"
-                              onClick={() => handleOpenDocument(reg, 'letter')}
-                            >
-                              Letter
+                              ID / Letter
                             </Button>
                           </HStack>
                         </Td>
@@ -362,9 +413,9 @@ const RegistrationsManagement = () => {
         <ModalContent bg={cardBg} border="1px solid" borderColor={borderCol} borderRadius="2xl" overflow="hidden">
           <ModalHeader borderBottom="1px solid" borderColor={borderCol} py={4}>
             <HStack spacing={2}>
-              <Icon as={activeDocument === 'card' ? FiCreditCard : FiFileText} color="#821905" />
+              <Icon as={activeDocument === 'review' ? FiUser : (activeDocument === 'card' ? FiCreditCard : FiFileText)} color="#821905" />
               <Text fontSize="md" fontWeight="800" color={titleColor}>
-                {activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)'}
+                {activeDocument === 'review' ? 'रजिस्ट्रेशन रिव्यू (Registration Review)' : (activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)')}
               </Text>
             </HStack>
           </ModalHeader>
@@ -372,6 +423,69 @@ const RegistrationsManagement = () => {
           <ModalBody p={6}>
             {selectedReg && (
               <VStack spacing={6} align="center" w="full">
+
+                {/* ---------- REVIEW REGISTRATION ---------- */}
+                {activeDocument === 'review' && (
+                  <VStack align="stretch" w="full" spacing={4}>
+                    <HStack justify="space-between" align="flex-start">
+                      <Box>
+                        <Text fontSize="xl" fontWeight="700" color={titleColor}>{selectedReg.formData.name || 'N/A'}</Text>
+                        <Text fontSize="sm" color={descColor}>रजिस्ट्रेशन नंबर: {selectedReg.regNumber}</Text>
+                        <Badge mt={2} colorScheme={selectedReg.status === 'approved' ? 'green' : selectedReg.status === 'rejected' ? 'red' : 'orange'}>
+                          {selectedReg.status === 'approved' ? 'Approved' : selectedReg.status === 'rejected' ? 'Rejected' : 'Pending'}
+                        </Badge>
+                      </Box>
+                      {selectedReg.formData.photo && (
+                        <Image src={resolveImageUrl(selectedReg.formData.photo)} w="80px" h="100px" objectFit="cover" borderRadius="md" border={`1px solid ${borderCol}`} />
+                      )}
+                    </HStack>
+
+                    <Box bg={thBg} p={4} borderRadius="xl" border="1px solid" borderColor={borderCol}>
+                      <VStack align="stretch" spacing={2}>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">समुदाय:</Text><Text fontSize="sm">{getOrgShortName(selectedReg.orgId)}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">पिता/पति का नाम:</Text><Text fontSize="sm">{selectedReg.formData.father}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">जन्म तिथि:</Text><Text fontSize="sm">{selectedReg.formData.dob}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">मोबाइल:</Text><Text fontSize="sm">{selectedReg.formData.mobile}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">ईमेल:</Text><Text fontSize="sm">{selectedReg.formData.email || '-'}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">आधार नंबर:</Text><Text fontSize="sm">{selectedReg.formData.aadhar}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">पता:</Text><Text fontSize="sm" textAlign="right">{selectedReg.formData.address}<br/>पिन: {selectedReg.formData.pincode}</Text></HStack>
+                      </VStack>
+                    </Box>
+
+                    <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                      <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>पद (Role) असाइन करें:</Text>
+                      <Input 
+                        value={updateRole} 
+                        onChange={(e) => setUpdateRole(e.target.value)} 
+                        placeholder="जैसे: सदस्य, जिला अध्यक्ष" 
+                        size="md" 
+                        borderRadius="lg"
+                        bg={inputBg}
+                        borderColor={borderCol}
+                      />
+                    </Box>
+
+                    <HStack pt={4} justify="flex-end" w="full" spacing={3}>
+                      {selectedReg.status !== 'rejected' && (
+                        <Button 
+                          colorScheme="red" 
+                          variant="outline"
+                          isLoading={updating}
+                          onClick={() => handleUpdateStatus('rejected')}
+                        >
+                          रिजेक्ट करें (Reject)
+                        </Button>
+                      )}
+                      <Button 
+                        colorScheme="green" 
+                        isLoading={updating}
+                        onClick={() => handleUpdateStatus('approved')}
+                      >
+                        {selectedReg.status === 'approved' ? 'अपडेट करें (Update)' : 'अप्रूव करें (Approve)'}
+                      </Button>
+                    </HStack>
+                  </VStack>
+                )}
                 
                 {/* ---------- ID CARD VIEW ---------- */}
                 {activeDocument === 'card' && (
@@ -490,18 +604,18 @@ const RegistrationsManagement = () => {
 
                 {/* Generator Components (Hidden Canvas) */}
                 <Box display="none">
-                  {activeDocument === 'card' && (
+                  {(activeDocument === 'card' || activeDocument === 'letter') && (
                     <IDCardGenerator
                       orgId={selectedReg.orgId}
-                      formData={selectedReg.formData}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role }}
                       regNumber={selectedReg.regNumber}
                       onGenerated={setGeneratedCardData}
                     />
                   )}
-                  {activeDocument === 'letter' && (
+                  {(activeDocument === 'card' || activeDocument === 'letter') && (
                     <JoiningLetterGenerator
                       orgId={selectedReg.orgId}
-                      formData={selectedReg.formData}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role }}
                       regNumber={selectedReg.regNumber}
                       onGenerated={setGeneratedLetterData}
                     />
@@ -511,6 +625,16 @@ const RegistrationsManagement = () => {
             )}
           </ModalBody>
           <ModalFooter borderTop="1px solid" borderColor={borderCol} py={3}>
+            {activeDocument === 'card' && (
+              <Button colorScheme="teal" variant="outline" mr={3} size="sm" onClick={() => setActiveDocument('letter')}>
+                Letter देखें
+              </Button>
+            )}
+            {activeDocument === 'letter' && (
+              <Button colorScheme="brand" variant="outline" mr={3} size="sm" onClick={() => setActiveDocument('card')}>
+                ID Card देखें
+              </Button>
+            )}
             <Button colorScheme="brand" onClick={onClose} borderRadius="xl" size="sm">
               बंद करें
             </Button>

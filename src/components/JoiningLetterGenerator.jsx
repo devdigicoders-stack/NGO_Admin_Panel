@@ -55,14 +55,14 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       })
     }
     const letterLogos = {
-      patrakar: '/letter/राष्ट्रीय पत्रकार समर्पित संघ.png',
-      crime: '/letter/राष्ट्रीय क्राइम इन्वेस्टिगेशन ब्यूरो .png',
-      chikitsa: '/letter/आखिल भारतीय चिकित्सा संघ .png',
-      hindu: '/letter/राष्ट्रीय हिन्दू महासभा साधू.png',
-      journalist: '/letter/राइट टू रिकॉल मंच.png',
-      manav: '/letter/राष्ट्रीय मानवधिकार आयोग साधू.png',
-      bhrashtachar: '/letter/भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू .png',
-      muslim: '/letter/भारतीय मुस्लिम मं.png',
+      patrakar:     '/ID/press.png',
+      crime:        '/ID/crime.png',
+      chikitsa:     '/ID/akhil.png',
+      hindu:        '/ID/hindu.png',
+      journalist:   '/ID/indian_council.png',
+      manav:        '/ID/right.png',
+      bhrashtachar: '/ID/bhrast.png',
+      muslim:       '/ID/mushlim.png',
     }
     
     const letterLogoPath = letterLogos[org.id] || org.logo
@@ -76,77 +76,29 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, width, height)
 
-    // Draw Top Wave
-    ctx.fillStyle = primaryColor
-    ctx.beginPath()
-    ctx.moveTo(0, 0)
-    ctx.lineTo(width, 0)
-    ctx.lineTo(width, 150)
-    ctx.quadraticCurveTo(width / 2, 250, 0, 100)
-    ctx.closePath()
-    ctx.fill()
-
-    ctx.fillStyle = secondaryColor
-    ctx.beginPath()
-    ctx.moveTo(0, 0)
-    ctx.lineTo(width, 0)
-    ctx.lineTo(width, 120)
-    ctx.quadraticCurveTo(width / 2, 200, 0, 70)
-    ctx.closePath()
-    ctx.fill()
-
-    // Draw Header (Logo + Org Name)
-    const headerY = 320
+    // Draw Full Header Image (Cropped to just the header portion)
+    let headerHeight = 0;
     if (logoImg) {
-      const logoHeight = 180
-      const logoWidth = logoHeight * (logoImg.width / logoImg.height)
-      const logoX = 60 // Shifted left to compensate for transparent padding in the image
-      ctx.drawImage(logoImg, logoX, headerY - 90, logoWidth, logoHeight)
-      
-      // Texts next to logo
-      const textX = logoX + logoWidth + 20
-      ctx.fillStyle = primaryColor
-      ctx.textAlign = 'left'
-      ctx.textBaseline = 'middle'
-      
-      // Dynamically scale font size so it fits
-      let fontSize = 46;
-      ctx.font = `bold ${fontSize}px 'Poppins', sans-serif`;
-      let textWidth = ctx.measureText(org.full).width;
-      const maxHeaderWidth = width - textX - 80; // 80px right margin
-      
-      while (textWidth > maxHeaderWidth && fontSize > 22) {
-        fontSize -= 2;
-        ctx.font = `bold ${fontSize}px 'Poppins', sans-serif`;
-        textWidth = ctx.measureText(org.full).width;
-      }
-      
-      ctx.fillText(org.full, textX, headerY - 10)
-      
-      ctx.fillStyle = '#64748b'
-      ctx.font = "500 24px 'Hind', sans-serif"
-      ctx.fillText('साधू लक्ष्मी जनकल्याण ट्रस्ट', textX, headerY + 40)
+      // Determine crop ratio: use 1.0 for muslim since it is now just a banner, 0.68 for others
+      const cropRatio = org.id === 'muslim' ? 1.0 : 0.68;
+      const sWidth = logoImg.width;
+      const sHeight = logoImg.height * cropRatio;
+      headerHeight = width * (sHeight / sWidth);
+      ctx.drawImage(logoImg, 0, 0, sWidth, sHeight, 0, 0, width, headerHeight);
     } else {
-      ctx.fillStyle = primaryColor
-      ctx.textAlign = 'left'
-      ctx.textBaseline = 'middle'
-      
-      let fontSize = 46;
-      ctx.font = `bold ${fontSize}px 'Poppins', sans-serif`;
-      let textWidth = ctx.measureText(org.full).width;
-      const maxHeaderWidth = width - 120 - 80;
-      
-      while (textWidth > maxHeaderWidth && fontSize > 22) {
-        fontSize -= 2;
-        ctx.font = `bold ${fontSize}px 'Poppins', sans-serif`;
-        textWidth = ctx.measureText(org.full).width;
-      }
-      
-      ctx.fillText(org.full, 120, headerY - 10)
+      // Fallback simple header if no image
+      ctx.fillStyle = primaryColor;
+      ctx.fillRect(0, 0, width, 150);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = "bold 46px 'Poppins', sans-serif";
+      ctx.fillText(org.full, width / 2, 75);
+      headerHeight = 150;
     }
 
     // Details Section
-    let contentY = 550
+    let contentY = org.id === 'muslim' ? 550 : Math.max(450, headerHeight + 80)
     ctx.fillStyle = '#1e293b'
     ctx.font = "bold 24px 'Poppins', sans-serif"
     ctx.textAlign = 'left'
@@ -195,8 +147,8 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     const paragraphs = [
       `प्रिय ${userName},`,
       ``,
-      `हमें आपको यह सूचित करते हुए अत्यंत हर्ष हो रहा है कि आपको "${org.full}" में सदस्य के पद पर नियुक्त किया गया है। आपका यह पंजीकरण साधू लक्ष्मी जनकल्याण ट्रस्ट के अंतर्गत किया गया है।`,
-      ``,
+      `हमें आपको यह सूचित करते हुए अत्यंत हर्ष हो रहा है कि आपको "${org.full}" में ${formData.role || 'सदस्य'} के पद पर नियुक्त किया गया है। आपका यह पंजीकरण साधू लक्ष्मी जनकल्याण ट्रस्ट के अंतर्गत किया गया है।`,
+      '',
       `संस्था को यह पूर्ण विश्वास है कि आप अपने कौशल, अनुभव और निष्ठा के साथ हमारे संगठन के उद्देश्यों को प्राप्त करने में महत्वपूर्ण योगदान देंगे। हम आपसे यह अपेक्षा करते हैं कि आप संस्था के सभी नियमों और विनियमों का पूरी तरह से पालन करेंगे।`,
       ``,
       `हम आपके उज्ज्वल भविष्य की कामना करते हैं और संस्था परिवार में आपका हार्दिक स्वागत करते हैं।`

@@ -1,412 +1,638 @@
 import { useRef, useEffect } from 'react'
-import { orgs } from '../utils/registrationUtils'
+import { orgs, extraFields } from '../utils/registrationUtils'
 import { resolveImageUrl } from '../utils/imageUrl'
+
+// Map orgId → figure image in /ID/ folder
+const ORG_FIGURE_MAP = {
+  patrakar:     '/ID/press.png',
+  crime:        '/ID/crime.png',
+  chikitsa:     '/ID/akhil.png',
+  hindu:        '/ID/hindu.png',
+  journalist:   '/ID/indian_council.png',
+  manav:        '/ID/right.png',
+  bhrashtachar: '/ID/bhrast.png',
+  muslim:       '/ID/mushlim.png',
+}
+
+// Map orgId → primary saffron/theme tones (top header gradient)
+const ORG_HEADER_COLORS = {
+  patrakar:     { from: '#8B1A00', to: '#CC3300', accent: '#FF6600' },
+  crime:        { from: '#6B0000', to: '#AA1100', accent: '#CC2200' },
+  chikitsa:     { from: '#880044', to: '#CC1166', accent: '#FF3399' },
+  hindu:        { from: '#8B3A00', to: '#D45A00', accent: '#FF8C00' },
+  journalist:   { from: '#2D1B6B', to: '#5735AA', accent: '#7B52CC' },
+  manav:        { from: '#004D1A', to: '#007A2A', accent: '#00A836' },
+  bhrashtachar: { from: '#7A2100', to: '#BB4400', accent: '#DD6600' },
+  muslim:       { from: '#003330', to: '#005540', accent: '#007755' },
+}
+
+// Extra field label mapping for the ID card display
+const EXTRA_FIELD_LABELS = {
+  // patrakar
+  press_id:       'प्रेस आईडी कार्ड नं.',
+  publication:    'समाचार पत्र / चैनल',
+  reporting_area: 'रिपोर्टिंग क्षेत्र',
+  // crime
+  prior_exp:      'पूर्व अनुभव',
+  police_station: 'पुलिस स्टेशन',
+  special_skills: 'विशेष कौशल',
+  // chikitsa
+  service_field:  'सेवा क्षेत्र',
+  prev_work:      'पूर्व कार्य',
+  // hindu
+  shakha:         'शाखा / क्षेत्र',
+  preferred_role: 'सेवा योगदान',
+  // journalist
+  council_role:   'परिषद भूमिका',
+  edu_background: 'शैक्षिक पृष्ठभूमि',
+  // manav
+  focus_area:     'रुचि क्षेत्र',
+  advocacy_exp:   'अनुभव',
+  // bhrashtachar
+  rti_exp:        'RTI अनुभव',
+  dept:           'अभियान भूमिका',
+  // muslim
+  welfare_interest: 'कल्याण रुचि',
+  local_masjid:   'स्थानीय संस्था',
+}
+
+// Dynamic layout settings for each organization to fit their template's white area
+const ORG_LAYOUTS = {
+  patrakar: {
+    bodyY: 400,
+    photoH: 195,
+    rowHeight: 26,
+    stampCY: 460,
+    sigLineY: 550,
+  },
+  crime: {
+    bodyY: 400,
+    detY: 435,
+    photoH: 195,
+    rowHeight: 26,
+    stampCY: 490,
+    sigLineY: 580,
+  },
+  chikitsa: {
+    bodyY: 405,
+    photoH: 165,
+    rowHeight: 23,
+    stampCY: 455,
+    sigLineY: 555,
+  },
+  hindu: {
+    bodyY: 410,
+    photoH: 180,
+    rowHeight: 25,
+    stampCY: 470,
+    sigLineY: 570,
+  },
+  journalist: {
+    bodyY: 345,
+    photoH: 180,
+    rowHeight: 25,
+    stampCY: 410,
+    sigLineY: 510,
+  },
+  manav: {
+    bodyY: 400,
+    photoH: 165,
+    rowHeight: 23,
+    stampCY: 450,
+    sigLineY: 550,
+  },
+  bhrashtachar: {
+    bodyY: 420,
+    photoH: 165,
+    rowHeight: 23,
+    stampCY: 475,
+    sigLineY: 575,
+  },
+  muslim: {
+    bodyY: 410,
+    photoH: 165,
+    rowHeight: 23,
+    stampCY: 460,
+    sigLineY: 560,
+  },
+}
+
+const ICON_TYPE_MAP = {
+  name:           'name',
+  father:         'father',
+  dob:            'dob',
+  mobile:         'mobile',
+  address:        'address',
+  press_id:       'press_id',
+  publication:    'location',
+  reporting_area: 'globe',
+  prior_exp:      'id_card',
+  police_station: 'location',
+  special_skills: 'globe',
+  service_field:  'id_card',
+  prev_work:      'location',
+  shakha:         'location',
+  preferred_role: 'globe',
+  council_role:   'id_card',
+  edu_background: 'globe',
+  focus_area:     'id_card',
+  advocacy_exp:   'globe',
+  rti_exp:        'id_card',
+  dept:           'location',
+  welfare_interest: 'id_card',
+  local_masjid:   'location'
+}
+
+const drawIconCircle = (ctx, cx, cy, size, type) => {
+  ctx.save()
+  // Draw circle background
+  ctx.fillStyle = '#122A54'
+  ctx.beginPath()
+  ctx.arc(cx, cy, size / 2, 0, Math.PI * 2)
+  ctx.fill()
+
+  // Draw white icon inside
+  ctx.strokeStyle = '#FFFFFF'
+  ctx.fillStyle = '#FFFFFF'
+  ctx.lineWidth = 1.2
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  
+  const r = size * 0.5
+  
+  if (type === 'name' || type === 'user') {
+    ctx.beginPath()
+    ctx.arc(cx, cy - r * 0.25, r * 0.3, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.5, cy + r * 0.5)
+    ctx.quadraticCurveTo(cx, cy + r * 0.05, cx + r * 0.5, cy + r * 0.5)
+    ctx.lineTo(cx - r * 0.5, cy + r * 0.5)
+    ctx.fill()
+  } else if (type === 'father' || type === 'people') {
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'
+    ctx.beginPath()
+    ctx.arc(cx + r * 0.2, cy - r * 0.3, r * 0.25, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.2, cy + r * 0.45)
+    ctx.quadraticCurveTo(cx + r * 0.2, cy + r * 0.05, cx + r * 0.5, cy + r * 0.45)
+    ctx.fill()
+    
+    ctx.fillStyle = '#FFFFFF'
+    ctx.beginPath()
+    ctx.arc(cx - r * 0.15, cy - r * 0.2, r * 0.28, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.55, cy + r * 0.5)
+    ctx.quadraticCurveTo(cx - r * 0.15, cy + r * 0.08, cx + r * 0.25, cy + r * 0.5)
+    ctx.fill()
+  } else if (type === 'dob' || type === 'calendar') {
+    ctx.beginPath()
+    ctx.rect(cx - r * 0.45, cy - r * 0.35, r * 0.9, r * 0.8)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.45, cy - r * 0.1)
+    ctx.lineTo(cx + r * 0.45, cy - r * 0.1)
+    ctx.stroke()
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(cx - r * 0.25, cy - r * 0.5, r * 0.1, r * 0.25)
+    ctx.fillRect(cx + r * 0.15, cy - r * 0.5, r * 0.1, r * 0.25)
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.2, cy + r * 0.15)
+    ctx.lineTo(cx - r * 0.1, cy + r * 0.15)
+    ctx.moveTo(cx + r * 0.1, cy + r * 0.15)
+    ctx.lineTo(cx + r * 0.2, cy + r * 0.15)
+    ctx.moveTo(cx - r * 0.2, cy + r * 0.35)
+    ctx.lineTo(cx - r * 0.1, cy + r * 0.35)
+    ctx.moveTo(cx + r * 0.1, cy + r * 0.35)
+    ctx.lineTo(cx + r * 0.2, cy + r * 0.35)
+    ctx.stroke()
+  } else if (type === 'mobile' || type === 'phone') {
+    ctx.beginPath()
+    ctx.arc(cx + r * 0.1, cy - r * 0.1, r * 0.35, Math.PI * 0.9, Math.PI * 1.6)
+    ctx.strokeStyle = '#FFFFFF'
+    ctx.lineWidth = 2.5
+    ctx.stroke()
+    ctx.fillStyle = '#FFFFFF'
+    ctx.beginPath()
+    ctx.arc(cx - r * 0.2, cy - r * 0.2, r * 0.12, 0, Math.PI * 2)
+    ctx.arc(cx + r * 0.2, cy + r * 0.2, r * 0.12, 0, Math.PI * 2)
+    ctx.fill()
+  } else if (type === 'address' || type === 'home') {
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.55, cy + r * 0.05)
+    ctx.lineTo(cx, cy - r * 0.45)
+    ctx.lineTo(cx + r * 0.55, cy + r * 0.05)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.rect(cx - r * 0.4, cy + r * 0.05, r * 0.8, r * 0.45)
+    ctx.stroke()
+    ctx.fillRect(cx - r * 0.12, cy + r * 0.22, r * 0.24, r * 0.28)
+  } else if (type === 'press_id' || type === 'id_card') {
+    ctx.beginPath()
+    ctx.rect(cx - r * 0.5, cy - r * 0.35, r * 1.0, r * 0.7)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.rect(cx - r * 0.38, cy - r * 0.2, r * 0.28, r * 0.32)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(cx + r * 0.02, cy - r * 0.1)
+    ctx.lineTo(cx + r * 0.38, cy - r * 0.1)
+    ctx.moveTo(cx + r * 0.02, cy + r * 0.1)
+    ctx.lineTo(cx + r * 0.38, cy + r * 0.1)
+    ctx.stroke()
+  } else if (type === 'publication' || type === 'location') {
+    ctx.beginPath()
+    ctx.arc(cx, cy - r * 0.15, r * 0.28, 0, Math.PI, true)
+    ctx.lineTo(cx, cy + r * 0.5)
+    ctx.closePath()
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(cx, cy - r * 0.15, r * 0.09, 0, Math.PI * 2)
+    ctx.fill()
+  } else if (type === 'reporting_area' || type === 'globe') {
+    ctx.beginPath()
+    ctx.arc(cx, cy, r * 0.48, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.ellipse(cx, cy, r * 0.2, r * 0.48, 0, 0, Math.PI * 2)
+    ctx.moveTo(cx - r * 0.48, cy)
+    ctx.lineTo(cx + r * 0.48, cy)
+    ctx.ellipse(cx, cy, r * 0.48, r * 0.15, 0, 0, Math.PI * 2)
+    ctx.stroke()
+  } else {
+    ctx.beginPath()
+    ctx.arc(cx, cy, r * 0.25, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+}
 
 const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
   const frontCanvasRef = useRef(null)
-  const backCanvasRef = useRef(null)
+  const backCanvasRef  = useRef(null)
 
   useEffect(() => {
     generateIDCard()
   }, [orgId, formData, regNumber])
 
-  // Helper function to programmatically darken a hex color by a percentage
-  const darkenColor = (hex, percent) => {
-    if (!hex || !hex.startsWith('#')) return '#0f172a'
-    const num = parseInt(hex.replace('#', ''), 16)
-    const amt = Math.round(2.55 * percent)
-    const R = (num >> 16) - amt
-    const G = (num >> 8 & 0x00FF) - amt
-    const B = (num & 0x0000FF) - amt
-    return "#" + (
-      0x1000000 +
-      (R < 0 ? 0 : R > 255 ? 255 : R) * 0x10000 +
-      (G < 0 ? 0 : G > 255 ? 255 : G) * 0x100 +
-      (B < 0 ? 0 : B > 255 ? 255 : B)
-    ).toString(16).slice(1)
-  }
-
   const generateIDCard = async () => {
     const frontCanvas = frontCanvasRef.current
-    const backCanvas = backCanvasRef.current
+    const backCanvas  = backCanvasRef.current
     if (!frontCanvas || !backCanvas) return
 
     const frontCtx = frontCanvas.getContext('2d')
-    const backCtx = backCanvas.getContext('2d')
+    const backCtx  = backCanvas.getContext('2d')
 
-    const org = orgs.find(o => o.id === orgId) || orgs[0]
-    const primaryColor = org.color || '#007ad9'
-    const secondaryColor = darkenColor(primaryColor, 35)
+    const org        = orgs.find(o => o.id === orgId) || orgs[0]
+    const hColors    = ORG_HEADER_COLORS[orgId] || ORG_HEADER_COLORS.hindu
+    const figureUrl  = ORG_FIGURE_MAP[orgId] || ORG_FIGURE_MAP.hindu
 
-    // Set dimensions for individual cards
-    const cardWidth = 1012
-    const cardHeight = 638
-    
-    frontCanvas.width = cardWidth
-    frontCanvas.height = cardHeight
-    backCanvas.width = cardWidth
-    backCanvas.height = cardHeight
+    const W = 1050
+    const H = 660
 
-    // Helper to load image asynchronously
-    const loadImage = (src) => {
-      return new Promise((resolve) => {
-        if (!src) {
-          resolve(null)
-          return
-        }
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        img.onload = () => resolve(img)
-        img.onerror = () => {
-          console.warn('Failed to load image:', src)
-          resolve(null)
-        }
-        img.src = src
-      })
-    }
+    frontCanvas.width  = W
+    frontCanvas.height = H
+    backCanvas.width   = W
+    backCanvas.height  = H
 
-    // Wait for fonts to load
-    try {
-      if (document.fonts) {
-        await document.fonts.ready
-      }
-    } catch (e) {
-      console.warn('Font loading check failed:', e)
-    }
-
-    // Load logo and user photo in parallel
-    const [logoImg, photoImg] = await Promise.all([
-      loadImage(resolveImageUrl(org.logo)),
-      loadImage(resolveImageUrl(formData.photo))
-    ])
-
-    // Enable high-quality anti-aliasing
-    frontCtx.imageSmoothingEnabled = true
-    frontCtx.imageSmoothingQuality = 'high'
-    backCtx.imageSmoothingEnabled = true
-    backCtx.imageSmoothingQuality = 'high'
-
-    // ─────────────────────────────────────────────────────────────
-    // COMMON DRAWING FUNCTION FOR SHAPES AND BORDERS
-    // ─────────────────────────────────────────────────────────────
-    const drawCardFrame = (ctx) => {
-      // 1. White Card Background
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(0, 0, cardWidth, cardHeight)
-
-      // 2. Double border (outer: thin theme color, inner: thin gold accent)
-      ctx.strokeStyle = primaryColor
-      ctx.lineWidth = 6
-      ctx.strokeRect(3, 3, cardWidth - 6, cardHeight - 6)
-
-      ctx.strokeStyle = '#d4af37' // Gold border
-      ctx.lineWidth = 2
-      ctx.strokeRect(9, 9, cardWidth - 18, cardHeight - 18)
-
-      // 3. Abstract Geometric Shapes (Timmerman Style)
-      // Top-Right Overlapping Polygons
-      ctx.fillStyle = secondaryColor
-      ctx.beginPath()
-      ctx.moveTo(cardWidth - 190, 0)
-      ctx.lineTo(cardWidth, 0)
-      ctx.lineTo(cardWidth, 210)
-      ctx.lineTo(cardWidth - 45, 210)
-      ctx.closePath()
-      ctx.fill()
-
-      ctx.fillStyle = primaryColor
-      ctx.beginPath()
-      ctx.moveTo(cardWidth - 145, 0)
-      ctx.lineTo(cardWidth, 0)
-      ctx.lineTo(cardWidth, 160)
-      ctx.lineTo(cardWidth - 35, 160)
-      ctx.closePath()
-      ctx.fill()
-
-      // Bottom-Left Vertical Stripes
-      ctx.fillStyle = secondaryColor
-      ctx.fillRect(0, cardHeight - 190, 24, 190)
-
-      ctx.fillStyle = primaryColor
-      ctx.fillRect(24, cardHeight - 230, 24, 230)
-
-      // Left Edge Angular Accent
-      ctx.fillStyle = secondaryColor
-      ctx.beginPath()
-      ctx.moveTo(0, cardHeight - 330)
-      ctx.lineTo(35, cardHeight - 300)
-      ctx.lineTo(35, cardHeight - 150)
-      ctx.lineTo(0, cardHeight - 180)
-      ctx.closePath()
-      ctx.fill()
-    }
-
-    // Helper to draw background diagonal grid lines (clipped)
-    const drawGridLines = (ctx) => {
-      ctx.save()
-      ctx.beginPath()
-      ctx.rect(10, 10, cardWidth - 20, cardHeight - 20)
-      ctx.clip()
-
-      ctx.strokeStyle = 'rgba(15, 23, 42, 0.025)' // Very subtle slate lines
-      ctx.lineWidth = 1
-      for (let i = -cardHeight; i < cardWidth; i += 28) {
-        ctx.beginPath()
-        ctx.moveTo(i, 0)
-        ctx.lineTo(i + cardHeight, cardHeight)
-        ctx.stroke()
-      }
-      ctx.restore()
-    }
-
-    // Helper to draw header titles
-    const drawHeader = (ctx) => {
-      // Community Logo (Top-Left)
-      if (logoImg) {
-        const logoHeight = 65
-        const aspect = logoImg.width / logoImg.height
-        const logoWidth = logoHeight * aspect
-        // Center the circular part of the logo at x = 82.5 (equal to original center x = 50 + 65/2)
-        const drawX = 82.5 - logoWidth / 2
-        ctx.drawImage(logoImg, drawX, 30, logoWidth, logoHeight)
-      }
-
-      ctx.textAlign = 'left'
-      ctx.textBaseline = 'top'
-
-      // Title 1: Organization short name (e.g. मीडिया सेल)
-      ctx.fillStyle = secondaryColor
-      ctx.font = "bold 28px 'Hind', sans-serif"
-      ctx.fillText(org.short, 130, 30)
-
-      // Title 2: Trust name
-      ctx.fillStyle = '#64748b' // Slate 500
-      ctx.font = "600 14px 'Hind', sans-serif"
-      ctx.fillText('साधू लक्ष्मी जनकल्याण ट्रस्ट (रजि. नं. IV/175/26)', 130, 68)
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // RENDER FRONT CARD
-    // ─────────────────────────────────────────────────────────────
-    drawCardFrame(frontCtx)
-    drawGridLines(frontCtx)
-    drawHeader(frontCtx)
-
-    // Main Horizontal Banner (Theme Color)
-    frontCtx.fillStyle = primaryColor
-    frontCtx.fillRect(0, 115, cardWidth, 95)
-
-    frontCtx.fillStyle = '#ffffff'
-    frontCtx.textAlign = 'left'
-    frontCtx.textBaseline = 'top'
-    frontCtx.font = "bold 32px 'Hind', sans-serif"
-    frontCtx.fillText((formData.name || 'सदस्य का नाम').toUpperCase(), 130, 125)
-
-    frontCtx.font = "500 15px 'Hind', sans-serif"
-    frontCtx.fillText('सदस्य (MEMBER)', 130, 168)
-
-    // Draw member details
-    let currentY = 250
-    const drawDetailRow = (label, value) => {
-      frontCtx.fillStyle = secondaryColor
-      frontCtx.font = "bold 18px 'Hind', sans-serif"
-      frontCtx.fillText(label, 130, currentY)
-
-      frontCtx.fillStyle = '#334155'
-      frontCtx.font = "500 18px 'Hind', sans-serif"
-      frontCtx.fillText(': ' + value, 260, currentY)
-      currentY += 42
-    }
-
-    drawDetailRow('ID No', regNumber || 'NGO/2026/000000')
-    drawDetailRow('Email', formData.email || 'N/A')
-    drawDetailRow('Phone', formData.mobile || 'N/A')
-
-    // Handle Address with wrapping
-    frontCtx.fillStyle = secondaryColor
-    frontCtx.font = "bold 18px 'Hind', sans-serif"
-    frontCtx.fillText('Address', 130, currentY)
-
-    frontCtx.fillStyle = '#334155'
-    frontCtx.font = "500 18px 'Hind', sans-serif"
-    const addressVal = formData.address || 'N/A'
-    const maxAddrW = 380
-    let addrLine = ': '
-    let addrY = currentY
-    const addrWords = addressVal.split(' ')
-
-    for (let i = 0; i < addrWords.length; i++) {
-      const testLine = addrLine + (i === 0 && addrLine === ': ' ? '' : ' ') + addrWords[i]
-      const metrics = frontCtx.measureText(testLine)
-      if (metrics.width > maxAddrW && i > 0) {
-        frontCtx.fillText(addrLine, 260, addrY)
-        addrLine = addrWords[i]
-        addrY += 24
-      } else {
-        addrLine = testLine
-      }
-    }
-    frontCtx.fillText(addrLine, 260, addrY)
-
-    // ── Holder's Signature Section (Bottom-Left) ──
-    const holderSigX1 = 130
-    const holderSigX2 = 350
-    const holderSigY = 525
-
-    frontCtx.strokeStyle = '#cbd5e1'
-    frontCtx.lineWidth = 1.5
-    frontCtx.beginPath()
-    frontCtx.moveTo(holderSigX1, holderSigY)
-    frontCtx.lineTo(holderSigX2, holderSigY)
-    frontCtx.stroke()
-
-    frontCtx.fillStyle = '#64748b'
-    frontCtx.font = "600 13px 'Hind', sans-serif"
-    frontCtx.textAlign = 'left'
-    frontCtx.textBaseline = 'top'
-    frontCtx.fillText('धारक का हस्ताक्षर / Holder\'s Signature', holderSigX1 + 10, holderSigY + 6)
-
-    // ── Draw Member Photo inside theme-colored border (Right Side) ──
-    const photoX = 680
-    const photoY = 250
-    const photoW = 220
-    const photoH = 270
-
-    frontCtx.strokeStyle = primaryColor
-    frontCtx.lineWidth = 4
-    frontCtx.strokeRect(photoX, photoY, photoW, photoH)
-
-    if (photoImg) {
-      frontCtx.drawImage(photoImg, photoX + 2, photoY + 2, photoW - 4, photoH - 4)
-    } else {
-      frontCtx.fillStyle = '#f8fafc'
-      frontCtx.fillRect(photoX + 2, photoY + 2, photoW - 4, photoH - 4)
-      frontCtx.fillStyle = '#94a3b8'
-      frontCtx.font = "bold 14px 'Hind', sans-serif"
-      frontCtx.textAlign = 'center'
-      frontCtx.textBaseline = 'middle'
-      frontCtx.fillText('फोटो उपलब्ध नहीं', photoX + photoW / 2, photoY + photoH / 2)
-    }
-
-    // ── Authorized Signatory & Official Stamp (Below Photo) ──
-    const authSigLineX1 = 680
-    const authSigLineX2 = 900
-    const authSigLineY = 525
-
-    // Signatory Line
-    frontCtx.strokeStyle = '#cbd5e1'
-    frontCtx.lineWidth = 1.5
-    frontCtx.beginPath()
-    frontCtx.moveTo(authSigLineX1, authSigLineY)
-    frontCtx.lineTo(authSigLineX2, authSigLineY)
-    frontCtx.stroke()
-
-    // Signatory Label
-    frontCtx.fillStyle = '#64748b'
-    frontCtx.font = "600 13px 'Hind', sans-serif"
-    frontCtx.textAlign = 'center'
-    frontCtx.textBaseline = 'top'
-    frontCtx.fillText('प्राधिकृत हस्ताक्षरकर्ता / Auth. Signatory', (authSigLineX1 + authSigLineX2) / 2, authSigLineY + 6)
-
-    // Cursive Blue Signature
-    frontCtx.save()
-    frontCtx.fillStyle = '#1d4ed8' // Royal Blue ink
-    frontCtx.font = "italic 36px 'Caveat', cursive, sans-serif"
-    frontCtx.textAlign = 'center'
-    frontCtx.textBaseline = 'bottom'
-    frontCtx.fillText('Sadhu Laxmi', (authSigLineX1 + authSigLineX2) / 2, authSigLineY - 6)
-    frontCtx.restore()
-
-    // Red Trust Stamp
-    frontCtx.save()
-    frontCtx.translate((authSigLineX1 + authSigLineX2) / 2, 445)
-    frontCtx.rotate(-11 * Math.PI / 180)
-    frontCtx.strokeStyle = 'rgba(220, 38, 38, 0.72)'
-    frontCtx.fillStyle = 'rgba(220, 38, 38, 0.72)'
-    
-    frontCtx.lineWidth = 2.5
-    frontCtx.beginPath()
-    frontCtx.arc(0, 0, 45, 0, 2 * Math.PI)
-    frontCtx.stroke()
-
-    frontCtx.lineWidth = 1
-    frontCtx.beginPath()
-    frontCtx.arc(0, 0, 39, 0, 2 * Math.PI)
-    frontCtx.stroke()
-
-    frontCtx.textAlign = 'center'
-    frontCtx.textBaseline = 'middle'
-    frontCtx.font = "bold 9px 'Hind', sans-serif"
-    frontCtx.fillText('साधू लक्ष्मी', 0, -11)
-    frontCtx.fillText('जनकल्याण ट्रस्ट', 0, 3)
-    frontCtx.font = "bold 8px 'Hind', sans-serif"
-    frontCtx.fillText('रजि०', 0, 16)
-
-    // Grunge/Distress effect
-    frontCtx.strokeStyle = '#ffffff'
-    frontCtx.lineWidth = 1.2
-    for (let i = 0; i < 4; i++) {
-      frontCtx.beginPath()
-      frontCtx.moveTo(Math.random() * 80 - 40, Math.random() * 80 - 40)
-      frontCtx.lineTo(Math.random() * 80 - 40, Math.random() * 80 - 40)
-      frontCtx.stroke()
-    }
-    frontCtx.restore()
-
-
-    // ─────────────────────────────────────────────────────────────
-    // RENDER BACK CARD
-    // ─────────────────────────────────────────────────────────────
-    drawCardFrame(backCtx)
-    drawGridLines(backCtx)
-    drawHeader(backCtx)
-
-    // Back Card Main Bar
-    backCtx.fillStyle = primaryColor
-    backCtx.fillRect(0, 115, cardWidth, 95)
-
-    backCtx.fillStyle = '#ffffff'
-    backCtx.textAlign = 'left'
-    backCtx.textBaseline = 'top'
-    backCtx.font = "bold 26px 'Poppins', sans-serif"
-    backCtx.fillText('TERMS & CONDITIONS', 130, 125)
-
-    backCtx.font = "600 15px 'Hind', sans-serif"
-    backCtx.fillText('नियम एवं शर्तें', 130, 168)
-
-    // Terms Bullet Points
-    const rules = [
-      '1. यह पहचान पत्र साधू लक्ष्मी जनकल्याण ट्रस्ट का अधिकृत दस्तावेज है।',
-      '2. संगठन से संबंधित कार्यों के दौरान इसे सदैव धारण करना अनिवार्य है।',
-      '3. कार्ड खो जाने या चोरी होने पर तुरंत संगठन कार्यालय को सूचित करें।',
-      '4. किसी भी अनधिकृत गतिविधि या दुरुपयोग पर यह कार्ड तत्काल रद्द माना जाएगा।'
-    ]
-
-    backCtx.fillStyle = '#334155'
-    backCtx.font = "600 16px 'Hind', sans-serif"
-    backCtx.textAlign = 'left'
-    backCtx.textBaseline = 'top'
-
-    let ruleY = 260
-    rules.forEach(rule => {
-      backCtx.fillText(rule, 130, ruleY)
-      ruleY += 45
+    // ── Image Loader ──
+    const loadImage = (src) => new Promise((resolve) => {
+      if (!src) { resolve(null); return }
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload  = () => resolve(img)
+      img.onerror = () => { console.warn('IMG failed:', src); resolve(null) }
+      img.src = src
     })
 
-    // Trust Website Link at the Bottom
-    backCtx.fillStyle = '#475569'
-    backCtx.font = "italic bold 22px 'Poppins', sans-serif"
-    backCtx.textAlign = 'center'
-    backCtx.fillText('www.sadhulaxmitrust.org', cardWidth / 2, 520)
+    // Wait for fonts
+    try { if (document.fonts) await document.fonts.ready } catch (_) {}
 
-    // Return the generated image URLs (front and back separate) to the callback
+    const [logoImg, photoImg, figureImg] = await Promise.all([
+      loadImage(resolveImageUrl(org.logo)),
+      loadImage(resolveImageUrl(formData.photo)),
+      loadImage(figureUrl),
+    ])
+
+    frontCtx.imageSmoothingEnabled = true
+    frontCtx.imageSmoothingQuality = 'high'
+    backCtx.imageSmoothingEnabled  = true
+    backCtx.imageSmoothingQuality  = 'high'
+
+    // ════════════════════════════════════════════════════════════
+    //  DRAW FRONT CARD
+    // ════════════════════════════════════════════════════════════
+    drawFrontCard(frontCtx, { W, H, org, hColors, logoImg, photoImg, figureImg })
+
+    // ════════════════════════════════════════════════════════════
+    //  DRAW BACK CARD
+    // ════════════════════════════════════════════════════════════
+    drawBackCard(backCtx, { W, H, org, hColors, logoImg, photoImg })
+
     if (onGenerated) {
       onGenerated({
         front: frontCanvas.toDataURL('image/png'),
-        back: backCanvas.toDataURL('image/png')
+        back:  backCanvas.toDataURL('image/png'),
       })
     }
-  }
+
+    // ─────────────────────────────────────────────────────────────────────
+    function drawFrontCard(ctx, { W, H, org, hColors, logoImg, photoImg, figureImg }) {
+      const layout = ORG_LAYOUTS[orgId] || ORG_LAYOUTS.hindu
+      const BODY_Y = layout.bodyY
+      const bodyLeft = 20
+
+      // ── 1. Draw background ──
+      if (figureImg) {
+        ctx.drawImage(figureImg, 0, 0, W, H)
+      } else {
+        // Fallback card base if background image fails
+        ctx.fillStyle = '#FFFDF5'
+        roundRect(ctx, 0, 0, W, H, 18)
+        ctx.fill()
+        ctx.strokeStyle = '#D4AF37'
+        ctx.lineWidth   = 3
+        roundRectStroke(ctx, 1.5, 1.5, W - 3, H - 3, 17)
+      }
+
+      // ── 2. Member Photo (left side) ──
+      const photoX  = layout.photoX !== undefined ? layout.photoX : (bodyLeft + 12)
+      const photoY  = layout.photoY !== undefined ? layout.photoY : (BODY_Y + 10)
+      const photoW  = layout.photoW !== undefined ? layout.photoW : 140
+      const photoH  = layout.photoH
+
+      // Photo border
+      ctx.strokeStyle = layout.photoBorderColor || hColors.to
+      ctx.lineWidth   = 3
+      roundRectStroke(ctx, photoX, photoY, photoW, photoH, 6)
+
+      if (photoImg) {
+        ctx.save()
+        roundRect(ctx, photoX + 2, photoY + 2, photoW - 4, photoH - 4, 5)
+        ctx.clip()
+        ctx.drawImage(photoImg, photoX + 2, photoY + 2, photoW - 4, photoH - 4)
+        ctx.restore()
+      } else {
+        ctx.fillStyle = '#F5F0E8'
+        roundRect(ctx, photoX + 2, photoY + 2, photoW - 4, photoH - 4, 5)
+        ctx.fill()
+        ctx.fillStyle    = '#999'
+        ctx.font         = "13px 'Hind', sans-serif"
+        ctx.textAlign    = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('फोटो', photoX + photoW / 2, photoY + photoH / 2 - 10)
+        ctx.fillText('उपलब्ध नहीं', photoX + photoW / 2, photoY + photoH / 2 + 10)
+      }
+
+      // Registration Number badge below photo
+      const regBadgeY = layout.regBadgeY !== undefined ? layout.regBadgeY : (photoY + photoH + 6)
+      const regBadgeH = layout.regBadgeH !== undefined ? layout.regBadgeH : 32
+      ctx.fillStyle = layout.regBadgeColor || hColors.to
+      roundRect(ctx, photoX, regBadgeY, photoW, regBadgeH, 6)
+      ctx.fill()
+      
+      ctx.fillStyle    = '#FFFFFF'
+      ctx.textAlign    = 'center'
+      ctx.textBaseline = 'top'
+      
+      let labelY = regBadgeY + 4
+      let valY = regBadgeY + 18
+      let labelFontSize = "bold 11px"
+      let valFontSize = "bold 11px"
+      if (regBadgeH > 40) {
+        labelY = regBadgeY + 10
+        valY = regBadgeY + 30
+        labelFontSize = "bold 14px"
+        valFontSize = "bold 15px"
+      }
+      
+      ctx.font = `${labelFontSize} 'Hind', sans-serif`
+      ctx.fillText('रजिस्ट्रेशन नंबर', photoX + photoW / 2, labelY)
+      ctx.font = `${valFontSize} 'Poppins', sans-serif`
+      ctx.fillText(regNumber || 'NGO/2026/000000', photoX + photoW / 2, valY)
+
+      // ── 3. Member details (center) ──
+      {
+        const detX    = layout.detX !== undefined ? layout.detX : (photoX + photoW + 25)
+        const detMaxW = layout.detMaxW !== undefined ? layout.detMaxW : 520
+        let   detY    = layout.detY !== undefined ? layout.detY : (BODY_Y + 10)
+        const rowHeight = layout.rowHeight
+
+        const drawRow = (label, value) => {
+          if (!value || value === 'N/A' || value === '') return
+          const mid = Math.round(rowHeight / 2)
+
+          ctx.fillStyle    = hColors.to
+          ctx.font         = "bold 14px 'Hind', sans-serif"
+          ctx.textAlign    = 'left'
+          ctx.textBaseline = 'middle'
+          ctx.fillText('●', detX, detY + mid)
+
+          ctx.fillStyle = '#222222'
+          ctx.font      = "bold 14px 'Hind', sans-serif"
+          ctx.fillText(label, detX + 16, detY + mid)
+
+          ctx.fillStyle = '#444444'
+          ctx.font      = "600 14px 'Hind', sans-serif"
+          ctx.fillText(':  ' + String(value).substring(0, 40), detX + 160, detY + mid)
+
+          ctx.strokeStyle = 'rgba(180,150,100,0.2)'
+          ctx.lineWidth   = 0.8
+          ctx.beginPath()
+          ctx.moveTo(detX, detY + rowHeight - 1)
+          ctx.lineTo(detX + detMaxW, detY + rowHeight - 1)
+          ctx.stroke()
+
+          detY += rowHeight
+        }
+
+        drawRow('पद',              formData.role   || 'सदस्य')
+        drawRow('सदस्य का नाम',     formData.name   || '')
+        drawRow('पिता/पति का नाम', formData.father  || '')
+        drawRow('जन्म तिथि',       formData.dob     || '')
+        drawRow('मोबाइल नंबर',     formData.mobile  || '')
+        drawRow('स्थायी पता',      (formData.address || '').substring(0, 38))
+
+        const extra = extraFields[orgId] || []
+        extra.forEach(f => {
+          const label = EXTRA_FIELD_LABELS[f.id] || f.label
+          const val   = formData[f.id] || ''
+          if (val) drawRow(label, val)
+        })
+      }
+
+      // ── 4. Signature + Stamp ──
+      {
+        const sigX    = layout.sigX !== undefined ? layout.sigX : (W - 200)
+        const sigW    = layout.sigW !== undefined ? layout.sigW : 170
+        const stampCX = layout.stampCX !== undefined ? layout.stampCX : (sigX + sigW / 2)
+        const stampCY = layout.stampCY
+        const stampR  = layout.stampR !== undefined ? layout.stampR : 42
+
+        ctx.save()
+        ctx.strokeStyle = 'rgba(180,30,30,0.75)'
+        ctx.lineWidth   = 2.5
+        ctx.beginPath()
+        ctx.arc(stampCX, stampCY, stampR, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.arc(stampCX, stampCY, stampR - 6, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.fillStyle    = 'rgba(180,30,30,0.75)'
+        ctx.font         = "bold 9px 'Hind', sans-serif"
+        ctx.textAlign    = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('साधू लक्ष्मी', stampCX, stampCY - 11)
+        ctx.fillText('जनकल्याण ट्रस्ट', stampCX, stampCY + 1)
+        ctx.font = "bold 8px 'Hind', sans-serif"
+        ctx.fillText('सील', stampCX, stampCY + 12)
+        ctx.strokeStyle = '#FFFDF5'
+        ctx.lineWidth   = 1.5
+        for (let i = 0; i < 5; i++) {
+          ctx.beginPath()
+          const rx = (Math.random() - 0.5) * 65
+          const ry = (Math.random() - 0.5) * 65
+          ctx.moveTo(stampCX + rx, stampCY + ry)
+          ctx.lineTo(stampCX + (Math.random() - 0.5) * 65, stampCY + (Math.random() - 0.5) * 65)
+          ctx.stroke()
+        }
+        ctx.restore()
+
+        const sigLineY = layout.sigLineY
+        ctx.strokeStyle = '#999'
+        ctx.lineWidth   = 1
+        ctx.beginPath()
+        ctx.moveTo(sigX + 10, sigLineY)
+        ctx.lineTo(sigX + sigW - 10, sigLineY)
+        ctx.stroke()
+        ctx.fillStyle    = '#1A40B0'
+        ctx.font         = "italic 26px 'Caveat', cursive, sans-serif"
+        ctx.textAlign    = 'center'
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('Sadhu Laxmi', stampCX, sigLineY - 4)
+        ctx.fillStyle    = '#444'
+        ctx.font         = "bold 11px 'Hind', sans-serif"
+        ctx.textAlign    = 'center'
+        ctx.textBaseline = 'top'
+        ctx.fillText('साधू लक्ष्मी', stampCX, sigLineY + 5)
+        ctx.fillStyle = '#777'
+        ctx.font      = "600 9px 'Hind', sans-serif"
+        ctx.fillText('प्राधिकृत हस्ताक्षरकर्ता', stampCX, sigLineY + 18)
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  DRAW BACK CARD
+    // ════════════════════════════════════════════════════════════
+    function drawBackCard(ctx, { W, H, org, hColors, logoImg, photoImg }) {
+
+      // ══════════════════════════════════════════════
+      //  OTHER CARDS — standard Terms & Conditions back
+      // ══════════════════════════════════════════════
+      const HEADER_H = 160
+
+        ctx.fillStyle = '#FFFDF5'
+        roundRect(ctx, 0, 0, W, H, 18)
+        ctx.fill()
+
+        ctx.strokeStyle = '#D4AF37'
+        ctx.lineWidth   = 3
+        roundRectStroke(ctx, 1.5, 1.5, W - 3, H - 3, 17)
+
+        const grad = ctx.createLinearGradient(0, 0, W, HEADER_H)
+        grad.addColorStop(0,   hColors.from)
+        grad.addColorStop(0.5, hColors.to)
+        grad.addColorStop(1,   hColors.accent)
+        ctx.fillStyle = grad
+        ctx.save()
+        roundRect(ctx, 0, 0, W, HEADER_H + 18, 18)
+        ctx.clip()
+        ctx.fillRect(0, 0, W, HEADER_H + 18)
+        ctx.restore()
+
+        if (logoImg) {
+          const lSize = 70
+          ctx.save()
+          ctx.beginPath()
+          ctx.arc(60, HEADER_H / 2, lSize / 2 + 4, 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(255,255,255,0.9)'
+          ctx.fill()
+          ctx.beginPath()
+          ctx.arc(60, HEADER_H / 2, lSize / 2, 0, Math.PI * 2)
+          ctx.clip()
+          ctx.drawImage(logoImg, 60 - lSize / 2, HEADER_H / 2 - lSize / 2, lSize, lSize)
+          ctx.restore()
+          ctx.beginPath()
+          ctx.arc(60, HEADER_H / 2, lSize / 2 + 4, 0, Math.PI * 2)
+          ctx.strokeStyle = '#D4AF37'
+          ctx.lineWidth   = 2
+          ctx.stroke()
+        }
+
+        ctx.fillStyle    = '#FFFFFF'
+        ctx.font         = "bold 30px 'Hind', sans-serif"
+        ctx.textAlign    = 'left'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('नियम एवं शर्तें', 120, HEADER_H / 2 - 12)
+        ctx.fillStyle = 'rgba(255,255,255,0.75)'
+        ctx.font      = "600 14px 'Hind', sans-serif"
+        ctx.fillText('TERMS & CONDITIONS', 120, HEADER_H / 2 + 16)
+
+        ctx.strokeStyle = '#D4AF37'
+        ctx.lineWidth   = 1.5
+        ctx.setLineDash([5, 4])
+        ctx.beginPath()
+        ctx.moveTo(20, HEADER_H + 10)
+        ctx.lineTo(W - 20, HEADER_H + 10)
+        ctx.stroke()
+        ctx.setLineDash([])
+
+        if (logoImg) {
+          ctx.save()
+          ctx.globalAlpha = 0.05
+          ctx.drawImage(logoImg, W / 2 - 120, HEADER_H + 50, 240, 240)
+          ctx.globalAlpha = 1
+          ctx.restore()
+        }
+
+        const terms = [
+          '१. यह पहचान पत्र साधू लक्ष्मी जनकल्याण ट्रस्ट का अधिकृत दस्तावेज है।',
+          '२. संगठन से संबंधित कार्यों के दौरान इसे सदैव धारण करना अनिवार्य है।',
+          '३. कार्ड खो जाने या चोरी होने पर तुरंत संगठन कार्यालय को सूचित करें।',
+          '४. किसी भी अनधिकृत गतिविधि या दुरुपयोग पर यह कार्ड तत्काल रद्द माना जाएगा।',
+          '५. इस कार्ड का उपयोग केवल संगठन के अधिकृत कार्यों हेतु किया जा सकता है।',
+          '६. कार्ड अहस्तांतरणीय है एवं यह कार्ड धारक के नाम पर ही मान्य है।',
+        ]
+
+        let tY = HEADER_H + 50
+        terms.forEach(t => {
+          ctx.fillStyle    = '#333333'
+          ctx.font         = "600 24px 'Hind', sans-serif"
+          ctx.textAlign    = 'left'
+          ctx.textBaseline = 'top'
+          ctx.fillText(t, 60, tY)
+          tY += 50
+        })
+
+        ctx.fillStyle = hColors.to
+        ctx.fillRect(0, H - 24, W, 24)
+        ctx.fillStyle    = '#FFFFFF'
+        ctx.font         = "bold 11px 'Hind', sans-serif"
+        ctx.textAlign    = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(
+          'www.sadhulaxmitrust.org  •  साधू लक्ष्मी जनकल्याण ट्रस्ट',
+          W / 2, H - 12
+        )
+
+        ctx.strokeStyle = hColors.to
+        ctx.lineWidth   = 4
+        roundRectStroke(ctx, 2, 2, W - 4, H - 4, 17)
+    }
+  } // end generateIDCard
 
   return (
     <div style={{ display: 'none' }}>
@@ -414,6 +640,26 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
       <canvas ref={backCanvasRef} />
     </div>
   )
+}
+
+// ── Helpers ──
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
+function roundRectStroke(ctx, x, y, w, h, r) {
+  roundRect(ctx, x, y, w, h, r)
+  ctx.stroke()
 }
 
 export default IDCardGenerator
