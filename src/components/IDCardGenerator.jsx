@@ -485,7 +485,15 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
 
         if (moharImg) {
           const stampSize = stampR * 2.8; // Adjust to fit
-          ctx.drawImage(moharImg, stampCX - stampSize / 2, stampCY - stampSize / 2, stampSize, stampSize);
+          const aspect = moharImg.width / moharImg.height;
+          let drawW = stampSize;
+          let drawH = stampSize;
+          if (aspect > 1) {
+            drawH = stampSize / aspect;
+          } else {
+            drawW = stampSize * aspect;
+          }
+          ctx.drawImage(moharImg, stampCX - drawW / 2, stampCY - drawH / 2, drawW, drawH);
         } else {
           ctx.save()
           ctx.strokeStyle = 'rgba(180,30,30,0.75)'
