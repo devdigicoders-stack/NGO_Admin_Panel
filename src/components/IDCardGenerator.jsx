@@ -26,6 +26,17 @@ const ORG_HEADER_COLORS = {
   muslim:       { from: '#003330', to: '#005540', accent: '#007755' },
 }
 
+const ORG_MOHAR_MAP = {
+  patrakar:     '/mohar/rashtriyapress.png',
+  crime:        '/mohar/rashtriyacrime.png',
+  chikitsa:     '/mohar/akhilbhartiya.png',
+  hindu:        '/mohar/sadhuLakshmi.png',
+  journalist:   '/mohar/indianCouncil.png',
+  manav:        '/mohar/righttorecall.png',
+  bhrashtachar: '/mohar/bhrashtachar.png',
+  muslim:       '/mohar/bhartiyamushlim.png',
+}
+
 // Extra field label mapping for the ID card display
 const EXTRA_FIELD_LABELS = {
   // patrakar
@@ -310,10 +321,11 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // Wait for fonts
     try { if (document.fonts) await document.fonts.ready } catch (_) {}
 
-    const [logoImg, photoImg, figureImg] = await Promise.all([
+    const [logoImg, photoImg, figureImg, moharImg] = await Promise.all([
       loadImage(resolveImageUrl(org.logo)),
       loadImage(resolveImageUrl(formData.photo)),
       loadImage(figureUrl),
+      loadImage(ORG_MOHAR_MAP[orgId] || ORG_MOHAR_MAP.hindu),
     ])
 
     frontCtx.imageSmoothingEnabled = true
@@ -324,7 +336,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // ════════════════════════════════════════════════════════════
     //  DRAW FRONT CARD
     // ════════════════════════════════════════════════════════════
-    drawFrontCard(frontCtx, { W, H, org, hColors, logoImg, photoImg, figureImg })
+    drawFrontCard(frontCtx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg })
 
     // ════════════════════════════════════════════════════════════
     //  DRAW BACK CARD
@@ -339,7 +351,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    function drawFrontCard(ctx, { W, H, org, hColors, logoImg, photoImg, figureImg }) {
+    function drawFrontCard(ctx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg }) {
       const layout = ORG_LAYOUTS[orgId] || ORG_LAYOUTS.hindu
       const BODY_Y = layout.bodyY
       const bodyLeft = 20
@@ -471,35 +483,40 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         const stampCY = layout.stampCY
         const stampR  = layout.stampR !== undefined ? layout.stampR : 42
 
-        ctx.save()
-        ctx.strokeStyle = 'rgba(180,30,30,0.75)'
-        ctx.lineWidth   = 2.5
-        ctx.beginPath()
-        ctx.arc(stampCX, stampCY, stampR, 0, Math.PI * 2)
-        ctx.stroke()
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.arc(stampCX, stampCY, stampR - 6, 0, Math.PI * 2)
-        ctx.stroke()
-        ctx.fillStyle    = 'rgba(180,30,30,0.75)'
-        ctx.font         = "bold 9px 'Hind', sans-serif"
-        ctx.textAlign    = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('साधू लक्ष्मी', stampCX, stampCY - 11)
-        ctx.fillText('जनकल्याण ट्रस्ट', stampCX, stampCY + 1)
-        ctx.font = "bold 8px 'Hind', sans-serif"
-        ctx.fillText('सील', stampCX, stampCY + 12)
-        ctx.strokeStyle = '#FFFDF5'
-        ctx.lineWidth   = 1.5
-        for (let i = 0; i < 5; i++) {
+        if (moharImg) {
+          const stampSize = stampR * 2.8; // Adjust to fit
+          ctx.drawImage(moharImg, stampCX - stampSize / 2, stampCY - stampSize / 2, stampSize, stampSize);
+        } else {
+          ctx.save()
+          ctx.strokeStyle = 'rgba(180,30,30,0.75)'
+          ctx.lineWidth   = 2.5
           ctx.beginPath()
-          const rx = (Math.random() - 0.5) * 65
-          const ry = (Math.random() - 0.5) * 65
-          ctx.moveTo(stampCX + rx, stampCY + ry)
-          ctx.lineTo(stampCX + (Math.random() - 0.5) * 65, stampCY + (Math.random() - 0.5) * 65)
+          ctx.arc(stampCX, stampCY, stampR, 0, Math.PI * 2)
           ctx.stroke()
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.arc(stampCX, stampCY, stampR - 6, 0, Math.PI * 2)
+          ctx.stroke()
+          ctx.fillStyle    = 'rgba(180,30,30,0.75)'
+          ctx.font         = "bold 9px 'Hind', sans-serif"
+          ctx.textAlign    = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText('साधू लक्ष्मी', stampCX, stampCY - 11)
+          ctx.fillText('जनकल्याण ट्रस्ट', stampCX, stampCY + 1)
+          ctx.font = "bold 8px 'Hind', sans-serif"
+          ctx.fillText('सील', stampCX, stampCY + 12)
+          ctx.strokeStyle = '#FFFDF5'
+          ctx.lineWidth   = 1.5
+          for (let i = 0; i < 5; i++) {
+            ctx.beginPath()
+            const rx = (Math.random() - 0.5) * 65
+            const ry = (Math.random() - 0.5) * 65
+            ctx.moveTo(stampCX + rx, stampCY + ry)
+            ctx.lineTo(stampCX + (Math.random() - 0.5) * 65, stampCY + (Math.random() - 0.5) * 65)
+            ctx.stroke()
+          }
+          ctx.restore()
         }
-        ctx.restore()
 
         const sigLineY = layout.sigLineY
         ctx.strokeStyle = '#999'
