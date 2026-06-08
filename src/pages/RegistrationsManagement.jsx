@@ -28,6 +28,8 @@ const RegistrationsManagement = () => {
   const [generatedLetterData, setGeneratedLetterData] = useState(null);
   const [activeDocument, setActiveDocument] = useState('card'); // 'card', 'letter', or 'review'
   const [updateRole, setUpdateRole] = useState('सदस्य');
+  const [updateValidFrom, setUpdateValidFrom] = useState('');
+  const [updateValidUntil, setUpdateValidUntil] = useState('');
   const [updating, setUpdating] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -79,6 +81,14 @@ const RegistrationsManagement = () => {
     setSelectedReg(reg);
     setActiveDocument('review');
     setUpdateRole(reg.role || 'सदस्य');
+
+    const today = new Date();
+    const nextYear = new Date();
+    nextYear.setFullYear(today.getFullYear() + 1);
+    
+    setUpdateValidFrom(reg.validFrom || today.toISOString().split('T')[0]);
+    setUpdateValidUntil(reg.validUntil || nextYear.toISOString().split('T')[0]);
+
     onOpen();
   };
 
@@ -87,11 +97,11 @@ const RegistrationsManagement = () => {
     try {
       const res = await apiClient(`/registrations/${selectedReg.id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: newStatus, role: updateRole })
+        body: JSON.stringify({ status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil })
       });
       if (res.success) {
-        setRegistrations(prev => prev.map(r => r.id === selectedReg.id ? { ...r, status: newStatus, role: updateRole } : r));
-        setSelectedReg(prev => ({ ...prev, status: newStatus, role: updateRole }));
+        setRegistrations(prev => prev.map(r => r.id === selectedReg.id ? { ...r, status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil } : r));
+        setSelectedReg(prev => ({ ...prev, status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil }));
         toast({
           title: newStatus === 'approved' ? "पंजीकरण स्वीकृत (Approved) हो गया!" : "पंजीकरण अस्वीकृत (Rejected) कर दिया गया।",
           status: newStatus === 'approved' ? 'success' : 'error',
@@ -452,6 +462,16 @@ const RegistrationsManagement = () => {
                       </VStack>
                     </Box>
 
+                    {selectedReg.screenshotUrl && (
+                      <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                        <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>पेमेंट स्क्रीनशॉट (Payment Screenshot):</Text>
+                        <Text fontSize="sm" color={descColor} mb={2} fontWeight="600">राशि (Amount): ₹{selectedReg.amount || 0}</Text>
+                        <a href={resolveImageUrl(selectedReg.screenshotUrl)} target="_blank" rel="noreferrer">
+                          <Image src={resolveImageUrl(selectedReg.screenshotUrl)} alt="Payment Screenshot" borderRadius="md" border={`1px solid ${borderCol}`} maxH="250px" objectFit="contain" cursor="pointer" _hover={{ opacity: 0.9 }} />
+                        </a>
+                      </Box>
+                    )}
+
                     <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
                       <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>पद (Role) असाइन करें:</Text>
                       <Input 
@@ -463,6 +483,36 @@ const RegistrationsManagement = () => {
                         bg={inputBg}
                         borderColor={borderCol}
                       />
+                    </Box>
+
+                    <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                      <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>वैधता (Validity) सेट करें:</Text>
+                      <HStack spacing={4}>
+                        <Box w="full">
+                          <Text fontSize="xs" color={descColor} mb={1}>कब से (Start Date)</Text>
+                          <Input 
+                            type="date"
+                            value={updateValidFrom} 
+                            onChange={(e) => setUpdateValidFrom(e.target.value)} 
+                            size="md" 
+                            borderRadius="lg"
+                            bg={inputBg}
+                            borderColor={borderCol}
+                          />
+                        </Box>
+                        <Box w="full">
+                          <Text fontSize="xs" color={descColor} mb={1}>कब तक (End Date)</Text>
+                          <Input 
+                            type="date"
+                            value={updateValidUntil} 
+                            onChange={(e) => setUpdateValidUntil(e.target.value)} 
+                            size="md" 
+                            borderRadius="lg"
+                            bg={inputBg}
+                            borderColor={borderCol}
+                          />
+                        </Box>
+                      </HStack>
                     </Box>
 
                     <HStack pt={4} justify="flex-end" w="full" spacing={3}>
@@ -607,7 +657,7 @@ const RegistrationsManagement = () => {
                   {(activeDocument === 'card' || activeDocument === 'letter') && (
                     <IDCardGenerator
                       orgId={selectedReg.orgId}
-                      formData={{ ...selectedReg.formData, role: selectedReg.role }}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role, validFrom: selectedReg.validFrom, validUntil: selectedReg.validUntil }}
                       regNumber={selectedReg.regNumber}
                       onGenerated={setGeneratedCardData}
                     />
@@ -615,7 +665,7 @@ const RegistrationsManagement = () => {
                   {(activeDocument === 'card' || activeDocument === 'letter') && (
                     <JoiningLetterGenerator
                       orgId={selectedReg.orgId}
-                      formData={{ ...selectedReg.formData, role: selectedReg.role }}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role, validFrom: selectedReg.validFrom, validUntil: selectedReg.validUntil }}
                       regNumber={selectedReg.regNumber}
                       onGenerated={setGeneratedLetterData}
                     />

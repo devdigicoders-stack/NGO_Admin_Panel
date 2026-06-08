@@ -5,9 +5,10 @@ import { resolveImageUrl } from '../utils/imageUrl'
 const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
   const canvasRef = useRef(null)
 
+  const formDataStr = JSON.stringify(formData);
   useEffect(() => {
     generateLetter()
-  }, [orgId, formData, regNumber])
+  }, [orgId, formDataStr, regNumber])
 
   const darkenColor = (hex, percent) => {
     if (!hex || !hex.startsWith('#')) return '#0f172a'
@@ -55,6 +56,7 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       })
     }
     const letterLogos = {
+      main_trust:   '/ID/main_trust.png',
       patrakar:     '/ID/press.png',
       crime:        '/ID/crime.png',
       chikitsa:     '/ID/akhil.png',
@@ -66,7 +68,10 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     }
     
     const letterLogoPath = letterLogos[org.id] || org.logo
-    const logoImg = await loadImage(resolveImageUrl(letterLogoPath))
+    const [logoImg, signImg] = await Promise.all([
+      loadImage(resolveImageUrl(letterLogoPath)),
+      loadImage(org.id === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png')
+    ])
 
     // Wait for fonts
     if (document.fonts) await document.fonts.ready
@@ -80,7 +85,9 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     let headerHeight = 0;
     if (logoImg) {
       // Determine crop ratio: use 1.0 for muslim since it is now just a banner, 0.68 for others
-      const cropRatio = org.id === 'muslim' ? 1.0 : 0.68;
+      let cropRatio = 0.68;
+      if (org.id === 'muslim') cropRatio = 1.0;
+      if (org.id === 'main_trust') cropRatio = 0.42;
       const sWidth = logoImg.width;
       const sHeight = logoImg.height * cropRatio;
       headerHeight = width * (sHeight / sWidth);
@@ -98,7 +105,9 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     }
 
     // Details Section
-    let contentY = org.id === 'muslim' ? 550 : Math.max(450, headerHeight + 80)
+    let contentY = Math.max(450, headerHeight + 80)
+    if (org.id === 'muslim') contentY = 550
+    if (org.id === 'main_trust') contentY = 420
     ctx.fillStyle = '#1e293b'
     ctx.font = "bold 24px 'Poppins', sans-serif"
     ctx.textAlign = 'left'
@@ -137,6 +146,12 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     contentY = drawDetail('Date', today, contentY)
     contentY = drawDetail('ID No', regNumber || 'NGO/XXXX/0000', contentY)
     contentY = drawDetail('Address', userAddress, contentY)
+
+    if (formData.validFrom && formData.validUntil) {
+      const formatFrom = formData.validFrom.split('-').reverse().join('/');
+      const formatTo = formData.validUntil.split('-').reverse().join('/');
+      contentY = drawDetail('Validity', `${formatFrom} to ${formatTo}`, contentY);
+    }
 
     contentY += 60
 
@@ -184,14 +199,21 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     ctx.fillStyle = '#1e293b'
     ctx.fillText('Regards,', 120, contentY)
 
-    // Signature Cursive
-    contentY += 80
-    ctx.fillStyle = primaryColor
-    ctx.font = "italic 48px 'Caveat', cursive, sans-serif"
-    ctx.fillText('Sadhu Laxmi', 120, contentY)
+    // Signature Image or Cursive
+    if (signImg) {
+      const targetW = 160;
+      const targetH = targetW / (signImg.width / signImg.height);
+      ctx.drawImage(signImg, 120, contentY + 10, targetW, targetH);
+      contentY += 10 + targetH + 10;
+    } else {
+      contentY += 80
+      ctx.fillStyle = primaryColor
+      ctx.font = "italic 48px 'Caveat', cursive, sans-serif"
+      ctx.fillText('Sadhu Laxmi', 120, contentY)
+      contentY += 45
+    }
     
-    // Line under signature (increased padding to avoid overlap)
-    contentY += 45
+    // Line under signature
     ctx.strokeStyle = '#cbd5e1'
     ctx.lineWidth = 2
     ctx.beginPath()
@@ -202,7 +224,7 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     contentY += 20
     ctx.fillStyle = '#64748b'
     ctx.font = "600 22px 'Hind', sans-serif"
-    ctx.fillText('General Manager / महासचिव', 120, contentY)
+    ctx.fillText('National President / राष्ट्रीय अध्यक्ष', 120, contentY)
 
     // Contact Us Section (Bottom Right)
     const contactX = width - 120

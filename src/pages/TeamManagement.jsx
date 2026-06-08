@@ -1,776 +1,693 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { uploadImage } from '../utils/uploadImage';
-import { resolveImageUrl } from '../utils/imageUrl';
+import { useState, useEffect } from 'react';
 import {
-  VStack,
-  HStack,
-  Box,
-  Text,
-  Button,
-  Icon,
-  useColorModeValue,
-  Card,
-  CardBody,
-  Badge,
-  Spinner,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Input,
-  useDisclosure,
-  useToast,
-  SimpleGrid,
-  Flex,
-  Switch,
-  Divider,
-  Tooltip,
-  IconButton,
-  InputGroup,
-  InputLeftElement,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  Box, Text, VStack, HStack, Input, InputGroup, InputLeftElement,
+  Table, Thead, Tbody, Tr, Th, Td, Badge,
+  Button, useColorModeValue, Icon, Flex, Spinner,
+  Tabs, TabList, Tab,
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
+  useDisclosure, Image, Center, useToast
 } from '@chakra-ui/react';
-import {
-  FiPlus,
-  FiEdit2,
-  FiTrash2,
-  FiRefreshCw,
-  FiEye,
-  FiEyeOff,
-  FiSearch,
-  FiUsers,
-  FiImage,
-  FiUser,
-  FiLink,
-  FiType,
-  FiUpload,
-  FiChevronUp,
-  FiChevronDown,
-} from 'react-icons/fi';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-
-const EMPTY_MEMBER = {
-  name: '',
-  designation: 'स्वयंसेवक',
-  image: '',
-  facebook: '',
-  twitter: '',
-  instagram: '',
-  other: '',
-  order: 0,
-  isActive: true,
-};
-
-const EMPTY_SETTINGS = {
-  sectionSubtitle: '',
-  sectionTitle: '',
-};
-
-const MemberCard = ({ member, onEdit, onDelete, onToggle, onMoveUp, onMoveDown, isFirst, isLast }) => {
-  const cardBg = useColorModeValue('#ffffff', '#2a0c06');
-  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
-  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
-  const mutedColor = useColorModeValue('#6b7280', '#c08070');
-
-  return (
-    <Card
-      bg={cardBg}
-      border="1px solid"
-      borderColor={borderColor}
-      borderRadius="2xl"
-      overflow="hidden"
-      opacity={member.isActive ? 1 : 0.65}
-      transition="all 0.25s ease"
-      _hover={{ transform: 'translateY(-3px)', boxShadow: '0 12px 32px rgba(0,0,0,0.10)' }}
-    >
-      <Box position="relative" h="200px" overflow="hidden">
-        <Box
-          as="img"
-          src={resolveImageUrl(member.image) || '/images/team1.png'}
-          alt={member.name}
-          w="full"
-          h="full"
-          objectFit="cover"
-          objectPosition="top"
-        />
-        <Box position="absolute" top={3} right={3}>
-          <Badge colorScheme={member.isActive ? 'brand' : 'gray'} borderRadius="full" px={2} fontSize="10px">
-            {member.isActive ? 'Active' : 'Hidden'}
-          </Badge>
-        </Box>
-        <Box
-          position="absolute"
-          bottom={3}
-          left={3}
-          bg="whiteAlpha.900"
-          borderRadius="lg"
-          px={2}
-          py={0.5}
-          fontSize="11px"
-          fontWeight="700"
-          color="#111827"
-        >
-          Order: {member.order}
-        </Box>
-      </Box>
-      <CardBody p={4}>
-        <Text fontWeight="800" fontSize="15px" color={titleColor} mb={0.5} noOfLines={1}>
-          {member.name}
-        </Text>
-        <Text fontSize="12px" color={mutedColor} mb={3}>
-          {member.designation}
-        </Text>
-        <HStack spacing={1} mb={3} flexWrap="wrap">
-          {['facebook', 'twitter', 'instagram', 'other'].map((key) =>
-            member[key] ? (
-              <Badge key={key} fontSize="9px" colorScheme="brand" variant="subtle">
-                {key}
-              </Badge>
-            ) : null,
-          )}
-        </HStack>
-        <Divider mb={3} />
-        <Flex justify="space-between" align="center">
-          <HStack spacing={1}>
-            <Tooltip label="Move up">
-              <IconButton
-                icon={<Icon as={FiChevronUp} />}
-                size="sm"
-                variant="ghost"
-                isDisabled={isFirst}
-                onClick={() => onMoveUp(member.id)}
-                aria-label="Move up"
-              />
-            </Tooltip>
-            <Tooltip label="Move down">
-              <IconButton
-                icon={<Icon as={FiChevronDown} />}
-                size="sm"
-                variant="ghost"
-                isDisabled={isLast}
-                onClick={() => onMoveDown(member.id)}
-                aria-label="Move down"
-              />
-            </Tooltip>
-            <Tooltip label={member.isActive ? 'Hide from website' : 'Show on website'}>
-              <IconButton
-                icon={<Icon as={member.isActive ? FiEyeOff : FiEye} />}
-                size="sm"
-                variant="ghost"
-                colorScheme={member.isActive ? 'orange' : 'brand'}
-                onClick={() => onToggle(member.id)}
-                aria-label="Toggle"
-              />
-            </Tooltip>
-          </HStack>
-          <HStack spacing={1}>
-            <IconButton
-              icon={<Icon as={FiEdit2} />}
-              size="sm"
-              colorScheme="brand"
-              variant="ghost"
-              onClick={() => onEdit(member)}
-              aria-label="Edit"
-            />
-            <IconButton
-              icon={<Icon as={FiTrash2} />}
-              size="sm"
-              colorScheme="red"
-              variant="ghost"
-              onClick={() => onDelete(member)}
-              aria-label="Delete"
-            />
-          </HStack>
-        </Flex>
-      </CardBody>
-    </Card>
-  );
-};
+import { FiSearch, FiCreditCard, FiDownload, FiUser } from 'react-icons/fi';
+import { apiClient } from '../utils/apiClient';
+import { orgs } from '../utils/registrationUtils';
+import { resolveImageUrl } from '../utils/imageUrl';
+import IDCardGenerator from '../components/IDCardGenerator';
+import JoiningLetterGenerator from '../components/JoiningLetterGenerator';
+import { FiFileText } from 'react-icons/fi';
 
 const TeamManagement = () => {
-  const [members, setMembers] = useState([]);
-  const [settings, setSettings] = useState(EMPTY_SETTINGS);
+  const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [form, setForm] = useState(EMPTY_MEMBER);
-  const [editingId, setEditingId] = useState(null);
-  const [formErrors, setFormErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const formModal = useDisclosure();
-  const deleteModal = useDisclosure();
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('All');
+  
+  // State for ID Card modal preview
+  const [selectedReg, setSelectedReg] = useState(null);
+  const [generatedCardData, setGeneratedCardData] = useState(null);
+  const [generatedLetterData, setGeneratedLetterData] = useState(null);
+  const [activeDocument, setActiveDocument] = useState('card'); // 'card', 'letter', or 'review'
+  const [updateRole, setUpdateRole] = useState('सदस्य');
+  const [updateValidFrom, setUpdateValidFrom] = useState('');
+  const [updateValidUntil, setUpdateValidUntil] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
-  const borderColor = useColorModeValue('#f0c4bb', '#4a1208');
-  const mutedColor = useColorModeValue('#a05040', '#c08070');
+  // Chakra UI colors matching theme.js
   const cardBg = useColorModeValue('#ffffff', '#2a0c06');
+  const borderCol = useColorModeValue('#f0c4bb', '#4a1208');
+  const titleColor = useColorModeValue('#2e0d09', '#f5e0dc');
+  const textColor = useColorModeValue('#5c1204', '#f0d8d4');
+  const descColor = useColorModeValue('#a05040', '#c08070');
+  const thColor = useColorModeValue('#821905', '#e8907a');
+  const thBg = useColorModeValue('rgba(130,25,5,0.04)', 'rgba(232,144,122,0.06)');
+  const rowHover = useColorModeValue('rgba(130,25,5,0.03)', 'rgba(232,144,122,0.05)');
+  const tdBorder = useColorModeValue('#faeae7', 'rgba(255,255,255,0.06)');
+  const inputBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.1)');
+  const placeholderBg = useColorModeValue('#fdf4f2', 'rgba(255,255,255,0.08)');
 
-  const fetchAll = useCallback(async () => {
+  useEffect(() => {
+    fetchRegistrations();
+  }, []);
+
+  const fetchRegistrations = async () => {
     setLoading(true);
-    setError(null);
+    setError('');
     try {
-      const [membersRes, settingsRes] = await Promise.all([
-        fetch(`${API_BASE}/team`),
-        fetch(`${API_BASE}/team/settings`),
-      ]);
-      const membersJson = await membersRes.json();
-      const settingsJson = await settingsRes.json();
-      if (membersJson.success) setMembers(membersJson.data);
-      else setError(membersJson.message || 'Failed to fetch team members');
-      if (settingsJson.success) {
-        setSettings({
-          sectionTitle: settingsJson.data.sectionTitle || '',
-          sectionSubtitle: settingsJson.data.sectionSubtitle || '',
-        });
+      const res = await apiClient('/registrations');
+      if (res.success) {
+        setRegistrations(res.data || []);
+      } else {
+        setError(res.message || 'पंजीकरण डेटा लोड करने में विफल।');
       }
-    } catch {
-      setError('Cannot connect to backend server. Make sure it is running.');
+    } catch (err) {
+      console.error(err);
+      setError('सर्वर से कनेक्ट करने में असमर्थ।');
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  const filteredMembers = members.filter((m) => {
-    const q = searchQuery.toLowerCase();
-    const matchSearch =
-      !q ||
-      m.name.toLowerCase().includes(q) ||
-      m.designation.toLowerCase().includes(q);
-    const matchStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'active' && m.isActive) ||
-      (filterStatus === 'inactive' && !m.isActive);
-    return matchSearch && matchStatus;
-  });
-
-  const openCreateModal = () => {
-    setForm({ ...EMPTY_MEMBER, order: members.length });
-    setEditingId(null);
-    setFormErrors({});
-    formModal.onOpen();
   };
 
-  const openEditModal = (member) => {
-    setForm({
-      name: member.name || '',
-      designation: member.designation || 'स्वयंसेवक',
-      image: member.image || '',
-      facebook: member.facebook || '',
-      twitter: member.twitter || '',
-      instagram: member.instagram || '',
-      other: member.other || '',
-      order: member.order ?? 0,
-      isActive: member.isActive !== undefined ? member.isActive : true,
-    });
-    setEditingId(member.id);
-    setFormErrors({});
-    formModal.onOpen();
+  const handleOpenDocument = (reg, docType) => {
+    setSelectedReg(reg);
+    setActiveDocument(docType);
+    setGeneratedCardData(null);
+    setGeneratedLetterData(null);
+    onOpen();
   };
 
-  const validateForm = () => {
-    const errors = {};
-    if (!form.name.trim()) errors.name = 'Name is required';
-    if (!form.designation.trim()) errors.designation = 'Designation is required';
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+  const handleOpenReview = (reg) => {
+    setSelectedReg(reg);
+    setActiveDocument('review');
+    setUpdateRole(reg.role || 'सदस्य');
+
+    const today = new Date();
+    const nextYear = new Date();
+    nextYear.setFullYear(today.getFullYear() + 1);
+    
+    setUpdateValidFrom(reg.validFrom || today.toISOString().split('T')[0]);
+    setUpdateValidUntil(reg.validUntil || nextYear.toISOString().split('T')[0]);
+
+    onOpen();
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
+  const handleUpdateStatus = async (newStatus) => {
+    setUpdating(true);
     try {
-      const data = await uploadImage(file, 'team');
-      setForm((f) => ({ ...f, image: data.url }));
-      toast({ title: 'Image uploaded', status: 'success', duration: 2000, isClosable: true, position: 'top-right' });
-    } catch (err) {
-      toast({ title: 'Upload failed', description: err.message, status: 'error', duration: 3000, isClosable: true });
-    } finally {
-      setUploading(false);
-    }
-    e.target.value = '';
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    setSubmitting(true);
-    try {
-      const url = editingId ? `${API_BASE}/team/${editingId}` : `${API_BASE}/team`;
-      const method = editingId ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, order: Number(form.order) }),
+      const res = await apiClient(`/registrations/${selectedReg.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil })
       });
-      const json = await res.json();
-      if (json.success) {
+      if (res.success) {
+        setRegistrations(prev => prev.map(r => r.id === selectedReg.id ? { ...r, status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil } : r));
+        setSelectedReg(prev => ({ ...prev, status: newStatus, role: updateRole, validFrom: updateValidFrom, validUntil: updateValidUntil }));
         toast({
-          title: editingId ? 'Member Updated' : 'Member Added',
-          status: 'success',
+          title: newStatus === 'approved' ? "पंजीकरण स्वीकृत (Approved) हो गया!" : "पंजीकरण अस्वीकृत (Rejected) कर दिया गया।",
+          status: newStatus === 'approved' ? 'success' : 'error',
           duration: 3000,
           isClosable: true,
-          position: 'top-right',
+          position: 'top-right'
         });
-        fetchAll();
-        formModal.onClose();
       } else {
-        toast({ title: 'Error', description: json.message, status: 'error', duration: 4000, isClosable: true });
+        toast({ title: res.message || 'स्टेटस अपडेट करने में विफल।', status: 'error', duration: 3000, isClosable: true });
       }
-    } catch {
-      toast({ title: 'Connection Error', status: 'error', duration: 4000, isClosable: true });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'सर्वर एरर।', status: 'error', duration: 3000, isClosable: true });
     } finally {
-      setSubmitting(false);
+      setUpdating(false);
     }
   };
 
-  const handleSaveSettings = async () => {
-    setSavingSettings(true);
-    try {
-      const res = await fetch(`${API_BASE}/team/settings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
-      });
-      const json = await res.json();
-      if (json.success) {
-        toast({ title: 'Section headings saved', status: 'success', duration: 2500, isClosable: true, position: 'top-right' });
-      } else {
-        toast({ title: 'Error', description: json.message, status: 'error', duration: 3000, isClosable: true });
-      }
-    } catch {
-      toast({ title: 'Connection Error', status: 'error', duration: 3000, isClosable: true });
-    } finally {
-      setSavingSettings(false);
-    }
+  const handleDownloadCard = () => {
+    if (!generatedCardData || !selectedReg) return;
+    const link = document.createElement('a');
+    link.download = `ID_Card_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+    link.href = generatedCardData;
+    link.click();
   };
 
-  const handleToggle = async (id) => {
-    try {
-      const res = await fetch(`${API_BASE}/team/${id}/toggle`, { method: 'PATCH' });
-      const json = await res.json();
-      if (json.success) {
-        setMembers((prev) => prev.map((m) => (m.id === id ? json.data : m)));
-      }
-    } catch {
-      toast({ title: 'Failed to toggle', status: 'error', duration: 2500, isClosable: true });
-    }
+  // Filter registrations by search term and active samuday tab
+  const filteredRegs = registrations.filter((reg) => {
+    if (reg.status !== 'approved') return false;
+    const fData = reg.formData || {};
+    const name = fData.name || '';
+    const mobile = fData.mobile || '';
+    const aadhar = fData.aadhar || '';
+    const regNumber = reg.regNumber || '';
+
+    const matchesSearch = 
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mobile.includes(searchTerm) ||
+      aadhar.includes(searchTerm) ||
+      regNumber.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (activeTab === 'All') return matchesSearch;
+    return matchesSearch && reg.orgId === activeTab;
+  });
+
+  const getOrgShortName = (orgId) => {
+    const org = orgs.find(o => o.id === orgId);
+    return org ? org.short : 'सामान्य';
   };
 
-  const reorderMembers = async (orderedIds) => {
-    try {
-      const res = await fetch(`${API_BASE}/team/reorder`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderedIds }),
-      });
-      const json = await res.json();
-      if (json.success) setMembers(json.data);
-    } catch {
-      toast({ title: 'Reorder failed', status: 'error', duration: 2500, isClosable: true });
-    }
+  const getOrgColor = (orgId) => {
+    const org = orgs.find(o => o.id === orgId);
+    return org ? org.color : '#475569';
   };
 
-  const handleMoveUp = (id) => {
-    const idx = members.findIndex((m) => m.id === id);
-    if (idx <= 0) return;
-    const ids = members.map((m) => m.id);
-    [ids[idx - 1], ids[idx]] = [ids[idx], ids[idx - 1]];
-    reorderMembers(ids);
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('hi-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
-
-  const handleMoveDown = (id) => {
-    const idx = members.findIndex((m) => m.id === id);
-    if (idx < 0 || idx >= members.length - 1) return;
-    const ids = members.map((m) => m.id);
-    [ids[idx], ids[idx + 1]] = [ids[idx + 1], ids[idx]];
-    reorderMembers(ids);
-  };
-
-  const handleDelete = async () => {
-    if (!memberToDelete) return;
-    try {
-      const res = await fetch(`${API_BASE}/team/${memberToDelete.id}`, { method: 'DELETE' });
-      const json = await res.json();
-      if (json.success) {
-        toast({ title: 'Deleted', status: 'success', duration: 2500, isClosable: true });
-        fetchAll();
-        deleteModal.onClose();
-        setMemberToDelete(null);
-      }
-    } catch {
-      toast({ title: 'Delete failed', status: 'error', duration: 3000, isClosable: true });
-    }
-  };
-
-  const activeCount = members.filter((m) => m.isActive).length;
 
   return (
-    <VStack spacing={{ base: 5, md: 7 }} align="stretch" w="full">
-      <Box
-        p={{ base: 5, md: 7 }}
-        borderRadius="2xl"
-        bgGradient="linear(135deg, #821905 0%, #4a0e02 100%)"
-        color="white"
-        boxShadow="0 4px 24px rgba(130,25,5,0.30)"
-      >
-        <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ md: 'center' }} gap={4}>
-          <Box>
-            <HStack spacing={2} mb={1}>
-              <Icon as={FiUsers} color="#f5b400" fontSize="14" />
-              <Text fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color="#f5b400">
-                Website Content
-              </Text>
-            </HStack>
-            <Text fontSize={{ base: 'xl', md: '2xl' }} fontFamily="'Outfit', sans-serif" fontWeight="800" mb={1}>
-              स्वयंसेवक दल — Team Section
-            </Text>
-            <Text fontSize="sm" opacity={0.85} maxW="lg">
-              Manage volunteers shown in &quot;हमारे समर्पित स्वयंसेवक दल से मिलें&quot; on the homepage and about page.
-            </Text>
-          </Box>
-          <Button
-            leftIcon={<Icon as={FiPlus} />}
-            bg="#f5b400"
-            color="#111827"
-            _hover={{ bg: '#e6a300' }}
-            borderRadius="xl"
-            fontWeight="700"
-            onClick={openCreateModal}
-            flexShrink={0}
-          >
-            Add Team Member
-          </Button>
-        </Flex>
-      </Box>
-
-      <Card bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl">
-        <CardBody p={5}>
-          <Text fontWeight="800" color={titleColor} mb={4} fontSize="md">
-            <Icon as={FiType} mr={2} />
-            Section Headings (Website)
+    <VStack spacing={5} align="stretch" w="full">
+      {/* Header Title */}
+      <Flex direction={{ base: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ base: 'flex-start', sm: 'center' }} gap={4}>
+        <Box>
+          <Text fontSize="2xl" fontFamily="'Outfit', sans-serif" fontWeight="800" color={titleColor}>
+            स्वयंसेवक दल — Team Section
           </Text>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="600">Subtitle (ऊपर की पंक्ति)</FormLabel>
-              <Input
-                variant="filled"
-                borderRadius="xl"
-                value={settings.sectionSubtitle}
-                onChange={(e) => setSettings((s) => ({ ...s, sectionSubtitle: e.target.value }))}
-                placeholder="ज़रूरतमंदों को दान देना शुरू करें"
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="600">Main Title (मुख्य शीर्षक)</FormLabel>
-              <Input
-                variant="filled"
-                borderRadius="xl"
-                value={settings.sectionTitle}
-                onChange={(e) => setSettings((s) => ({ ...s, sectionTitle: e.target.value }))}
-                placeholder="हमारे समर्पित स्वयंसेवक दल से मिलें"
-              />
-            </FormControl>
-          </SimpleGrid>
-          <Button
-            size="sm"
-            bg="#821905"
-            color="white"
-            _hover={{ bg: '#6e1504' }}
-            borderRadius="xl"
-            onClick={handleSaveSettings}
-            isLoading={savingSettings}
-          >
-            Save Section Headings
-          </Button>
-        </CardBody>
-      </Card>
-
-      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-        {[
-          { label: 'Total Members', value: members.length, color: '#821905' },
-          { label: 'Visible on Site', value: activeCount, color: '#c0392b' },
-          { label: 'Hidden', value: members.length - activeCount, color: '#e05a3a' },
-        ].map((stat, i) => (
-          <Card key={i} bg={cardBg} border="1px solid" borderColor={borderColor} borderRadius="2xl">
-            <CardBody p={4}>
-              <Text fontSize="22px" fontWeight="800" color={titleColor}>
-                {stat.value}
-              </Text>
-              <Text fontSize="11px" color={mutedColor} fontWeight="600">
-                {stat.label}
-              </Text>
-            </CardBody>
-          </Card>
-        ))}
-      </SimpleGrid>
-
-      <Flex gap={3} direction={{ base: 'column', sm: 'row' }}>
-        <InputGroup flex={1}>
-          <InputLeftElement pointerEvents="none">
-            <Icon as={FiSearch} color={mutedColor} />
-          </InputLeftElement>
-          <Input
-            placeholder="Search by name or role..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            variant="filled"
-            borderRadius="xl"
-            fontSize="sm"
-          />
-        </InputGroup>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          style={{ borderRadius: '12px', padding: '8px 12px', maxWidth: '160px' }}
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Hidden</option>
-        </select>
-        <IconButton
-          icon={<Icon as={FiRefreshCw} />}
-          onClick={fetchAll}
-          variant="ghost"
-          colorScheme="brand"
-          borderRadius="xl"
-          isLoading={loading}
-          aria-label="Refresh"
-        />
+          <Text fontSize="xs" color={descColor}>
+            This page automatically displays all approved members from the Registrations section, in a tabular format.
+          </Text>
+        </Box>
+        <Button leftIcon={<FiSearch />} bg="#821905" color="white" borderRadius="xl" size="md" _hover={{ bg: '#6e1504' }} onClick={fetchRegistrations}>
+          रिफ्रेश करें
+        </Button>
       </Flex>
 
-      {loading ? (
-        <Flex justify="center" py={16}>
-          <Spinner size="xl" color="#821905" />
-        </Flex>
-      ) : error ? (
-        <Alert status="error" borderRadius="2xl">
-          <AlertIcon />
-          <Box>
-            <AlertTitle>Backend Not Connected</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+      {/* Filter and Search Container */}
+      <Box bg={cardBg} border="1px solid" borderColor={borderCol} borderRadius="2xl" shadow="sm" overflow="hidden">
+        {/* Tab & Search Bar */}
+        <Box p={4} borderBottom="1px solid" borderColor={borderCol}>
+          <Flex direction={{ base: 'column', lg: 'row' }} justify="space-between" align={{ base: 'stretch', lg: 'center' }} gap={4}>
+            
+            {/* Horizontal Scrollable Tabs */}
+            <Box overflowX="auto" maxW="100%" pb={{ base: 2, lg: 0 }}>
+              <Tabs 
+                variant="soft-rounded" 
+                size="sm" 
+                index={activeTab === 'All' ? 0 : orgs.findIndex(o => o.id === activeTab) + 1}
+                onChange={(index) => {
+                  if (index === 0) {
+                    setActiveTab('All');
+                  } else {
+                    setActiveTab(orgs[index - 1].id);
+                  }
+                }}
+              >
+                <TabList gap={1} display="flex" flexWrap="nowrap">
+                  <Tab borderRadius="xl" fontWeight="600" fontSize="xs" color={descColor} _selected={{ bg: '#821905', color: 'white' }} whiteSpace="nowrap">
+                    सभी ({registrations.filter(r => r.status === 'approved').length})
+                  </Tab>
+                  {orgs.map((o) => {
+                    const count = registrations.filter(r => r.orgId === o.id && r.status === 'approved').length;
+                    return (
+                      <Tab key={o.id} borderRadius="xl" fontWeight="600" fontSize="xs" color={descColor} _selected={{ bg: o.color, color: 'white' }} whiteSpace="nowrap">
+                        {o.icon} {o.short} ({count})
+                      </Tab>
+                    );
+                  })}
+                </TabList>
+              </Tabs>
+            </Box>
+
+            {/* Search Box */}
+            <InputGroup maxW={{ base: 'full', lg: 'xs' }} flexShrink={0}>
+              <InputLeftElement pointerEvents="none"><FiSearch color="#a05040" /></InputLeftElement>
+              <Input 
+                placeholder="नाम, मोबाइल, आधार या ID खोजें..." 
+                variant="filled" 
+                bg={inputBg} 
+                borderRadius="xl" 
+                fontSize="sm" 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                border="1px solid" 
+                borderColor={borderCol} 
+                color={titleColor} 
+                _placeholder={{ color: descColor }} 
+                _focus={{ bg: cardBg, borderColor: '#821905' }} 
+              />
+            </InputGroup>
+          </Flex>
+        </Box>
+
+        {/* Content Table */}
+        {loading ? (
+          <Box py={20} textAlign="center">
+            <Spinner size="lg" color="#821905" thickness="4px" />
+            <Text mt={4} color={descColor} fontSize="sm">सदस्यों की सूची लोड हो रही है...</Text>
           </Box>
-        </Alert>
-      ) : filteredMembers.length === 0 ? (
-        <Text textAlign="center" color={mutedColor} py={12}>
-          No team members yet. Click &quot;Add Team Member&quot; to start.
-        </Text>
-      ) : (
-        <SimpleGrid columns={{ base: 1, sm: 2, lg: 3, xl: 4 }} spacing={5}>
-          {filteredMembers.map((member, idx) => (
-            <MemberCard
-              key={member.id}
-              member={member}
-              onEdit={openEditModal}
-              onDelete={(m) => {
-                setMemberToDelete(m);
-                deleteModal.onOpen();
-              }}
-              onToggle={handleToggle}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
-              isFirst={members.findIndex((m) => m.id === member.id) === 0}
-              isLast={members.findIndex((m) => m.id === member.id) === members.length - 1}
-            />
-          ))}
-        </SimpleGrid>
-      )}
+        ) : error ? (
+          <Box py={20} textAlign="center">
+            <Text color="red.500" fontWeight="bold">{error}</Text>
+            <Button mt={4} size="sm" onClick={fetchRegistrations} colorScheme="brand">पुनः प्रयास करें</Button>
+          </Box>
+        ) : (
+          <Box overflowX="auto">
+            <Table variant="simple" size="md">
+              <Thead>
+                <Tr bg={thBg}>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3} pl={5}>सदस्य प्रोफाइल</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>रजिस्ट्रेशन नंबर</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>समुदाय/कोष्ठ</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>पिता/पति का नाम</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>मोबाइल</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>स्टेटस / पद</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3}>पंजीकरण तिथि</Th>
+                  <Th color={thColor} borderColor={tdBorder} fontSize="11px" fontWeight="700" textTransform="uppercase" letterSpacing="wider" py={3} pr={5} textAlign="right">एक्शन</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {filteredRegs.length === 0 ? (
+                  <Tr>
+                    <Td colSpan={7} textAlign="center" py={12} color={descColor} borderColor={tdBorder}>
+                      कोई पंजीकरण नहीं मिला।
+                    </Td>
+                  </Tr>
+                ) : (
+                  filteredRegs.map((reg) => {
+                    const fData = reg.formData || {};
+                    return (
+                      <Tr key={reg.id} _hover={{ bg: rowHover }} transition="background-color 0.15s ease">
+                        {/* Member Profile */}
+                        <Td borderColor={tdBorder} py={3} pl={5}>
+                          <HStack spacing={3}>
+                            {/* Member Photo — native img handles base64 & URL reliably */}
+                            {fData.photo ? (
+                              <img
+                                src={resolveImageUrl(fData.photo)}
+                                alt={fData.name || 'photo'}
+                                style={{
+                                  width: '36px',
+                                  height: '44px',
+                                  objectFit: 'cover',
+                                  borderRadius: '6px',
+                                  border: `1px solid ${borderCol}`,
+                                  flexShrink: 0,
+                                  display: 'block',
+                                }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const sibling = e.currentTarget.nextElementSibling;
+                                  if (sibling) sibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <Flex
+                              w="36px" h="44px"
+                              bg={placeholderBg}
+                              borderRadius="6px"
+                              align="center"
+                              justify="center"
+                              border="1px solid"
+                              borderColor={borderCol}
+                              flexShrink={0}
+                              display={fData.photo ? 'none' : 'flex'}
+                            >
+                              <Icon as={FiUser} color={descColor} boxSize={4} />
+                            </Flex>
+                            <Box>
+                              <Text fontSize="sm" fontWeight="700" color={titleColor}>{fData.name || 'N/A'}</Text>
+                              <Text fontSize="11px" color={descColor}>आधार: {fData.aadhar || 'N/A'}</Text>
+                            </Box>
+                          </HStack>
+                        </Td>
 
-      <Modal isOpen={formModal.isOpen} onClose={formModal.onClose} size="2xl" scrollBehavior="inside">
-        <ModalOverlay backdropFilter="blur(4px)" />
-        <ModalContent borderRadius="2xl" bg={cardBg}>
-          <ModalHeader fontWeight="800" color={titleColor}>
-            {editingId ? 'Edit Team Member' : 'Add Team Member'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4} align="stretch">
-              <FormControl isRequired isInvalid={!!formErrors.name}>
-                <FormLabel fontSize="sm" fontWeight="600">
-                  <Icon as={FiUser} mr={1} /> Name (नाम)
-                </FormLabel>
-                <Input
-                  variant="filled"
-                  borderRadius="xl"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="माइकल फोक्लुज़"
-                />
-                {formErrors.name && (
-                  <Text color="red.400" fontSize="xs" mt={1}>
-                    {formErrors.name}
-                  </Text>
+                        {/* Reg Number */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <Badge 
+                            variant="subtle" 
+                            colorScheme="brand" 
+                            px={2} 
+                            py={0.5} 
+                            borderRadius="md" 
+                            fontFamily="mono" 
+                            fontSize="xs"
+                          >
+                            {reg.regNumber}
+                          </Badge>
+                        </Td>
+
+                        {/* Community Wing */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <Badge 
+                            style={{ 
+                              background: `${getOrgColor(reg.orgId)}15`,
+                              color: getOrgColor(reg.orgId),
+                              border: `1px solid ${getOrgColor(reg.orgId)}30`
+                            }} 
+                            px={2.5} 
+                            py={0.5} 
+                            borderRadius="full" 
+                            fontSize="11px" 
+                            fontWeight="700"
+                          >
+                            {getOrgShortName(reg.orgId)}
+                          </Badge>
+                        </Td>
+
+                        {/* Father's Name */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <Text fontSize="xs" fontWeight="600" color={textColor}>{fData.father || 'N/A'}</Text>
+                        </Td>
+
+                        {/* Mobile */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <Text fontSize="xs" fontWeight="600" color={textColor}>{fData.mobile || 'N/A'}</Text>
+                        </Td>
+
+                        {/* Status / Role */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <VStack align="start" spacing={1}>
+                            <Badge colorScheme={reg.status === 'approved' ? 'green' : reg.status === 'rejected' ? 'red' : 'orange'} fontSize="10px">
+                              {reg.status === 'approved' ? 'Approved' : reg.status === 'rejected' ? 'Rejected' : 'Pending'}
+                            </Badge>
+                            {reg.status === 'approved' && (
+                              <Text fontSize="10px" color={descColor} fontWeight="600">{reg.role || 'सदस्य'}</Text>
+                            )}
+                          </VStack>
+                        </Td>
+
+                        {/* Registration Date */}
+                        <Td borderColor={tdBorder} py={3}>
+                          <Text fontSize="xs" color={descColor} fontWeight="500">{formatDate(reg.createdAt)}</Text>
+                        </Td>
+
+                        {/* Actions */}
+                        <Td borderColor={tdBorder} py={3} pr={5} textAlign="right">
+                          <HStack spacing={2} justify="flex-end">
+                            <Button 
+                              leftIcon={<FiUser />} 
+                              size="xs" 
+                              borderRadius="lg" 
+                              colorScheme="blue" 
+                              variant="solid"
+                              onClick={() => handleOpenReview(reg)}
+                            >
+                              Review
+                            </Button>
+                            <Button 
+                              leftIcon={<FiCreditCard />} 
+                              size="xs" 
+                              borderRadius="lg" 
+                              colorScheme="brand" 
+                              variant="outline"
+                              onClick={() => handleOpenDocument(reg, 'card')}
+                            >
+                              ID / Letter
+                            </Button>
+                          </HStack>
+                        </Td>
+                      </Tr>
+                    );
+                  })
                 )}
-              </FormControl>
+              </Tbody>
+            </Table>
+          </Box>
+        )}
+      </Box>
 
-              <FormControl isRequired isInvalid={!!formErrors.designation}>
-                <FormLabel fontSize="sm" fontWeight="600">
-                  Designation (पद / भूमिका)
-                </FormLabel>
-                <Input
-                  variant="filled"
-                  borderRadius="xl"
-                  value={form.designation}
-                  onChange={(e) => setForm((f) => ({ ...f, designation: e.target.value }))}
-                  placeholder="स्वयंसेवक"
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel fontSize="sm" fontWeight="600">
-                  <Icon as={FiImage} mr={1} /> Profile Photo
-                </FormLabel>
-                <HStack spacing={3}>
-                  <Input
-                    flex={1}
-                    variant="filled"
-                    borderRadius="xl"
-                    placeholder="/images/team1.png"
-                    value={form.image}
-                    onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                  />
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleImageUpload}
-                  />
-                  <Button
-                    leftIcon={<Icon as={FiUpload} />}
-                    variant="outline"
-                    borderRadius="xl"
-                    onClick={() => fileInputRef.current?.click()}
-                    isLoading={uploading}
-                    flexShrink={0}
-                  >
-                    Upload
-                  </Button>
-                </HStack>
-                {form.image && (
-                  <Box
-                    as="img"
-                    src={resolveImageUrl(form.image)}
-                    alt="preview"
-                    mt={3}
-                    maxH="120px"
-                    borderRadius="xl"
-                    objectFit="cover"
-                  />
-                )}
-              </FormControl>
-
-              <Text fontSize="sm" fontWeight="700" color={titleColor}>
-                <Icon as={FiLink} mr={1} /> Social Links
-              </Text>
-              {[
-                { key: 'facebook', label: 'Facebook URL' },
-                { key: 'twitter', label: 'Twitter / X URL' },
-                { key: 'instagram', label: 'Instagram URL' },
-                { key: 'other', label: 'Other Link (Behance / Website)' },
-              ].map(({ key, label }) => (
-                <FormControl key={key}>
-                  <FormLabel fontSize="xs" color={mutedColor}>
-                    {label}
-                  </FormLabel>
-                  <Input
-                    variant="filled"
-                    borderRadius="xl"
-                    value={form[key]}
-                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    placeholder="https://..."
-                  />
-                </FormControl>
-              ))}
-
-              <HStack spacing={4}>
-                <FormControl flex={1}>
-                  <FormLabel fontSize="sm" fontWeight="600">
-                    Display Order
-                  </FormLabel>
-                  <NumberInput
-                    min={0}
-                    value={form.order}
-                    onChange={(_, val) => setForm((f) => ({ ...f, order: isNaN(val) ? 0 : val }))}
-                  >
-                    <NumberInputField variant="filled" borderRadius="xl" />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-                <FormControl flex={1}>
-                  <FormLabel fontSize="sm" fontWeight="600" mb={0}>
-                    Show on Website
-                  </FormLabel>
-                  <Switch
-                    mt={2}
-                    isChecked={form.isActive}
-                    onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                    colorScheme="brand"
-                    size="lg"
-                  />
-                </FormControl>
-              </HStack>
-            </VStack>
-          </ModalBody>
-          <ModalFooter gap={3}>
-            <Button variant="ghost" onClick={formModal.onClose} borderRadius="xl">
-              Cancel
-            </Button>
-            <Button
-              bg="#821905"
-              color="white"
-              borderRadius="xl"
-              onClick={handleSubmit}
-              isLoading={submitting}
-            >
-              {editingId ? 'Update' : 'Create'}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm" isCentered>
+      {/* ID Card / Joining Letter Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size={activeDocument === 'card' ? "4xl" : "2xl"} isCentered>
         <ModalOverlay />
-        <ModalContent borderRadius="2xl">
-          <ModalHeader color="red.500">Delete Member</ModalHeader>
-          <ModalBody>
-            <Text fontSize="sm">
-              Delete <strong>{memberToDelete?.name}</strong>? This cannot be undone.
-            </Text>
+        <ModalContent bg={cardBg} border="1px solid" borderColor={borderCol} borderRadius="2xl" overflow="hidden">
+          <ModalHeader borderBottom="1px solid" borderColor={borderCol} py={4}>
+            <HStack spacing={2}>
+              <Icon as={activeDocument === 'review' ? FiUser : (activeDocument === 'card' ? FiCreditCard : FiFileText)} color="#821905" />
+              <Text fontSize="md" fontWeight="800" color={titleColor}>
+                {activeDocument === 'review' ? 'रजिस्ट्रेशन रिव्यू (Registration Review)' : (activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)')}
+              </Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton color={titleColor} />
+          <ModalBody p={6}>
+            {selectedReg && (
+              <VStack spacing={6} align="center" w="full">
+
+                {/* ---------- REVIEW REGISTRATION ---------- */}
+                {activeDocument === 'review' && (
+                  <VStack align="stretch" w="full" spacing={4}>
+                    <HStack justify="space-between" align="flex-start">
+                      <Box>
+                        <Text fontSize="xl" fontWeight="700" color={titleColor}>{selectedReg.formData.name || 'N/A'}</Text>
+                        <Text fontSize="sm" color={descColor}>रजिस्ट्रेशन नंबर: {selectedReg.regNumber}</Text>
+                        <Badge mt={2} colorScheme={selectedReg.status === 'approved' ? 'green' : selectedReg.status === 'rejected' ? 'red' : 'orange'}>
+                          {selectedReg.status === 'approved' ? 'Approved' : selectedReg.status === 'rejected' ? 'Rejected' : 'Pending'}
+                        </Badge>
+                      </Box>
+                      {selectedReg.formData.photo && (
+                        <Image src={resolveImageUrl(selectedReg.formData.photo)} w="80px" h="100px" objectFit="cover" borderRadius="md" border={`1px solid ${borderCol}`} />
+                      )}
+                    </HStack>
+
+                    <Box bg={thBg} p={4} borderRadius="xl" border="1px solid" borderColor={borderCol}>
+                      <VStack align="stretch" spacing={2}>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">समुदाय:</Text><Text fontSize="sm">{getOrgShortName(selectedReg.orgId)}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">पिता/पति का नाम:</Text><Text fontSize="sm">{selectedReg.formData.father}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">जन्म तिथि:</Text><Text fontSize="sm">{selectedReg.formData.dob}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">मोबाइल:</Text><Text fontSize="sm">{selectedReg.formData.mobile}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">ईमेल:</Text><Text fontSize="sm">{selectedReg.formData.email || '-'}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">आधार नंबर:</Text><Text fontSize="sm">{selectedReg.formData.aadhar}</Text></HStack>
+                        <HStack justify="space-between"><Text fontSize="sm" fontWeight="600">पता:</Text><Text fontSize="sm" textAlign="right">{selectedReg.formData.address}<br/>पिन: {selectedReg.formData.pincode}</Text></HStack>
+                      </VStack>
+                    </Box>
+
+                    {selectedReg.screenshotUrl && (
+                      <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                        <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>पेमेंट स्क्रीनशॉट (Payment Screenshot):</Text>
+                        <Text fontSize="sm" color={descColor} mb={2} fontWeight="600">राशि (Amount): ₹{selectedReg.amount || 0}</Text>
+                        <a href={resolveImageUrl(selectedReg.screenshotUrl)} target="_blank" rel="noreferrer">
+                          <Image src={resolveImageUrl(selectedReg.screenshotUrl)} alt="Payment Screenshot" borderRadius="md" border={`1px solid ${borderCol}`} maxH="250px" objectFit="contain" cursor="pointer" _hover={{ opacity: 0.9 }} />
+                        </a>
+                      </Box>
+                    )}
+
+                    <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                      <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>पद (Role) असाइन करें:</Text>
+                      <Input 
+                        value={updateRole} 
+                        onChange={(e) => setUpdateRole(e.target.value)} 
+                        placeholder="जैसे: सदस्य, जिला अध्यक्ष" 
+                        size="md" 
+                        borderRadius="lg"
+                        bg={inputBg}
+                        borderColor={borderCol}
+                      />
+                    </Box>
+
+                    <Box pt={4} borderTop="1px solid" borderColor={borderCol}>
+                      <Text fontSize="sm" fontWeight="700" color={titleColor} mb={2}>वैधता (Validity) सेट करें:</Text>
+                      <HStack spacing={4}>
+                        <Box w="full">
+                          <Text fontSize="xs" color={descColor} mb={1}>कब से (Start Date)</Text>
+                          <Input 
+                            type="date"
+                            value={updateValidFrom} 
+                            onChange={(e) => setUpdateValidFrom(e.target.value)} 
+                            size="md" 
+                            borderRadius="lg"
+                            bg={inputBg}
+                            borderColor={borderCol}
+                          />
+                        </Box>
+                        <Box w="full">
+                          <Text fontSize="xs" color={descColor} mb={1}>कब तक (End Date)</Text>
+                          <Input 
+                            type="date"
+                            value={updateValidUntil} 
+                            onChange={(e) => setUpdateValidUntil(e.target.value)} 
+                            size="md" 
+                            borderRadius="lg"
+                            bg={inputBg}
+                            borderColor={borderCol}
+                          />
+                        </Box>
+                      </HStack>
+                    </Box>
+
+                    <HStack pt={4} justify="flex-end" w="full" spacing={3}>
+                      {selectedReg.status !== 'rejected' && (
+                        <Button 
+                          colorScheme="red" 
+                          variant="outline"
+                          isLoading={updating}
+                          onClick={() => handleUpdateStatus('rejected')}
+                        >
+                          रिजेक्ट करें (Reject)
+                        </Button>
+                      )}
+                      <Button 
+                        colorScheme="green" 
+                        isLoading={updating}
+                        onClick={() => handleUpdateStatus('approved')}
+                      >
+                        {selectedReg.status === 'approved' ? 'अपडेट करें (Update)' : 'अप्रूव करें (Approve)'}
+                      </Button>
+                    </HStack>
+                  </VStack>
+                )}
+                
+                {/* ---------- ID CARD VIEW ---------- */}
+                {activeDocument === 'card' && (
+                  generatedCardData ? (
+                    <Flex direction={{ base: 'column', md: 'row' }} gap={6} justify="center" w="full">
+                      {/* Front Card Column */}
+                      <Box textAlign="center" flex="1" maxW="420px">
+                        <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
+                          सामने का भाग (Front)
+                        </Text>
+                        <Image 
+                          src={generatedCardData.front} 
+                          alt="Front ID Card" 
+                          borderRadius="xl"
+                          boxShadow="md"
+                          maxW="100%"
+                          border="1px solid"
+                          borderColor={borderCol}
+                        />
+                        <Button
+                          colorScheme="brand"
+                          leftIcon={<FiDownload />}
+                          mt={3}
+                          w="full"
+                          size="sm"
+                          borderRadius="xl"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.download = `ID_Card_Front_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                            link.href = generatedCardData.front;
+                            link.click();
+                          }}
+                        >
+                          सामने का भाग डाउनलोड करें
+                        </Button>
+                      </Box>
+
+                      {/* Back Card Column */}
+                      <Box textAlign="center" flex="1" maxW="420px">
+                        <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
+                          पीछे का भाग (Back)
+                        </Text>
+                        <Image 
+                          src={generatedCardData.back} 
+                          alt="Back ID Card" 
+                          borderRadius="xl"
+                          boxShadow="md"
+                          maxW="100%"
+                          border="1px solid"
+                          borderColor={borderCol}
+                        />
+                        <Button
+                          colorScheme="brand"
+                          variant="outline"
+                          leftIcon={<FiDownload />}
+                          mt={3}
+                          w="full"
+                          size="sm"
+                          borderRadius="xl"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.download = `ID_Card_Back_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                            link.href = generatedCardData.back;
+                            link.click();
+                          }}
+                        >
+                          पीछे का भाग डाउनलोड करें
+                        </Button>
+                      </Box>
+                    </Flex>
+                  ) : (
+                    <Center py={10} w="full" flexDirection="column" gap={3}>
+                      <Spinner size="md" color="#821905" />
+                      <Text fontSize="xs" color={descColor}>ID Card उत्पन्न हो रहा है...</Text>
+                    </Center>
+                  )
+                )}
+
+                {/* ---------- JOINING LETTER VIEW ---------- */}
+                {activeDocument === 'letter' && (
+                  generatedLetterData ? (
+                    <Box textAlign="center" w="full" maxW="500px" mx="auto">
+                      <Image 
+                        src={generatedLetterData} 
+                        alt="Joining Letter" 
+                        borderRadius="xl"
+                        boxShadow="md"
+                        maxW="100%"
+                        border="1px solid"
+                        borderColor={borderCol}
+                      />
+                      <Button
+                        colorScheme="teal"
+                        leftIcon={<FiDownload />}
+                        mt={4}
+                        w="full"
+                        size="md"
+                        borderRadius="xl"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.download = `Joining_Letter_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                          link.href = generatedLetterData;
+                          link.click();
+                        }}
+                      >
+                        जॉइनिंग लेटर डाउनलोड करें
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Center py={10} w="full" flexDirection="column" gap={3}>
+                      <Spinner size="md" color="teal.500" />
+                      <Text fontSize="xs" color={descColor}>जॉइनिंग लेटर उत्पन्न हो रहा है...</Text>
+                    </Center>
+                  )
+                )}
+
+                {/* Generator Components (Hidden Canvas) */}
+                <Box display="none">
+                  {(activeDocument === 'card' || activeDocument === 'letter') && (
+                    <IDCardGenerator
+                      orgId={selectedReg.orgId}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role, validFrom: selectedReg.validFrom, validUntil: selectedReg.validUntil }}
+                      regNumber={selectedReg.regNumber}
+                      onGenerated={setGeneratedCardData}
+                    />
+                  )}
+                  {(activeDocument === 'card' || activeDocument === 'letter') && (
+                    <JoiningLetterGenerator
+                      orgId={selectedReg.orgId}
+                      formData={{ ...selectedReg.formData, role: selectedReg.role, validFrom: selectedReg.validFrom, validUntil: selectedReg.validUntil }}
+                      regNumber={selectedReg.regNumber}
+                      onGenerated={setGeneratedLetterData}
+                    />
+                  )}
+                </Box>
+              </VStack>
+            )}
           </ModalBody>
-          <ModalFooter gap={3}>
-            <Button variant="ghost" onClick={deleteModal.onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="red" onClick={handleDelete}>
-              Delete
+          <ModalFooter borderTop="1px solid" borderColor={borderCol} py={3}>
+            {activeDocument === 'card' && (
+              <Button colorScheme="teal" variant="outline" mr={3} size="sm" onClick={() => setActiveDocument('letter')}>
+                Letter देखें
+              </Button>
+            )}
+            {activeDocument === 'letter' && (
+              <Button colorScheme="brand" variant="outline" mr={3} size="sm" onClick={() => setActiveDocument('card')}>
+                ID Card देखें
+              </Button>
+            )}
+            <Button colorScheme="brand" onClick={onClose} borderRadius="xl" size="sm">
+              बंद करें
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -4,6 +4,7 @@ import { resolveImageUrl } from '../utils/imageUrl'
 
 // Map orgId → figure image in /ID/ folder
 const ORG_FIGURE_MAP = {
+  main_trust:   '/ID/main_trust.png',
   patrakar:     '/ID/press.png',
   crime:        '/ID/crime.png',
   chikitsa:     '/ID/akhil.png',
@@ -16,6 +17,7 @@ const ORG_FIGURE_MAP = {
 
 // Map orgId → primary saffron/theme tones (top header gradient)
 const ORG_HEADER_COLORS = {
+  main_trust:   { from: '#B8860B', to: '#DAA520', accent: '#FFD700' },
   patrakar:     { from: '#8B1A00', to: '#CC3300', accent: '#FF6600' },
   crime:        { from: '#6B0000', to: '#AA1100', accent: '#CC2200' },
   chikitsa:     { from: '#880044', to: '#CC1166', accent: '#FF3399' },
@@ -27,6 +29,7 @@ const ORG_HEADER_COLORS = {
 }
 
 const ORG_MOHAR_MAP = {
+  main_trust:   '/mohar/sadhuLakshmi.png',
   patrakar:     '/mohar/rashtriyapress.png',
   crime:        '/mohar/rashtriyacrime.png',
   chikitsa:     '/mohar/akhilbhartiya.png',
@@ -69,6 +72,13 @@ const EXTRA_FIELD_LABELS = {
 
 // Dynamic layout settings for each organization to fit their template's white area
 const ORG_LAYOUTS = {
+  main_trust: {
+    bodyY: 410,
+    photoH: 180,
+    rowHeight: 25,
+    stampCY: 470,
+    sigLineY: 570,
+  },
   patrakar: {
     bodyY: 400,
     photoH: 195,
@@ -284,9 +294,10 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
   const frontCanvasRef = useRef(null)
   const backCanvasRef  = useRef(null)
 
+  const formDataStr = JSON.stringify(formData);
   useEffect(() => {
     generateIDCard()
-  }, [orgId, formData, regNumber])
+  }, [orgId, formDataStr, regNumber])
 
   const generateIDCard = async () => {
     const frontCanvas = frontCanvasRef.current
@@ -321,11 +332,12 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // Wait for fonts
     try { if (document.fonts) await document.fonts.ready } catch (_) {}
 
-    const [logoImg, photoImg, figureImg, moharImg] = await Promise.all([
+    const [logoImg, photoImg, figureImg, moharImg, signImg] = await Promise.all([
       loadImage(resolveImageUrl(org.logo)),
       loadImage(resolveImageUrl(formData.photo)),
       loadImage(figureUrl),
       loadImage(ORG_MOHAR_MAP[orgId] || ORG_MOHAR_MAP.hindu),
+      loadImage(orgId === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png')
     ])
 
     frontCtx.imageSmoothingEnabled = true
@@ -336,7 +348,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // ════════════════════════════════════════════════════════════
     //  DRAW FRONT CARD
     // ════════════════════════════════════════════════════════════
-    drawFrontCard(frontCtx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg })
+    drawFrontCard(frontCtx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg, signImg })
 
     // ════════════════════════════════════════════════════════════
     //  DRAW BACK CARD
@@ -351,7 +363,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    function drawFrontCard(ctx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg }) {
+    function drawFrontCard(ctx, { W, H, org, hColors, logoImg, photoImg, figureImg, moharImg, signImg }) {
       const layout = ORG_LAYOUTS[orgId] || ORG_LAYOUTS.hindu
       const BODY_Y = layout.bodyY
       const bodyLeft = 20
@@ -465,7 +477,13 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         drawRow('पिता/पति का नाम', formData.father  || '')
         drawRow('जन्म तिथि',       formData.dob     || '')
         drawRow('मोबाइल नंबर',     formData.mobile  || '')
-        drawRow('स्थायी पता',      (formData.address || '').substring(0, 38))
+        drawRow('स्थायी पता',      (formData.address || '').substring(0, 40))
+
+        if (formData.validFrom && formData.validUntil) {
+          const formatFrom = formData.validFrom.split('-').reverse().join('/');
+          const formatTo = formData.validUntil.split('-').reverse().join('/');
+          drawRow('वैधता (Validity)', `${formatFrom} से ${formatTo}`);
+        }
 
         const extra = extraFields[orgId] || []
         extra.forEach(f => {
@@ -533,11 +551,19 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         ctx.moveTo(sigX + 10, sigLineY)
         ctx.lineTo(sigX + sigW - 10, sigLineY)
         ctx.stroke()
-        ctx.fillStyle    = '#1A40B0'
-        ctx.font         = "italic 26px 'Caveat', cursive, sans-serif"
-        ctx.textAlign    = 'center'
-        ctx.textBaseline = 'bottom'
-        ctx.fillText('Sadhu Laxmi', stampCX, sigLineY - 4)
+        
+        if (signImg) {
+          const targetW = 120;
+          const targetH = targetW / (signImg.width / signImg.height);
+          ctx.drawImage(signImg, stampCX - targetW / 2, sigLineY - targetH - 2, targetW, targetH);
+        } else {
+          ctx.fillStyle    = '#1A40B0'
+          ctx.font         = "italic 26px 'Caveat', cursive, sans-serif"
+          ctx.textAlign    = 'center'
+          ctx.textBaseline = 'bottom'
+          ctx.fillText('Sadhu Laxmi', stampCX, sigLineY - 4)
+        }
+
         ctx.fillStyle    = '#444'
         ctx.font         = "bold 11px 'Hind', sans-serif"
         ctx.textAlign    = 'center'

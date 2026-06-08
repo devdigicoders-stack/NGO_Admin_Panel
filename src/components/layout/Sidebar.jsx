@@ -81,13 +81,15 @@ const SidebarContent = ({ onClose, isCollapsed, ...rest }) => {
   const menuItems = [
     { name: 'Dashboard', icon: FiHome, path: '/dashboard' },
     { name: 'Registrations', icon: FiCreditCard, path: '/registrations' },
-    { name: 'Programs Management', icon: FiHeart, path: '/programs' },
     { name: 'Team Management', icon: FiUsers, path: '/team' },
+        { name: 'Donations', icon: FiDollarSign, path: '/donations' },
+
+    { name: 'Programs Management', icon: FiHeart, path: '/programs' },
+    
     { name: 'Testimonials', icon: FiMessageSquare, path: '/testimonials' },
     { name: 'News Management', icon: FiFileText, path: '/news' },
     { name: 'Donation Queries', icon: FiInbox, path: '/queries' },
     { name: 'Contact Enquiries', icon: FiMail, path: '/enquiries' },
-    { name: 'Donations', icon: FiDollarSign, path: '/donations' },
     { name: 'Settings', icon: FiSettings, path: '/settings' },
   ];
  

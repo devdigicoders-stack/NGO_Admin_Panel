@@ -353,15 +353,14 @@ const LetterContent = React.forwardRef(({ donation }, ref) => {
                 <span style={{ fontSize: '7px', marginTop: '2px' }}>रजि. IV/175/26</span>
               </div>
 
-              {/* Signature (Blue Cursive) */}
+              {/* Signature Image */}
               <div style={{
-                fontFamily: "'Caveat', cursive, 'Brush Script MT', sans-serif",
-                fontSize: '32px', color: '#1d4ed8',
-                height: '40px', lineHeight: '40px', marginBottom: '4px',
-                transform: 'rotate(-3deg)', userSelect: 'none',
-                position: 'relative', zIndex: 2
+                height: '60px', marginBottom: '4px',
+                transform: 'rotate(-2deg)', userSelect: 'none',
+                position: 'relative', zIndex: 2,
+                display: 'flex', justifyContent: 'center', alignItems: 'center'
               }}>
-                Sadhu Laxmi
+                <img src="/letter/sign.png" alt="Authorized Signature" style={{ height: '150%', objectFit: 'contain' }} />
               </div>
 
               <div style={{ height: '1.5px', background: '#94a3b8', width: '80%', margin: '0 auto 6px', position: 'relative', zIndex: 2 }} />
