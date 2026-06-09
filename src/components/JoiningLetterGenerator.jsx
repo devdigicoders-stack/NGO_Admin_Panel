@@ -67,10 +67,26 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       muslim:       '/ID/mushlim.png',
     }
     
+    const ORG_MOHAR_MAP = {
+      main_trust:   '/mohar/sadhuLakshmi.png',
+      patrakar:     '/mohar/rashtriyapress.png',
+      crime:        '/mohar/rashtriyacrime.png',
+      chikitsa:     '/mohar/akhilbhartiya.png',
+      hindu:        '/mohar/sadhuLakshmi.png',
+      journalist:   '/mohar/indianCouncil.png',
+      manav:        '/mohar/righttorecall.png',
+      bhrashtachar: '/mohar/bhrashtachar.png',
+      muslim:       '/mohar/bhartiyamushlim.png',
+    }
+
+    const moharPath = ORG_MOHAR_MAP[org.id] || ORG_MOHAR_MAP.hindu
     const letterLogoPath = letterLogos[org.id] || org.logo
-    const [logoImg, signImg] = await Promise.all([
+    
+    const [logoImg, signImg, photoImg, moharImg] = await Promise.all([
       loadImage(resolveImageUrl(letterLogoPath)),
-      loadImage(org.id === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png')
+      loadImage(org.id === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png'),
+      loadImage(resolveImageUrl(formData.photo)),
+      loadImage(moharPath)
     ])
 
     // Wait for fonts
@@ -142,6 +158,8 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
     const userAddress = formData.address || 'पता उपलब्ध नहीं'
 
+    const initialContentY = contentY;
+
     contentY = drawDetail('To', userName, contentY)
     contentY = drawDetail('Date', today, contentY)
     contentY = drawDetail('ID No', regNumber || 'NGO/XXXX/0000', contentY)
@@ -151,6 +169,19 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       const formatFrom = formData.validFrom.split('-').reverse().join('/');
       const formatTo = formData.validUntil.split('-').reverse().join('/');
       contentY = drawDetail('Validity', `${formatFrom} to ${formatTo}`, contentY);
+    }
+
+    // Draw Candidate Image Top-Right
+    if (photoImg) {
+      const photoW = 140;
+      const photoH = 175;
+      const photoX = width - photoW - 120; // 120px from right
+      const photoY = initialContentY; // align with 'To'
+      
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = primaryColor;
+      ctx.strokeRect(photoX, photoY, photoW, photoH);
+      ctx.drawImage(photoImg, photoX, photoY, photoW, photoH);
     }
 
     contentY += 60
@@ -192,25 +223,47 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       contentY += 40
     })
 
-    contentY += 80
+    contentY += 10; // Reduced spacing to keep it above the wave
 
-    // Regards & Signature
+    // Regards & Signature Block (Stacked)
     ctx.font = "bold 26px 'Poppins', sans-serif"
     ctx.fillStyle = '#1e293b'
-    ctx.fillText('Regards,', 120, contentY)
+    // ctx.fillText('Regards,', 120, contentY)
 
-    // Signature Image or Cursive
+    contentY += 10; // Reduced spacing
+    
+    const blockCenterX = 240; // Center coordinate for the signature block
+    
+    // Draw Mohar/Stamp centered
+    if (moharImg) {
+      const stampSize = 180; // Size to match the reference
+      const aspect = moharImg.width / moharImg.height;
+      let drawW = stampSize;
+      let drawH = stampSize;
+      if (aspect > 1) {
+        drawH = stampSize / aspect;
+      } else {
+        drawW = stampSize * aspect;
+      }
+      // Move stamp slightly higher relative to Regards
+      ctx.drawImage(moharImg, blockCenterX - drawW / 2, contentY - 30, drawW, drawH);
+      contentY += drawH - 70; // Overlap the signature tightly with the stamp
+    }
+
+    // Signature Image or Cursive centered
     if (signImg) {
       const targetW = 160;
       const targetH = targetW / (signImg.width / signImg.height);
-      ctx.drawImage(signImg, 120, contentY + 10, targetW, targetH);
-      contentY += 10 + targetH + 10;
+      ctx.drawImage(signImg, blockCenterX - targetW / 2, contentY, targetW, targetH);
+      contentY += targetH - 10; // Tighter spacing
     } else {
-      contentY += 80
+      contentY += 20
       ctx.fillStyle = primaryColor
+      ctx.textAlign = 'center'
       ctx.font = "italic 48px 'Caveat', cursive, sans-serif"
-      ctx.fillText('Sadhu Laxmi', 120, contentY)
-      contentY += 45
+      ctx.fillText('Sadhu Laxmi', blockCenterX, contentY)
+      contentY += 20
+      ctx.textAlign = 'left' // Reset
     }
     
     // Line under signature
@@ -218,13 +271,15 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     ctx.lineWidth = 2
     ctx.beginPath()
     ctx.moveTo(120, contentY)
-    ctx.lineTo(400, contentY)
+    ctx.lineTo(360, contentY) // 240 +/- 120
     ctx.stroke()
 
-    contentY += 20
+    contentY += 25
     ctx.fillStyle = '#64748b'
     ctx.font = "600 22px 'Hind', sans-serif"
-    ctx.fillText('National President / राष्ट्रीय अध्यक्ष', 120, contentY)
+    ctx.textAlign = 'center'
+    ctx.fillText('National President / राष्ट्रीय अध्यक्ष', blockCenterX, contentY)
+    ctx.textAlign = 'left' // Reset
 
     // Contact Us Section (Bottom Right)
     const contactX = width - 120
