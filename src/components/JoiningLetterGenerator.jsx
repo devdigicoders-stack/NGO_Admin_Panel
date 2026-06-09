@@ -121,7 +121,7 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     }
 
     // Details Section
-    let contentY = Math.max(450, headerHeight + 80)
+    let contentY = Math.max(450, headerHeight + 30)
     if (org.id === 'muslim') contentY = 550
     if (org.id === 'main_trust') contentY = 420
     ctx.fillStyle = '#1e293b'
@@ -184,7 +184,7 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
       ctx.drawImage(photoImg, photoX, photoY, photoW, photoH);
     }
 
-    contentY += 60
+    contentY += 25
 
     // Joining Letter Content (Hindi)
     ctx.fillStyle = '#334155'
@@ -203,7 +203,7 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     const maxTextW = 1000
     paragraphs.forEach(para => {
       if(para === '') {
-        contentY += 25
+        contentY += 15
         return
       }
       let words = para.split(' ')
@@ -214,18 +214,18 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
         if(metrics.width > maxTextW && i > 0) {
           ctx.fillText(line, 120, contentY)
           line = words[i] + ' '
-          contentY += 40
+          contentY += 30
         } else {
           line = test
         }
       }
       ctx.fillText(line, 120, contentY)
-      contentY += 40
+      contentY += 30
     })
 
-    contentY += 10; // Reduced spacing to keep it above the wave
+    contentY += 0; // Keep it tight
 
-    // Regards & Signature Block (Stacked)
+    contentY += 40; // Increased spacing to prevent overlapping text Block (Stacked)
     ctx.font = "bold 26px 'Poppins', sans-serif"
     ctx.fillStyle = '#1e293b'
     // ctx.fillText('Regards,', 120, contentY)
