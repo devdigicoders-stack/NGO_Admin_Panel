@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import QRCode from 'qrcode'
 import { orgs, extraFields } from '../utils/registrationUtils'
 import { resolveImageUrl } from '../utils/imageUrl'
 
@@ -332,12 +333,32 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // Wait for fonts
     try { if (document.fonts) await document.fonts.ready } catch (_) {}
 
-    const [logoImg, photoImg, figureImg, moharImg, signImg] = await Promise.all([
+    // Generate QR Code data URL
+    const buildQRData = (data, regNum) => {
+      const omitKeys = ['photo', 'paymentScreenshot', '_id', '__v', 'createdAt', 'updatedAt', 'organization', 'status', 'id'];
+      let qrText = `Organization: ${org.full || 'Organization'}\nReg No: ${regNum || 'N/A'}\n`;
+      for (const key in data) {
+        if (!omitKeys.includes(key) && data[key]) {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          qrText += `${label}: ${data[key]}\n`;
+        }
+      }
+      return qrText.trim();
+    };
+
+    const qrDataUrl = await QRCode.toDataURL(buildQRData(formData, regNumber), { 
+      width: 400, 
+      margin: 1,
+      errorCorrectionLevel: 'L'
+    });
+
+    const [logoImg, photoImg, figureImg, moharImg, signImg, qrImg] = await Promise.all([
       loadImage(resolveImageUrl(org.logo)),
       loadImage(resolveImageUrl(formData.photo)),
       loadImage(figureUrl),
       loadImage(ORG_MOHAR_MAP[orgId] || ORG_MOHAR_MAP.hindu),
-      loadImage(orgId === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png')
+      loadImage(orgId === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png'),
+      loadImage(qrDataUrl)
     ])
 
     frontCtx.imageSmoothingEnabled = true
@@ -353,7 +374,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // ════════════════════════════════════════════════════════════
     //  DRAW BACK CARD
     // ════════════════════════════════════════════════════════════
-    drawBackCard(backCtx, { W, H, org, hColors, logoImg, photoImg })
+    drawBackCard(backCtx, { W, H, org, hColors, logoImg, photoImg, qrImg })
 
     if (onGenerated) {
       onGenerated({
@@ -578,7 +599,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
     // ════════════════════════════════════════════════════════════
     //  DRAW BACK CARD
     // ════════════════════════════════════════════════════════════
-    function drawBackCard(ctx, { W, H, org, hColors, logoImg, photoImg }) {
+    function drawBackCard(ctx, { W, H, org, hColors, logoImg, photoImg, qrImg }) {
 
       // ══════════════════════════════════════════════
       //  OTHER CARDS — standard Terms & Conditions back
@@ -667,6 +688,20 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           ctx.fillText(t, 60, tY)
           tY += 50
         })
+
+        // DRAW QR CODE ON BACK
+        if (qrImg) {
+          const qrSize = 170;
+          const qrX = W - qrSize - 40;
+          const qrY = H - 24 - qrSize - 20; // 24 is footer height
+          ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+          
+          ctx.fillStyle = '#555';
+          ctx.font = "bold 14px 'Hind', sans-serif";
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText('Scan for User Details', qrX + qrSize / 2, qrY + qrSize + 5);
+        }
 
         ctx.fillStyle = hColors.to
         ctx.fillRect(0, H - 24, W, 24)

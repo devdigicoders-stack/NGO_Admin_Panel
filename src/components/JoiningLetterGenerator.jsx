@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import QRCode from 'qrcode'
 import { orgs } from '../utils/registrationUtils'
 import { resolveImageUrl } from '../utils/imageUrl'
 
@@ -81,12 +82,32 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
 
     const moharPath = ORG_MOHAR_MAP[org.id] || ORG_MOHAR_MAP.hindu
     const letterLogoPath = letterLogos[org.id] || org.logo
+
+    // Generate QR Code data URL
+    const buildQRData = (data, regNum) => {
+      const omitKeys = ['photo', 'paymentScreenshot', '_id', '__v', 'createdAt', 'updatedAt', 'organization', 'status', 'id'];
+      let qrText = `Organization: ${org.full}\nReg No: ${regNum || 'N/A'}\n`;
+      for (const key in data) {
+        if (!omitKeys.includes(key) && data[key]) {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          qrText += `${label}: ${data[key]}\n`;
+        }
+      }
+      return qrText.trim();
+    };
+
+    const qrDataUrl = await QRCode.toDataURL(buildQRData(formData, regNumber), { 
+      width: 400, 
+      margin: 1,
+      errorCorrectionLevel: 'L'
+    });
     
-    const [logoImg, signImg, photoImg, moharImg] = await Promise.all([
+    const [logoImg, signImg, photoImg, moharImg, qrImg] = await Promise.all([
       loadImage(resolveImageUrl(letterLogoPath)),
       loadImage(org.id === 'muslim' ? '/mushlim/signM.png' : '/letter/sign.png'),
       loadImage(resolveImageUrl(formData.photo)),
-      loadImage(moharPath)
+      loadImage(moharPath),
+      loadImage(qrDataUrl)
     ])
 
     // Wait for fonts
@@ -284,6 +305,19 @@ const JoiningLetterGenerator = ({ orgId, formData = {}, regNumber, onGenerated }
     // Contact Us Section (Bottom Right)
     const contactX = width - 120
     let contactY = contentY - 85 // start slightly higher
+
+    // Draw QR Code
+    if (qrImg) {
+      const qrSize = 150;
+      ctx.drawImage(qrImg, contactX - qrSize, contactY - 40, qrSize, qrSize);
+      
+      ctx.fillStyle = '#64748b'
+      ctx.font = "500 14px 'Poppins', sans-serif"
+      ctx.textAlign = 'center'
+      ctx.fillText('Scan for User Details', contactX - (qrSize / 2), contactY + qrSize - 30)
+
+      contactY += qrSize - 10; // Adjust spacing for Contact Us text below QR code
+    }
     
     ctx.textAlign = 'right'
     ctx.font = "bold 26px 'Poppins', sans-serif"
