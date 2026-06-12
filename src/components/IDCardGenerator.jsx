@@ -589,7 +589,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         ctx.font         = "bold 11px 'Hind', sans-serif"
         ctx.textAlign    = 'center'
         ctx.textBaseline = 'top'
-        ctx.fillText('साधू लक्ष्मी', stampCX, sigLineY + 5)
+        ctx.fillText('राष्ट्रीय अध्यक्ष', stampCX, sigLineY + 5)
         ctx.fillStyle = '#777'
         ctx.font      = "600 9px 'Hind', sans-serif"
         ctx.fillText('प्राधिकृत हस्ताक्षरकर्ता', stampCX, sigLineY + 18)

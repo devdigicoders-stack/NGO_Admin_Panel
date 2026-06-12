@@ -7,7 +7,7 @@ export const orgs = [
   { id: 'chikitsa',     short: 'आखिल भारतीय चिकित्सा संघ',     full: 'आखिल भारतीय चिकित्सा संघ (अखिल भारतीय महिला सेल)',  color: '#d81b60', icon: '👩', logo: '/company/main/8.png', prefix: 'ABCS' },
   { id: 'hindu',        short: 'राष्ट्रीय हिन्दू महासभा साधू',           full: 'राष्ट्रीय हिन्दू महासभा साधू (राष्ट्रीय हिन्दू रक्षा सेना)',               color: '#e65100', icon: '🕉️', logo: '/company/main/4.png', prefix: 'RHM' },
   { id: 'journalist',   short: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू',       full: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू (इन्डियन काउंसिल ऑफ प्रेस)',    color: '#5e35b1', icon: '✍️', logo: '/company/main/5.png', prefix: 'ICJ' },
-  { id: 'manav',        short: 'राष्ट्रीय मानवधिकार आयोग साधू',   full: 'राष्ट्रीय मानवधिकार आयोग साधू (राष्ट्रीय मानवाधिकार आयोग)',    color: '#00701a', icon: '⚖️', logo: '/company/main/1.png', prefix: 'RMA' },
+  { id: 'manav',        short: 'राइट टू रिकॉल मंच',   full: 'राइट टू रिकॉल मंच',    color: '#00701a', icon: '⚖️', logo: '/company/main/1.png', prefix: 'RMA' },
   { id: 'bhrashtachar',  short: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू',    full: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू (भ्रष्टाचार विरोधी सेल)',  color: '#c43e00', icon: '🛡️', logo: '/company/main/2.png', prefix: 'BUAC' },
   { id: 'muslim',       short: 'भारतीय मुस्लिम मंच',           full: 'भारतीय मुस्लिम मंच (भारतीय भारतीय मुस्लिम मंच)',                 color: '#004d40', icon: '☪️', logo: '/company/main/6.png', prefix: 'BMM' },
 ]
