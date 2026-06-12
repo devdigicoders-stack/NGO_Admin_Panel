@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box, Text, VStack, HStack, Input, InputGroup, InputLeftElement,
   Table, Thead, Tbody, Tr, Th, Td, Badge,
-  Button, useColorModeValue, Icon, Flex, Spinner,
+  Button, IconButton, Tooltip, useColorModeValue, Icon, Flex, Spinner,
   Tabs, TabList, Tab,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
+  AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
   useDisclosure, Image, Center, useToast
 } from '@chakra-ui/react';
-import { FiSearch, FiCreditCard, FiDownload, FiUser } from 'react-icons/fi';
+import { FiSearch, FiCreditCard, FiDownload, FiUser, FiEdit, FiTrash2, FiFileText } from 'react-icons/fi';
 import { apiClient } from '../utils/apiClient';
 import { orgs } from '../utils/registrationUtils';
 import { resolveImageUrl } from '../utils/imageUrl';
 import IDCardGenerator from '../components/IDCardGenerator';
 import JoiningLetterGenerator from '../components/JoiningLetterGenerator';
-import { FiFileText } from 'react-icons/fi';
 
 const RegistrationsManagement = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -26,12 +26,16 @@ const RegistrationsManagement = () => {
   const [selectedReg, setSelectedReg] = useState(null);
   const [generatedCardData, setGeneratedCardData] = useState(null);
   const [generatedLetterData, setGeneratedLetterData] = useState(null);
-  const [activeDocument, setActiveDocument] = useState('card'); // 'card', 'letter', or 'review'
+  const [activeDocument, setActiveDocument] = useState('card'); // 'card', 'letter', 'review', or 'edit'
+  const [editFormData, setEditFormData] = useState({});
   const [updateRole, setUpdateRole] = useState('सदस्य');
   const [updateValidFrom, setUpdateValidFrom] = useState('');
   const [updateValidUntil, setUpdateValidUntil] = useState('');
   const [updating, setUpdating] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+  const cancelRef = useRef();
+  const [regToDelete, setRegToDelete] = useState(null);
   const toast = useToast();
 
   // Chakra UI colors matching theme.js
@@ -90,6 +94,60 @@ const RegistrationsManagement = () => {
     setUpdateValidUntil(reg.validUntil || nextYear.toISOString().split('T')[0]);
 
     onOpen();
+  };
+
+  const handleOpenEdit = (reg) => {
+    setSelectedReg(reg);
+    setEditFormData(reg.formData || {});
+    setActiveDocument('edit');
+    onOpen();
+  };
+
+  const confirmDelete = (reg) => {
+    setRegToDelete(reg);
+    onAlertOpen();
+  };
+
+  const executeDelete = async () => {
+    if (!regToDelete) return;
+    try {
+      const res = await apiClient(`/registrations/${regToDelete.id}`, { method: 'DELETE' });
+      if (res.success) {
+        setRegistrations(prev => prev.filter(r => r.id !== regToDelete.id));
+        toast({ title: 'पंजीकरण हटा दिया गया।', status: 'success', duration: 3000, isClosable: true });
+      } else {
+        toast({ title: res.message || 'पंजीकरण हटाने में विफल।', status: 'error', duration: 3000, isClosable: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'सर्वर एरर।', status: 'error', duration: 3000, isClosable: true });
+    } finally {
+      onAlertClose();
+      setRegToDelete(null);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    setUpdating(true);
+    try {
+      const updatedReg = { ...selectedReg, formData: editFormData };
+      const res = await apiClient(`/registrations/${selectedReg.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updatedReg)
+      });
+      if (res.success) {
+        setRegistrations(prev => prev.map(r => r.id === selectedReg.id ? res.data : r));
+        toast({ title: 'पंजीकरण डेटा अपडेट हो गया!', status: 'success', duration: 3000, isClosable: true });
+        onClose();
+      } else {
+        toast({ title: res.message || 'डेटा अपडेट करने में विफल।', status: 'error', duration: 3000, isClosable: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'सर्वर एरर।', status: 'error', duration: 3000, isClosable: true });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleUpdateStatus = async (newStatus) => {
@@ -411,27 +469,51 @@ const RegistrationsManagement = () => {
 
                         {/* Actions */}
                         <Td borderColor={tdBorder} py={3} pr={5} textAlign="right">
-                          <HStack spacing={2} justify="flex-end">
-                            <Button 
-                              leftIcon={<FiUser />} 
-                              size="xs" 
-                              borderRadius="lg" 
-                              colorScheme="blue" 
-                              variant="solid"
-                              onClick={() => handleOpenReview(reg)}
-                            >
-                              Review
-                            </Button>
-                            <Button 
-                              leftIcon={<FiCreditCard />} 
-                              size="xs" 
-                              borderRadius="lg" 
-                              colorScheme="brand" 
-                              variant="outline"
-                              onClick={() => handleOpenDocument(reg, 'card')}
-                            >
-                              ID / Letter
-                            </Button>
+                          <HStack spacing={2} justify="flex-end" flexWrap="nowrap">
+                            <Tooltip label="एडिट करें" hasArrow placement="top">
+                              <IconButton 
+                                icon={<FiEdit />} 
+                                size="sm" 
+                                borderRadius="lg" 
+                                colorScheme="teal" 
+                                variant="ghost"
+                                onClick={() => handleOpenEdit(reg)}
+                                aria-label="Edit"
+                              />
+                            </Tooltip>
+                            <Tooltip label="रिव्यू करें" hasArrow placement="top">
+                              <IconButton 
+                                icon={<FiUser />} 
+                                size="sm" 
+                                borderRadius="lg" 
+                                colorScheme="blue" 
+                                variant="ghost"
+                                onClick={() => handleOpenReview(reg)}
+                                aria-label="Review"
+                              />
+                            </Tooltip>
+                            <Tooltip label="ID Card / Letter देखें" hasArrow placement="top">
+                              <IconButton 
+                                icon={<FiCreditCard />} 
+                                size="sm" 
+                                borderRadius="lg" 
+                                colorScheme="brand" 
+                                variant="ghost"
+                                onClick={() => handleOpenDocument(reg, 'card')}
+                                aria-label="ID / Letter"
+                              />
+                            </Tooltip>
+                            <Tooltip label="डिलीट करें" hasArrow placement="top">
+                              <IconButton 
+                                icon={<FiTrash2 />} 
+                                size="sm" 
+                                borderRadius="lg" 
+                                colorScheme="red" 
+                                variant="ghost"
+                                onClick={() => confirmDelete(reg)}
+                                aria-label="Delete"
+                              />
+                            </Tooltip>
                           </HStack>
                         </Td>
                       </Tr>
@@ -450,9 +532,9 @@ const RegistrationsManagement = () => {
         <ModalContent bg={cardBg} border="1px solid" borderColor={borderCol} borderRadius="2xl" overflow="hidden">
           <ModalHeader borderBottom="1px solid" borderColor={borderCol} py={4}>
             <HStack spacing={2}>
-              <Icon as={activeDocument === 'review' ? FiUser : (activeDocument === 'card' ? FiCreditCard : FiFileText)} color="#821905" />
+              <Icon as={activeDocument === 'review' ? FiUser : activeDocument === 'edit' ? FiEdit : (activeDocument === 'card' ? FiCreditCard : FiFileText)} color="#821905" />
               <Text fontSize="md" fontWeight="800" color={titleColor}>
-                {activeDocument === 'review' ? 'रजिस्ट्रेशन रिव्यू (Registration Review)' : (activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)')}
+                {activeDocument === 'review' ? 'रजिस्ट्रेशन रिव्यू (Registration Review)' : activeDocument === 'edit' ? 'डेटा एडिट करें (Edit Data)' : (activeDocument === 'card' ? 'सदस्य पहचान पत्र (ID Card Preview)' : 'जॉइनिंग लेटर (Joining Letter Preview)')}
               </Text>
             </HStack>
           </ModalHeader>
@@ -559,6 +641,94 @@ const RegistrationsManagement = () => {
                         onClick={() => handleUpdateStatus('approved')}
                       >
                         {selectedReg.status === 'approved' ? 'अपडेट करें (Update)' : 'अप्रूव करें (Approve)'}
+                      </Button>
+                    </HStack>
+                  </VStack>
+                )}
+
+                {/* ---------- EDIT REGISTRATION DATA ---------- */}
+                {activeDocument === 'edit' && (
+                  <VStack align="stretch" w="full" spacing={4}>
+                    <Text fontSize="sm" color={descColor} mb={2}>सदस्य का विवरण बदलें। सभी जगह डेटा अपने आप अपडेट हो जाएगा।</Text>
+                    
+                    <Box bg={thBg} p={4} borderRadius="xl" border="1px solid" borderColor={borderCol}>
+                      <VStack align="stretch" spacing={4}>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>सदस्य की फोटो (Profile Photo)</Text>
+                          <HStack spacing={4} align="center">
+                            {editFormData.photo && (
+                              <Image 
+                                src={editFormData.photo.startsWith('data:image') ? editFormData.photo : resolveImageUrl(editFormData.photo)} 
+                                boxSize="60px" 
+                                objectFit="cover" 
+                                borderRadius="md" 
+                                border={`1px solid ${borderCol}`} 
+                              />
+                            )}
+                            <Input 
+                              type="file" 
+                              accept="image/*" 
+                              p={1}
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setEditFormData({ ...editFormData, photo: reader.result });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }} 
+                              bg={cardBg} 
+                              borderColor={borderCol} 
+                            />
+                          </HStack>
+                        </Box>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>पूरा नाम (Full Name)</Text>
+                          <Input value={editFormData.name || ''} onChange={(e) => setEditFormData({...editFormData, name: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                        </Box>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>पिता/पति का नाम (Father/Husband Name)</Text>
+                          <Input value={editFormData.father || ''} onChange={(e) => setEditFormData({...editFormData, father: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                        </Box>
+                        <HStack>
+                          <Box w="full">
+                            <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>जन्म तिथि (DOB)</Text>
+                            <Input type="date" value={editFormData.dob || ''} onChange={(e) => setEditFormData({...editFormData, dob: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                          </Box>
+                          <Box w="full">
+                            <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>मोबाइल नंबर (Mobile)</Text>
+                            <Input value={editFormData.mobile || ''} onChange={(e) => setEditFormData({...editFormData, mobile: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                          </Box>
+                        </HStack>
+                        <HStack>
+                          <Box w="full">
+                            <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>ईमेल (Email)</Text>
+                            <Input value={editFormData.email || ''} onChange={(e) => setEditFormData({...editFormData, email: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                          </Box>
+                          <Box w="full">
+                            <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>आधार नंबर (Aadhar)</Text>
+                            <Input value={editFormData.aadhar || ''} onChange={(e) => setEditFormData({...editFormData, aadhar: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                          </Box>
+                        </HStack>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>पूरा पता (Address)</Text>
+                          <Input value={editFormData.address || ''} onChange={(e) => setEditFormData({...editFormData, address: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                        </Box>
+                        <Box>
+                          <Text fontSize="xs" fontWeight="700" color={titleColor} mb={1}>पिनकोड (Pincode)</Text>
+                          <Input value={editFormData.pincode || ''} onChange={(e) => setEditFormData({...editFormData, pincode: e.target.value})} bg={cardBg} borderColor={borderCol} />
+                        </Box>
+                      </VStack>
+                    </Box>
+
+                    <HStack pt={4} justify="flex-end" w="full" spacing={3}>
+                      <Button colorScheme="gray" variant="outline" onClick={onClose}>
+                        रद्द करें (Cancel)
+                      </Button>
+                      <Button colorScheme="teal" isLoading={updating} onClick={handleSaveEdit}>
+                        सेव करें (Save Changes)
                       </Button>
                     </HStack>
                   </VStack>
@@ -700,6 +870,36 @@ const RegistrationsManagement = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Delete Confirmation Alert */}
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onAlertClose}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderCol}>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color={titleColor}>
+              पंजीकरण डिलीट करें
+            </AlertDialogHeader>
+
+            <AlertDialogBody color={textColor}>
+              क्या आप वाकई <b>{regToDelete?.formData?.name || regToDelete?.regNumber}</b> का पंजीकरण डिलीट करना चाहते हैं? यह क्रिया पूर्ववत (undo) नहीं की जा सकती।
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onAlertClose} borderRadius="lg" size="sm">
+                रद्द करें (Cancel)
+              </Button>
+              <Button colorScheme="red" onClick={executeDelete} ml={3} borderRadius="lg" size="sm">
+                डिलीट करें (Delete)
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
     </VStack>
   );
 };
