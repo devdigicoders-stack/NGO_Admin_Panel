@@ -123,9 +123,36 @@ const RegistrationsManagement = () => {
   const handleDownloadCard = () => {
     if (!generatedCardData || !selectedReg) return;
     const link = document.createElement('a');
-    link.download = `ID_Card_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+    const userName = selectedReg.formData?.name || selectedReg.regNumber.replace(/\//g, '_');
+    link.download = `${userName}_ID_Card.png`;
     link.href = generatedCardData;
     link.click();
+  };
+
+  const handleDownloadCardPDF = () => {
+    if (!generatedCardData?.front || !generatedCardData?.back || !selectedReg) return;
+    
+    import('jspdf').then(({ jsPDF }) => {
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const cardW = 85.6;
+      const cardH = 54.0;
+      const x = (210 - cardW) / 2;
+      const yFront = 20;
+      const yBack = yFront + cardH + 15;
+      
+      doc.setFontSize(12);
+      doc.setTextColor(130, 25, 5);
+      doc.text(`ID Card - ${selectedReg.regNumber}`, 105, 12, { align: 'center' });
+      
+      doc.addImage(generatedCardData.front, 'PNG', x, yFront, cardW, cardH);
+      doc.addImage(generatedCardData.back, 'PNG', x, yBack, cardW, cardH);
+      
+      const userName = selectedReg.formData?.name || selectedReg.regNumber.replace(/\//g, '_');
+      doc.save(`${userName}_ID_Card.pdf`);
+    }).catch(err => {
+      console.error('Failed to generate PDF:', err);
+      toast({ title: 'PDF डाउनलोड करने में त्रुटि हुई।', status: 'error', duration: 3000, isClosable: true });
+    });
   };
 
   // Filter registrations by search term and active samuday tab
@@ -540,9 +567,10 @@ const RegistrationsManagement = () => {
                 {/* ---------- ID CARD VIEW ---------- */}
                 {activeDocument === 'card' && (
                   generatedCardData ? (
-                    <Flex direction={{ base: 'column', md: 'row' }} gap={6} justify="center" w="full">
-                      {/* Front Card Column */}
-                      <Box textAlign="center" flex="1" maxW="420px">
+                    <VStack spacing={6} w="full">
+                      <Flex direction={{ base: 'column', md: 'row' }} gap={6} justify="center" w="full">
+                        {/* Front Card Column */}
+                        <Box textAlign="center" flex="1" maxW="420px">
                         <Text fontSize="xs" fontWeight="700" color={textColor} mb={2} textTransform="uppercase" letterSpacing="wider">
                           सामने का भाग (Front)
                         </Text>
@@ -555,22 +583,6 @@ const RegistrationsManagement = () => {
                           border="1px solid"
                           borderColor={borderCol}
                         />
-                        <Button
-                          colorScheme="brand"
-                          leftIcon={<FiDownload />}
-                          mt={3}
-                          w="full"
-                          size="sm"
-                          borderRadius="xl"
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.download = `ID_Card_Front_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
-                            link.href = generatedCardData.front;
-                            link.click();
-                          }}
-                        >
-                          सामने का भाग डाउनलोड करें
-                        </Button>
                       </Box>
 
                       {/* Back Card Column */}
@@ -587,25 +599,21 @@ const RegistrationsManagement = () => {
                           border="1px solid"
                           borderColor={borderCol}
                         />
-                        <Button
-                          colorScheme="brand"
-                          variant="outline"
-                          leftIcon={<FiDownload />}
-                          mt={3}
-                          w="full"
-                          size="sm"
-                          borderRadius="xl"
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.download = `ID_Card_Back_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
-                            link.href = generatedCardData.back;
-                            link.click();
-                          }}
-                        >
-                          पीछे का भाग डाउनलोड करें
-                        </Button>
-                      </Box>
-                    </Flex>
+                        </Box>
+                      </Flex>
+
+                      <Button
+                        colorScheme="green"
+                        leftIcon={<FiDownload />}
+                        size="md"
+                        px={8}
+                        borderRadius="xl"
+                        onClick={handleDownloadCardPDF}
+                        boxShadow="md"
+                      >
+                        ID Card PDF (दोनों साइड) डाउनलोड करें
+                      </Button>
+                    </VStack>
                   ) : (
                     <Center py={10} w="full" flexDirection="column" gap={3}>
                       <Spinner size="md" color="#821905" />
@@ -636,7 +644,8 @@ const RegistrationsManagement = () => {
                         borderRadius="xl"
                         onClick={() => {
                           const link = document.createElement('a');
-                          link.download = `Joining_Letter_${selectedReg.regNumber.replace(/\//g, '_')}.png`;
+                          const userName = selectedReg.formData?.name || selectedReg.regNumber.replace(/\//g, '_');
+                          link.download = `${userName}_Joining_Letter.png`;
                           link.href = generatedLetterData;
                           link.click();
                         }}
