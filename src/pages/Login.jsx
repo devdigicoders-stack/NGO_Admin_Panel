@@ -70,7 +70,7 @@ export default function Login() {
 
   return (
     <Flex minH="100vh" bgGradient={bgGradient} align="center" justify="center" p={4} position="relative" overflow="hidden">
-      {/* Decorative Blobs */}
+      {/*   Decorative Blobs   */}
       <Box position="absolute" top="-10%" left="-5%" w="400px" h="400px" bg={`${primaryBrand}15`} borderRadius="full" filter="blur(80px)" pointerEvents="none" />
       <Box position="absolute" bottom="-10%" right="-5%" w="300px" h="300px" bg={`${primaryBrand}10`} borderRadius="full" filter="blur(60px)" pointerEvents="none" />
 
