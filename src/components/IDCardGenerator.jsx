@@ -470,18 +470,18 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           const mid = Math.round(rowHeight / 2)
 
           ctx.fillStyle    = hColors.to
-          ctx.font         = "bold 14px 'Hind', sans-serif"
+          ctx.font         = "bold 20px 'Hind', sans-serif"
           ctx.textAlign    = 'left'
           ctx.textBaseline = 'middle'
           ctx.fillText('●', detX, detY + mid)
 
           ctx.fillStyle = '#222222'
-          ctx.font      = "bold 14px 'Hind', sans-serif"
-          ctx.fillText(label, detX + 16, detY + mid)
+          ctx.font      = "bold 20px 'Hind', sans-serif"
+          ctx.fillText(label, detX + 24, detY + mid)
 
           ctx.fillStyle = '#444444'
-          ctx.font      = "600 14px 'Hind', sans-serif"
-          ctx.fillText(':  ' + String(value).substring(0, 40), detX + 160, detY + mid)
+          ctx.font      = "600 20px 'Hind', sans-serif"
+          ctx.fillText(':  ' + String(value).substring(0, 40), detX + 190, detY + mid)
 
           ctx.strokeStyle = 'rgba(180,150,100,0.2)'
           ctx.lineWidth   = 0.8
