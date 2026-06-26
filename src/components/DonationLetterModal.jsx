@@ -125,7 +125,7 @@ const LetterContent = React.forwardRef(({ donation }, ref) => {
             <div style={{ textAlign: 'right', fontSize: '10.5px', color: '#475569', lineHeight: 1.55, fontWeight: 500 }}>
               <div>📞 +91 98765 43210</div>
               <div>✉️ info@sadhulaxmitrust.org</div>
-              <div>🌐 www.sadhulaxmitrust.org</div>
+              <div>🌐 https://www.sadhulaxmi.com/</div>
             </div>
           </div>
 

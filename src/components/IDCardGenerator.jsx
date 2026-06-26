@@ -76,7 +76,9 @@ const ORG_LAYOUTS = {
   main_trust: {
     bodyY: 410,
     photoH: 180,
-    rowHeight: 25,
+    rowHeight: 33,
+    fontSize: 26,
+    valOffset: 240,
     stampCY: 470,
     sigLineY: 570,
   },
@@ -89,18 +91,23 @@ const ORG_LAYOUTS = {
   },
   crime: {
     bodyY: 400,
-    detY: 435,
+    detY: 415,
     photoH: 195,
-    rowHeight: 26,
+    rowHeight: 28,
+    fontSize: 25,
+    valOffset: 230,
     stampCY: 490,
     sigLineY: 580,
   },
   chikitsa: {
     bodyY: 405,
-    photoH: 165,
-    rowHeight: 23,
-    stampCY: 455,
-    sigLineY: 555,
+    detY: 410,
+    photoH: 175,
+    rowHeight: 26,
+    fontSize: 25,
+    valOffset: 230,
+    stampCY: 480,
+    sigLineY: 580,
   },
   hindu: {
     bodyY: 410,
@@ -111,17 +118,23 @@ const ORG_LAYOUTS = {
   },
   journalist: {
     bodyY: 345,
+    detY: 365,
     photoH: 180,
-    rowHeight: 25,
-    stampCY: 410,
-    sigLineY: 510,
+    rowHeight: 27,
+    fontSize: 25,
+    valOffset: 230,
+    stampCY: 420,
+    sigLineY: 525,
   },
   manav: {
     bodyY: 400,
-    photoH: 165,
-    rowHeight: 23,
-    stampCY: 450,
-    sigLineY: 550,
+    detY: 405,
+    photoH: 175,
+    rowHeight: 26,
+    fontSize: 25,
+    valOffset: 230,
+    stampCY: 475,
+    sigLineY: 575,
   },
   bhrashtachar: {
     bodyY: 420,
@@ -132,10 +145,13 @@ const ORG_LAYOUTS = {
   },
   muslim: {
     bodyY: 410,
-    photoH: 165,
-    rowHeight: 23,
-    stampCY: 460,
-    sigLineY: 560,
+    detY: 415,
+    photoH: 175,
+    rowHeight: 26,
+    fontSize: 25,
+    valOffset: 230,
+    stampCY: 480,
+    sigLineY: 580,
   },
 }
 
@@ -462,26 +478,28 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
       {
         const detX    = layout.detX !== undefined ? layout.detX : (photoX + photoW + 25)
         const detMaxW = layout.detMaxW !== undefined ? layout.detMaxW : 520
-        let   detY    = layout.detY !== undefined ? layout.detY : (BODY_Y + 10)
+        let   detY    = layout.detY !== undefined ? layout.detY : (BODY_Y - 15)
         const rowHeight = layout.rowHeight
 
         const drawRow = (label, value) => {
           if (!value || value === 'N/A' || value === '') return
           const mid = Math.round(rowHeight / 2)
+          const fSize = layout.fontSize || 23;
+          const valOffset = layout.valOffset || 215;
 
           ctx.fillStyle    = hColors.to
-          ctx.font         = "bold 20px 'Hind', sans-serif"
+          ctx.font         = `bold ${fSize}px 'Hind', sans-serif`
           ctx.textAlign    = 'left'
           ctx.textBaseline = 'middle'
           ctx.fillText('●', detX, detY + mid)
 
           ctx.fillStyle = '#222222'
-          ctx.font      = "bold 20px 'Hind', sans-serif"
-          ctx.fillText(label, detX + 24, detY + mid)
+          ctx.font      = `bold ${fSize}px 'Hind', sans-serif`
+          ctx.fillText(label, detX + 28, detY + mid)
 
           ctx.fillStyle = '#444444'
-          ctx.font      = "600 20px 'Hind', sans-serif"
-          ctx.fillText(':  ' + String(value).substring(0, 40), detX + 190, detY + mid)
+          ctx.font      = `600 ${fSize}px 'Hind', sans-serif`
+          ctx.fillText(':  ' + String(value).substring(0, 40), detX + valOffset, detY + mid)
 
           ctx.strokeStyle = 'rgba(180,150,100,0.2)'
           ctx.lineWidth   = 0.8
@@ -710,7 +728,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         ctx.textAlign    = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(
-          'www.sadhulaxmitrust.org  •  साधू लक्ष्मी जनकल्याण ट्रस्ट',
+          'https://www.sadhulaxmi.com/  •  साधू लक्ष्मी जनकल्याण ट्रस्ट',
           W / 2, H - 12
         )
 

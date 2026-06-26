@@ -4,12 +4,12 @@ export const orgs = [
   { id: 'main_trust',   short: 'साधू लक्ष्मी जनकल्याण ट्रस्ट',           full: 'साधू लक्ष्मी जनकल्याण ट्रस्ट (मुख्य संस्था)',                 color: '#d97706', icon: '🏛️', logo: '/company/main/9.png', prefix: 'SLJT' },
   { id: 'patrakar',     short: 'राष्ट्रीय पत्रकार समर्पित संघ',           full: 'राष्ट्रीय पत्रकार समर्पित संघ (मीडिया सेल)',              color: '#821905', icon: '📰', logo: '/company/main/7.png', prefix: 'RPS' },
   { id: 'crime',        short: 'राष्ट्रीय क्राइम इन्वेस्टिगेशन ब्यूरो',        full: 'राष्ट्रीय क्राइम इन्वेस्टिगेशन ब्यूरो (क्राइम कंट्रोल सेल)',        color: '#a8170c', icon: '🔍', logo: '/company/main/3.png', prefix: 'RCIB' },
-  { id: 'chikitsa',     short: 'आखिल भारतीय चिकित्सा संघ',     full: 'आखिल भारतीय चिकित्सा संघ (अखिल भारतीय महिला सेल)',  color: '#d81b60', icon: '👩', logo: '/company/main/8.png', prefix: 'ABCS' },
-  { id: 'hindu',        short: 'राष्ट्रीय हिन्दू महासभा साधू',           full: 'राष्ट्रीय हिन्दू महासभा साधू (राष्ट्रीय हिन्दू रक्षा सेना)',               color: '#e65100', icon: '🕉️', logo: '/company/main/4.png', prefix: 'RHM' },
-  { id: 'journalist',   short: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू',       full: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू (इन्डियन काउंसिल ऑफ प्रेस)',    color: '#5e35b1', icon: '✍️', logo: '/company/main/5.png', prefix: 'ICJ' },
+  { id: 'chikitsa',     short: 'आखिल भारतीय चिकित्सा संघ',     full: 'आखिल भारतीय चिकित्सा संघ',  color: '#d81b60', icon: '👩', logo: '/company/main/8.png', prefix: 'ABCS' },
+  { id: 'hindu',        short: 'राष्ट्रीय हिन्दू महासभा साधू',           full: 'राष्ट्रीय हिन्दू महासभा साधू ',               color: '#e65100', icon: '🕉️', logo: '/company/main/4.png', prefix: 'RHM' },
+  { id: 'journalist',   short: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू',       full: 'इंडियन काउंसिल ऑफ जर्नलिस्ट साधू ',    color: '#5e35b1', icon: '✍️', logo: '/company/main/5.png', prefix: 'ICJ' },
   { id: 'manav',        short: 'राइट टू रिकॉल मंच',   full: 'राइट टू रिकॉल मंच',    color: '#00701a', icon: '⚖️', logo: '/company/main/1.png', prefix: 'RMA' },
   { id: 'bhrashtachar',  short: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू',    full: 'भ्रष्टाचार उन्मूलन अपराध अनुसंधान केन्द्र साधू (भ्रष्टाचार विरोधी सेल)',  color: '#c43e00', icon: '🛡️', logo: '/company/main/2.png', prefix: 'BUAC' },
-  { id: 'muslim',       short: 'भारतीय मुस्लिम मंच',           full: 'भारतीय मुस्लिम मंच (भारतीय भारतीय मुस्लिम मंच)',                 color: '#004d40', icon: '☪️', logo: '/company/main/6.png', prefix: 'BMM' },
+  { id: 'muslim',       short: 'भारतीय मुस्लिम मंच',           full: 'भारतीय मुस्लिम मंच ',                 color: '#004d40', icon: '☪️', logo: '/company/main/6.png', prefix: 'BMM' },
 ]
 
 export const extraFields = {
@@ -19,9 +19,8 @@ export const extraFields = {
     { id: 'reporting_area', label: 'रिपोर्टिंग क्षेत्र', type: 'text', placeholder: 'अपना रिपोर्टिंग क्षेत्र लिखें', required: true }
   ],
   crime: [
-    { id: 'prior_exp', label: 'पूर्व सुरक्षा / कानूनी अनुभव', type: 'select', options: ['हाँ (Yes)', 'नहीं (No)'], required: true },
     { id: 'police_station', label: 'स्थानीय पुलिस स्टेशन का नाम', type: 'text', placeholder: 'थाने का नाम दर्ज करें', required: true },
-    { id: 'special_skills', label: 'विशेष योग्यता / कौशल', type: 'text', placeholder: 'जैसे: जांच, सुरक्षा प्रबंधन आदि', required: true }
+    // { id: 'special_skills', label: 'विशेष योग्यता / कौशल', type: 'text', placeholder: 'जैसे: जांच, सुरक्षा प्रबंधन आदि', required: true }
   ],
   chikitsa: [
     { id: 'service_field', label: 'समाज सेवा का मुख्य क्षेत्र', type: 'select', options: ['महिला सशक्तिकरण', 'स्वास्थ्य सेवा', 'शिक्षा प्रसार', 'समाज कल्याण', 'अन्य'], required: true },
