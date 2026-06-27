@@ -448,8 +448,8 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
       }
 
       // Registration Number badge below photo
-      const regBadgeY = layout.regBadgeY !== undefined ? layout.regBadgeY : (photoY + photoH + 6)
-      const regBadgeH = layout.regBadgeH !== undefined ? layout.regBadgeH : 32
+      const regBadgeY = layout.regBadgeY !== undefined ? layout.regBadgeY : (photoY + photoH + 8)
+      const regBadgeH = layout.regBadgeH !== undefined ? layout.regBadgeH : 50
       ctx.fillStyle = layout.regBadgeColor || hColors.to
       roundRect(ctx, photoX, regBadgeY, photoW, regBadgeH, 6)
       ctx.fill()
@@ -458,21 +458,21 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
       ctx.textAlign    = 'center'
       ctx.textBaseline = 'top'
       
-      let labelY = regBadgeY + 4
-      let valY = regBadgeY + 18
-      let labelFontSize = "bold 11px"
-      let valFontSize = "bold 11px"
-      if (regBadgeH > 40) {
-        labelY = regBadgeY + 10
-        valY = regBadgeY + 30
-        labelFontSize = "bold 14px"
-        valFontSize = "bold 15px"
+      let labelY = regBadgeY + 6
+      let valY = regBadgeY + 26
+      let labelFontSize = "bold 14px"
+      let valFontSize = "bold 15px"
+      if (regBadgeH <= 40) {
+        labelY = regBadgeY + 4
+        valY = regBadgeY + 18
+        labelFontSize = "bold 11px"
+        valFontSize = "bold 11px"
       }
       
       ctx.font = `${labelFontSize} 'Hind', sans-serif`
-      ctx.fillText('रजिस्ट्रेशन नंबर', photoX + photoW / 2, labelY)
+      ctx.fillText('रजिस्ट्रेशन नंबर', photoX + photoW / 2, labelY, photoW - 10)
       ctx.font = `${valFontSize} 'Poppins', sans-serif`
-      ctx.fillText(regNumber || 'NGO/2026/000000', photoX + photoW / 2, valY)
+      ctx.fillText(regNumber || 'NGO/2026/000000', photoX + photoW / 2, valY, photoW - 10)
 
       // ── 3. Member details (center) ──
       {
@@ -534,11 +534,11 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
 
       // ── 4. Signature + Stamp ──
       {
-        const sigX    = layout.sigX !== undefined ? layout.sigX : (W - 200)
-        const sigW    = layout.sigW !== undefined ? layout.sigW : 170
+        const sigX    = layout.sigX !== undefined ? layout.sigX : (W - 250)
+        const sigW    = layout.sigW !== undefined ? layout.sigW : 210
         const stampCX = layout.stampCX !== undefined ? layout.stampCX : (sigX + sigW / 2)
         const stampCY = layout.stampCY
-        const stampR  = layout.stampR !== undefined ? layout.stampR : 42
+        const stampR  = layout.stampR !== undefined ? layout.stampR : 65
 
         if (moharImg) {
           const stampSize = stampR * 2.8; // Adjust to fit
@@ -563,13 +563,13 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           ctx.arc(stampCX, stampCY, stampR - 6, 0, Math.PI * 2)
           ctx.stroke()
           ctx.fillStyle    = 'rgba(180,30,30,0.75)'
-          ctx.font         = "bold 9px 'Hind', sans-serif"
+          ctx.font         = "bold 13px 'Hind', sans-serif"
           ctx.textAlign    = 'center'
           ctx.textBaseline = 'middle'
-          ctx.fillText('साधू लक्ष्मी', stampCX, stampCY - 11)
-          ctx.fillText('जनकल्याण ट्रस्ट', stampCX, stampCY + 1)
-          ctx.font = "bold 8px 'Hind', sans-serif"
-          ctx.fillText('सील', stampCX, stampCY + 12)
+          ctx.fillText('साधू लक्ष्मी', stampCX, stampCY - 16)
+          ctx.fillText('जनकल्याण ट्रस्ट', stampCX, stampCY + 2)
+          ctx.font = "bold 12px 'Hind', sans-serif"
+          ctx.fillText('सील', stampCX, stampCY + 18)
           ctx.strokeStyle = '#FFFDF5'
           ctx.lineWidth   = 1.5
           for (let i = 0; i < 5; i++) {
@@ -592,25 +592,25 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         ctx.stroke()
         
         if (signImg) {
-          const targetW = 120;
+          const targetW = 160;
           const targetH = targetW / (signImg.width / signImg.height);
           ctx.drawImage(signImg, stampCX - targetW / 2, sigLineY - targetH - 2, targetW, targetH);
         } else {
           ctx.fillStyle    = '#1A40B0'
-          ctx.font         = "italic 26px 'Caveat', cursive, sans-serif"
+          ctx.font         = "italic 32px 'Caveat', cursive, sans-serif"
           ctx.textAlign    = 'center'
           ctx.textBaseline = 'bottom'
           ctx.fillText('Sadhu Laxmi', stampCX, sigLineY - 4)
         }
 
         ctx.fillStyle    = '#444'
-        ctx.font         = "bold 11px 'Hind', sans-serif"
+        ctx.font         = "bold 16px 'Hind', sans-serif"
         ctx.textAlign    = 'center'
         ctx.textBaseline = 'top'
-        ctx.fillText('राष्ट्रीय अध्यक्ष', stampCX, sigLineY + 5)
+        ctx.fillText('राष्ट्रीय अध्यक्ष', stampCX, sigLineY + 6)
         ctx.fillStyle = '#777'
-        ctx.font      = "600 9px 'Hind', sans-serif"
-        ctx.fillText('प्राधिकृत हस्ताक्षरकर्ता', stampCX, sigLineY + 18)
+        ctx.font      = "600 13px 'Hind', sans-serif"
+        ctx.fillText('प्राधिकृत हस्ताक्षरकर्ता', stampCX, sigLineY + 24)
       }
     }
 
