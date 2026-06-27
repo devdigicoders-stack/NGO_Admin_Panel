@@ -74,84 +74,112 @@ const EXTRA_FIELD_LABELS = {
 // Dynamic layout settings for each organization to fit their template's white area
 const ORG_LAYOUTS = {
   main_trust: {
-    bodyY: 410,
+    bodyY: 395,
+    detY: 405,
+    photoW: 150,
     photoH: 180,
-    rowHeight: 33,
+    rowHeight: 40,
     fontSize: 26,
-    valOffset: 240,
+    valOffset: 285,
     stampCY: 470,
     sigLineY: 570,
+    regBadgeH: 55
   },
   patrakar: {
-    bodyY: 400,
-    photoH: 195,
-    rowHeight: 26,
+    bodyY: 395,
+    detY: 405,
+    photoW: 150,
+    photoH: 185,
+    rowHeight: 42,
+    fontSize: 26,
+    valOffset: 285,
     stampCY: 460,
     sigLineY: 550,
+    regBadgeH: 55
   },
   crime: {
-    bodyY: 400,
-    detY: 415,
-    photoH: 195,
-    rowHeight: 28,
+    bodyY: 425,
+    detY: 435,
+    photoW: 145,
+    photoH: 155,
+    rowHeight: 36,
     fontSize: 25,
-    valOffset: 230,
-    stampCY: 490,
-    sigLineY: 580,
+    valOffset: 280,
+    stampCY: 510,
+    sigLineY: 590,
+    regBadgeH: 45
   },
   chikitsa: {
-    bodyY: 405,
-    detY: 410,
-    photoH: 175,
-    rowHeight: 26,
+    bodyY: 415,
+    detY: 425,
+    photoW: 145,
+    photoH: 165,
+    rowHeight: 38,
     fontSize: 25,
-    valOffset: 230,
-    stampCY: 480,
-    sigLineY: 580,
+    valOffset: 280,
+    stampCY: 490,
+    sigLineY: 585,
+    regBadgeH: 48
   },
   hindu: {
     bodyY: 410,
-    photoH: 180,
-    rowHeight: 25,
-    stampCY: 470,
-    sigLineY: 570,
+    detY: 420,
+    photoW: 145,
+    photoH: 170,
+    rowHeight: 38,
+    fontSize: 25,
+    valOffset: 280,
+    stampCY: 480,
+    sigLineY: 575,
+    regBadgeH: 50
   },
   journalist: {
     bodyY: 345,
-    detY: 365,
-    photoH: 180,
-    rowHeight: 27,
-    fontSize: 25,
-    valOffset: 230,
+    detY: 360,
+    photoW: 150,
+    photoH: 185,
+    rowHeight: 42,
+    fontSize: 26,
+    valOffset: 285,
     stampCY: 420,
     sigLineY: 525,
+    regBadgeH: 55
   },
   manav: {
-    bodyY: 400,
-    detY: 405,
-    photoH: 175,
-    rowHeight: 26,
+    bodyY: 410,
+    detY: 420,
+    photoW: 145,
+    photoH: 170,
+    rowHeight: 38,
     fontSize: 25,
-    valOffset: 230,
-    stampCY: 475,
-    sigLineY: 575,
+    valOffset: 280,
+    stampCY: 490,
+    sigLineY: 580,
+    regBadgeH: 50
   },
   bhrashtachar: {
-    bodyY: 420,
-    photoH: 165,
-    rowHeight: 23,
-    stampCY: 475,
-    sigLineY: 575,
+    bodyY: 425,
+    detY: 435,
+    photoW: 145,
+    photoH: 155,
+    rowHeight: 36,
+    fontSize: 25,
+    valOffset: 280,
+    stampCY: 510,
+    sigLineY: 590,
+    regBadgeH: 45
   },
   muslim: {
-    bodyY: 410,
-    detY: 415,
-    photoH: 175,
-    rowHeight: 26,
+    bodyY: 415,
+    detY: 425,
+    photoW: 145,
+    photoH: 165,
+    rowHeight: 38,
     fontSize: 25,
-    valOffset: 230,
-    stampCY: 480,
-    sigLineY: 580,
+    valOffset: 280,
+    stampCY: 490,
+    sigLineY: 585,
+    regBadgeH: 48
   },
 }
 
@@ -449,7 +477,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
 
       // Registration Number badge below photo
       const regBadgeY = layout.regBadgeY !== undefined ? layout.regBadgeY : (photoY + photoH + 8)
-      const regBadgeH = layout.regBadgeH !== undefined ? layout.regBadgeH : 50
+      const regBadgeH = layout.regBadgeH !== undefined ? layout.regBadgeH : 55
       ctx.fillStyle = layout.regBadgeColor || hColors.to
       roundRect(ctx, photoX, regBadgeY, photoW, regBadgeH, 6)
       ctx.fill()
@@ -480,12 +508,16 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
         const detMaxW = layout.detMaxW !== undefined ? layout.detMaxW : 520
         let   detY    = layout.detY !== undefined ? layout.detY : (BODY_Y - 15)
         const rowHeight = layout.rowHeight
+        let drawnRowCount = 0;
+        const maxRows = 6;
 
         const drawRow = (label, value) => {
           if (!value || value === 'N/A' || value === '') return
+          if (drawnRowCount >= maxRows) return;
+
           const mid = Math.round(rowHeight / 2)
-          const fSize = layout.fontSize || 23;
-          const valOffset = layout.valOffset || 215;
+          const fSize = layout.fontSize || 28;
+          const valOffset = layout.valOffset || 240;
 
           ctx.fillStyle    = hColors.to
           ctx.font         = `bold ${fSize}px 'Hind', sans-serif`
@@ -499,7 +531,7 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
 
           ctx.fillStyle = '#444444'
           ctx.font      = `600 ${fSize}px 'Hind', sans-serif`
-          ctx.fillText(':  ' + String(value).substring(0, 40), detX + valOffset, detY + mid)
+          ctx.fillText(':  ' + String(value).substring(0, 50), detX + valOffset, detY + mid)
 
           ctx.strokeStyle = 'rgba(180,150,100,0.2)'
           ctx.lineWidth   = 0.8
@@ -509,23 +541,26 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           ctx.stroke()
 
           detY += rowHeight
+          drawnRowCount++
         }
 
-        drawRow('पद',              formData.role   || 'सदस्य')
         drawRow('सदस्य का नाम',     formData.name   || '')
-        drawRow('पिता/पति का नाम', formData.father  || '')
-        drawRow('जन्म तिथि',       formData.dob     || '')
+        drawRow('पद',              formData.role   || 'सदस्य')
         drawRow('मोबाइल नंबर',     formData.mobile  || '')
-        drawRow('स्थायी पता',      (formData.address || '').substring(0, 40))
 
-        if (formData.validFrom && formData.validUntil) {
-          const formatFrom = formData.validFrom.split('-').reverse().join('/');
-          const formatTo = formData.validUntil.split('-').reverse().join('/');
-          drawRow('वैधता (Validity)', `${formatFrom} से ${formatTo}`);
+        if (formData.aadhaar) {
+          drawRow('आधार नं.', formData.aadhaar)
+        }
+
+        if (formData.validUntil) {
+          const formatTo = formData.validUntil.split('-').reverse().join('/')
+          drawRow('वैधता', formatTo)
         }
 
         const extra = extraFields[orgId] || []
         extra.forEach(f => {
+          if (f.id === 'reporting_area') return; // Skip to prevent overflow on card
+          
           const label = EXTRA_FIELD_LABELS[f.id] || f.label
           const val   = formData[f.id] || ''
           if (val) drawRow(label, val)
@@ -688,6 +723,47 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           ctx.restore()
         }
 
+        // Add DOB & Address on Back Card
+        let tY = HEADER_H + 30;
+        
+        if (formData.dob || formData.address) {
+          ctx.fillStyle = '#222222';
+          ctx.font = "bold 24px 'Hind', sans-serif";
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          
+          if (formData.dob) {
+            ctx.fillText('जन्म तिथि', 60, tY);
+            ctx.fillText(':  ' + formData.dob, 200, tY);
+            tY += 35;
+          }
+          if (formData.address) {
+            ctx.fillText('स्थायी पता', 60, tY);
+            // Split address if too long
+            const addr = formData.address;
+            const line1 = addr.length > 50 ? addr.substring(0, 50) + '-' : addr;
+            const line2 = addr.length > 50 ? addr.substring(50, 100) : '';
+            ctx.fillText(':  ' + line1, 200, tY);
+            if (line2) {
+              tY += 30;
+              ctx.fillText('   ' + line2, 200, tY);
+            }
+            tY += 35;
+          }
+          
+          // Divider
+          tY += 15;
+          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(60, tY);
+          ctx.lineTo(W - 60, tY);
+          ctx.stroke();
+          tY += 25;
+        } else {
+          tY = HEADER_H + 50;
+        }
+
         const terms = [
           '१. यह पहचान पत्र साधू लक्ष्मी जनकल्याण ट्रस्ट का अधिकृत दस्तावेज है।',
           '२. संगठन से संबंधित कार्यों के दौरान इसे सदैव धारण करना अनिवार्य है।',
@@ -697,14 +773,13 @@ const IDCardGenerator = ({ orgId, formData = {}, regNumber, onGenerated }) => {
           '६. कार्ड अहस्तांतरणीय है एवं यह कार्ड धारक के नाम पर ही मान्य है।',
         ]
 
-        let tY = HEADER_H + 50
         terms.forEach(t => {
           ctx.fillStyle    = '#333333'
           ctx.font         = "600 24px 'Hind', sans-serif"
           ctx.textAlign    = 'left'
           ctx.textBaseline = 'top'
           ctx.fillText(t, 60, tY)
-          tY += 50
+          tY += 45
         })
 
         // DRAW QR CODE ON BACK
